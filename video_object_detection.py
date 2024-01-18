@@ -4,12 +4,12 @@ from cap_from_youtube import cap_from_youtube
 from yolov8 import YOLOv8
 
 # # Initialize video
-# cap = cv2.VideoCapture("input.mp4")
+cap = cv2.VideoCapture("data/video.mp4")
 
-videoUrl = 'https://youtu.be/Snyg0RqpVxY'
-cap = cap_from_youtube(videoUrl, resolution='720p')
-start_time = 5 # skip first {start_time} seconds
-cap.set(cv2.CAP_PROP_POS_FRAMES, start_time * cap.get(cv2.CAP_PROP_FPS))
+# videoUrl = 'https://youtu.be/Snyg0RqpVxY'
+# cap = cap_from_youtube(videoUrl, resolution='720p')
+# start_time = 5 # skip first {start_time} seconds
+# cap.set(cv2.CAP_PROP_POS_FRAMES, start_time * cap.get(cv2.CAP_PROP_FPS))
 
 # out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), cap.get(cv2.CAP_PROP_FPS), (3840, 2160))
 
