@@ -121,7 +121,7 @@ class YOLOv8:
 
     def print_benchmark(self):
         m = np.mean(self.hist)
-        print(f"Average processing time: {m:.2f}")
+        print(f"Average processing time: {m:.2f} ms")
         print(f"Respective FPS: {1000 / m:.0f}")
 
 

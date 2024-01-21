@@ -1,11 +1,10 @@
 import cv2
-from cap_from_youtube import cap_from_youtube
 
 from yolov8 import YOLOv8
 
-# Benchmark for road race --> 'video.mp4'
-# PC GPU - 59 FPS
-# Laptop CPU
+# Benchmark for road race with 'video.mp4'
+# PC GPU --> 64 FPS
+# Laptop CPU --> 15 FPS
 # Orin GPU
 
 cap = cv2.VideoCapture("data/video.mp4")
