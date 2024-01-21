@@ -3,7 +3,11 @@ from cap_from_youtube import cap_from_youtube
 
 from yolov8 import YOLOv8
 
-# # Initialize video
+# Benchmark for road race --> 'video.mp4'
+# PC GPU - 59 FPS
+# Laptop CPU
+# Orin GPU
+
 cap = cv2.VideoCapture("data/video.mp4")
 
 # videoUrl = 'https://youtu.be/Snyg0RqpVxY'
@@ -40,4 +44,5 @@ while cap.isOpened():
     cv2.imshow("Detected Objects", combined_img)
     # out.write(combined_img)
 
+yolov8_detector.print_benchmark()
 # out.release()

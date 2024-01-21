@@ -1,4 +1,5 @@
 import time
+
 import cv2
 import numpy as np
 import onnxruntime
@@ -10,6 +11,7 @@ class YOLOv8:
 
     def __init__(self, path, conf_thres=0.7, iou_thres=0.5):
         self.conf_threshold = conf_thres
+        self.hist = []
         self.iou_threshold = iou_thres
 
         # Initialize model
@@ -19,12 +21,11 @@ class YOLOv8:
         return self.detect_objects(image)
 
     def initialize_model(self, path):
-        self.session = onnxruntime.InferenceSession(path,
-                                                    providers=onnxruntime.get_available_providers())
+        # onnxruntime.get_available_providers() returns also the TensorrtExecutionProvider, though it is not supported by the lib
+        self.session = onnxruntime.InferenceSession(path, providers=['CUDAExecutionProvider'])
         # Get model info
         self.get_input_details()
         self.get_output_details()
-
 
     def detect_objects(self, image):
         input_tensor = self.prepare_input(image)
@@ -51,12 +52,13 @@ class YOLOv8:
 
         return input_tensor
 
-
     def inference(self, input_tensor):
         start = time.perf_counter()
         outputs = self.session.run(self.output_names, {self.input_names[0]: input_tensor})
 
-        print(f"Inference time: {(time.perf_counter() - start)*1000:.2f} ms")
+        delta = (time.perf_counter() - start) * 1000
+        self.hist.append(delta)
+        print(f"Inference time: {delta:.2f} ms")
         return outputs
 
     def process_output(self, output):
@@ -95,7 +97,6 @@ class YOLOv8:
         return boxes
 
     def rescale_boxes(self, boxes):
-
         # Rescale boxes to original image dimensions
         input_shape = np.array([self.input_width, self.input_height, self.input_width, self.input_height])
         boxes = np.divide(boxes, input_shape, dtype=np.float32)
@@ -103,7 +104,6 @@ class YOLOv8:
         return boxes
 
     def draw_detections(self, image, draw_scores=True, mask_alpha=0.4):
-
         return draw_detections(image, self.boxes, self.scores,
                                self.class_ids, mask_alpha)
 
@@ -118,6 +118,11 @@ class YOLOv8:
     def get_output_details(self):
         model_outputs = self.session.get_outputs()
         self.output_names = [model_outputs[i].name for i in range(len(model_outputs))]
+
+    def print_benchmark(self):
+        m = np.mean(self.hist)
+        print(f"Average processing time: {m:.2f}")
+        print(f"Respective FPS: {1000 / m:.0f}")
 
 
 if __name__ == '__main__':
