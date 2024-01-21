@@ -14,7 +14,7 @@ cap = cv2.VideoCapture("data/video.mp4")
 # out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), cap.get(cv2.CAP_PROP_FPS), (3840, 2160))
 
 # Initialize YOLOv7 model
-model_path = "models/yolov8m.onnx"
+model_path = "models/yolov8n.onnx"
 yolov8_detector = YOLOv8(model_path, conf_thres=0.5, iou_thres=0.5)
 
 cv2.namedWindow("Detected Objects", cv2.WINDOW_NORMAL)
