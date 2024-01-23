@@ -5,7 +5,7 @@ from yolov8 import YOLOv8
 # Benchmark for road race with 'video.mp4'
 # PC GPU --> 64 FPS
 # Laptop CPU --> 15 FPS
-# Orin GPU
+# Orin GPU --> 35 FPS
 
 cap = cv2.VideoCapture("data/video.mp4")
 
