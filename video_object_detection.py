@@ -6,6 +6,8 @@ from yolov8 import YOLOv8
 # PC GPU --> 64 FPS
 # Laptop CPU --> 15 FPS
 # Orin GPU --> 35 FPS
+# Xavier GPU --> 34 FPS
+# Xavier CPU --> 4 FPS
 
 cap = cv2.VideoCapture("data/video.mp4")
 
