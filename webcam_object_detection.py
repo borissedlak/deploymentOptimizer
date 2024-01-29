@@ -21,7 +21,7 @@ while cap.isOpened():
     # Update object localizer
     boxes, scores, class_ids = yolov8_detector(frame)
 
-    combined_img = yolov8_detector.draw_detections(frame)
+    combined_img = yolov8_detector.merge_image_with_overlay(frame)
     cv2.imshow("Detected Objects", combined_img)
 
     # Press key q to stop

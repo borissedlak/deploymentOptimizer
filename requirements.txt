@@ -1,4 +1,9 @@
-opencv-python
+opencv-python~=4.9.0.80
 imread-from-url
-onnxruntime-gpu
 cap-from-youtube
+prometheus_client
+numpy~=1.26.0
+requests~=2.31.0
+psutil~=5.9.5
+pymongo~=4.6.1
+paho-mqtt~=1.6.1

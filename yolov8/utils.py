@@ -1,5 +1,7 @@
-import numpy as np
+import time
+
 import cv2
+import numpy as np
 
 class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -14,6 +16,18 @@ class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'tra
 # Create a list of colors for each class where each color is a tuple of 3 integer values
 rng = np.random.default_rng(3)
 colors = rng.uniform(0, 255, size=(len(class_names), 3))
+
+
+def print_execution_time(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        execution_time_ms = (end_time - start_time) * 1000.0
+        print(f"{func.__name__} took {execution_time_ms:.0f} ms to execute")
+        return result
+
+    return wrapper
 
 
 def nms(boxes, scores, iou_threshold):
@@ -37,20 +51,21 @@ def nms(boxes, scores, iou_threshold):
 
     return keep_boxes
 
-def multiclass_nms(boxes, scores, class_ids, iou_threshold):
 
+def multiclass_nms(boxes, scores, class_ids, iou_threshold):
     unique_class_ids = np.unique(class_ids)
 
     keep_boxes = []
     for class_id in unique_class_ids:
         class_indices = np.where(class_ids == class_id)[0]
-        class_boxes = boxes[class_indices,:]
+        class_boxes = boxes[class_indices, :]
         class_scores = scores[class_indices]
 
         class_keep_boxes = nms(class_boxes, class_scores, iou_threshold)
         keep_boxes.extend(class_indices[class_keep_boxes])
 
     return keep_boxes
+
 
 def compute_iou(box, boxes):
     # Compute xmin, ymin, xmax, ymax for both boxes
@@ -83,7 +98,7 @@ def xywh2xyxy(x):
     return y
 
 
-def draw_detections(image, boxes, scores, class_ids, mask_alpha=0.3):
+def merge_image_with_overlay(image, boxes, scores, class_ids, mask_alpha=0.4):
     det_img = image.copy()
 
     img_height, img_width = image.shape[:2]
@@ -105,7 +120,7 @@ def draw_detections(image, boxes, scores, class_ids, mask_alpha=0.3):
     return det_img
 
 
-def draw_box( image: np.ndarray, box: np.ndarray, color: tuple[int, int, int] = (0, 0, 255),
+def draw_box(image: np.ndarray, box: np.ndarray, color: tuple[int, int, int] = (0, 0, 255),
              thickness: int = 2) -> np.ndarray:
     x1, y1, x2, y2 = box.astype(int)
     return cv2.rectangle(image, (x1, y1), (x2, y2), color, thickness)
@@ -121,7 +136,9 @@ def draw_text(image: np.ndarray, text: str, box: np.ndarray, color: tuple[int, i
     cv2.rectangle(image, (x1, y1),
                   (x1 + tw, y1 - th), color, -1)
 
-    return cv2.putText(image, text, (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, font_size, (255, 255, 255), text_thickness, cv2.LINE_AA)
+    return cv2.putText(image, text, (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, font_size, (255, 255, 255), text_thickness,
+                       cv2.LINE_AA)
+
 
 def draw_masks(image: np.ndarray, boxes: np.ndarray, classes: np.ndarray, mask_alpha: float = 0.3) -> np.ndarray:
     mask_img = image.copy()

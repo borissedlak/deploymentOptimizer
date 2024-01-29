@@ -17,7 +17,7 @@ img = imread_from_url(img_url)
 boxes, scores, class_ids = yolov8_detector(img)
 
 # TODO: This might sum up the number of elements with label xy, which can then be passed to the other services
-combined_img = yolov8_detector.draw_detections(img)
+combined_img = yolov8_detector.merge_image_with_overlay(img)
 cv2.namedWindow("Detected Objects", cv2.WINDOW_NORMAL)
 cv2.imshow("Detected Objects", combined_img)
 cv2.imwrite("doc/img/detected_objects.jpg", combined_img)

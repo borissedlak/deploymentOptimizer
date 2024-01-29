@@ -4,12 +4,11 @@ import cv2
 import numpy as np
 import onnxruntime
 
-from yolov8.utils import xywh2xyxy, draw_detections, multiclass_nms
+from yolov8.utils import xywh2xyxy, merge_image_with_overlay, multiclass_nms
 
 
 class YOLOv8ObjectDetector:
-    def __init__(self, path, conf_thres=0.7, iou_thres=0.5):
-
+    def __init__(self, path, conf_threshold=0.7, iou_threshold=0.5):
         # Can be assumed to stay constant for simplicity
         self.img_width = None
         self.img_height = None
@@ -17,9 +16,9 @@ class YOLOv8ObjectDetector:
         self.model_input_height = None
         self.model_input_width = None
         self.session = None
-        self.conf_threshold = conf_thres
+        self.conf_threshold = conf_threshold
         self.hist = []
-        self.iou_threshold = iou_thres
+        self.iou_threshold = iou_threshold
 
         # Initialize model
         self.initialize_model(path)
@@ -62,6 +61,7 @@ class YOLOv8ObjectDetector:
         print(f"Inference time: {delta:.2f} ms")
         return outputs
 
+    # I don't understand this and I don't have the ambition to do so
     def process_output(self, output):
         predictions = np.squeeze(output[0]).T
 
@@ -99,14 +99,11 @@ class YOLOv8ObjectDetector:
 
     def rescale_boxes(self, boxes):
         # Rescale boxes to original image dimensions
-        input_shape = np.array([self.model_input_width, self.model_input_height, self.model_input_width, self.model_input_height])
+        input_shape = np.array(
+            [self.model_input_width, self.model_input_height, self.model_input_width, self.model_input_height])
         boxes = np.divide(boxes, input_shape, dtype=np.float32)
         boxes *= np.array([self.img_width, self.img_height, self.img_width, self.img_height])
         return boxes
-
-    def draw_detections(self, image, boxes, scores, class_ids, draw_scores=True, mask_alpha=0.4):
-        return draw_detections(image, boxes, scores,
-                               class_ids, mask_alpha)
 
     def set_input_details(self):
         model_inputs = self.session.get_inputs()
@@ -126,22 +123,22 @@ class YOLOv8ObjectDetector:
         print(f"Respective FPS: {1000 / m:.0f}")
 
 
-if __name__ == '__main__':
-    from imread_from_url import imread_from_url
-
-    model_path = "../models/yolov8m.onnx"
-
-    # Initialize YOLOv8 object detector
-    yolov8_detector = YOLOv8ObjectDetector(model_path, conf_thres=0.3, iou_thres=0.5)
-
-    img_url = "https://live.staticflickr.com/13/19041780_d6fd803de0_3k.jpg"
-    img = imread_from_url(img_url)
-
-    # Detect Objects
-    yolov8_detector.detect_objects(img)
-
-    # Draw detections
-    combined_img = yolov8_detector.draw_detections(img)
-    cv2.namedWindow("Output", cv2.WINDOW_NORMAL)
-    cv2.imshow("Output", combined_img)
-    cv2.waitKey(0)
+# if __name__ == '__main__':
+#     from imread_from_url import imread_from_url
+#
+#     model_path = "../models/yolov8m.onnx"
+#
+#     # Initialize YOLOv8 object detector
+#     yolov8_detector = YOLOv8ObjectDetector(model_path, conf_thres=0.3, iou_thres=0.5)
+#
+#     img_url = "https://live.staticflickr.com/13/19041780_d6fd803de0_3k.jpg"
+#     img = imread_from_url(img_url)
+#
+#     # Detect Objects
+#     yolov8_detector.detect_objects(img)
+#
+#     # Draw detections
+#     combined_img = yolov8_detector.draw_detections(img)
+#     cv2.namedWindow("Output", cv2.WINDOW_NORMAL)
+#     cv2.imshow("Output", combined_img)
+#     cv2.waitKey(0)
