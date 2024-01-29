@@ -5,7 +5,8 @@ import pymongo
 
 from consumption.ConsRegression import ConsRegression
 
-# TODO: This might actually run as a detached thread, but I think it facilitates the linking of entries
+
+# This might actually run as a detached thread, but I think it facilitates the linking of entries
 class DeviceMetricReporter:
     def __init__(self, target, clear_collection=False):
         self.target = target
