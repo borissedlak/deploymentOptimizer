@@ -1,13 +1,13 @@
 import cv2
 
-from yolov8 import YOLOv8
+from yolov8 import YOLOv8ObjectDetector
 
 # Initialize the webcam
 cap = cv2.VideoCapture(0)
 
 # Initialize YOLOv7 object detector
 model_path = "models/yolov8m.onnx"
-yolov8_detector = YOLOv8(model_path, conf_thres=0.5, iou_thres=0.5)
+yolov8_detector = YOLOv8ObjectDetector(model_path, conf_thres=0.5, iou_thres=0.5)
 
 cv2.namedWindow("Detected Objects", cv2.WINDOW_NORMAL)
 while cap.isOpened():

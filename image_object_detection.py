@@ -3,11 +3,11 @@ import sys
 import cv2
 from imread_from_url import imread_from_url
 
-from yolov8 import YOLOv8
+from yolov8 import YOLOv8ObjectDetector
 
 # Initialize yolov8 object detector
 model_path = "models/yolov8n.onnx"
-yolov8_detector = YOLOv8(model_path, conf_thres=0.2, iou_thres=0.3)
+yolov8_detector = YOLOv8ObjectDetector(model_path, conf_thres=0.2, iou_thres=0.3)
 
 # Read image
 img_url = "https://live.staticflickr.com/13/19041780_d6fd803de0_3k.jpg"

@@ -1,10 +1,10 @@
 import cv2
 
-from yolov8 import YOLOv8
+from yolov8.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 
 # Benchmark for road race with 'video.mp4'
 # PC GPU --> 64 FPS
-# Laptop CPU --> 15 FPS
+# Laptop CPU --> 15 / 24 FPS
 # Orin GPU --> 35 FPS
 # Xavier GPU --> 34 FPS
 # Xavier CPU --> 4 FPS
@@ -18,9 +18,8 @@ cap = cv2.VideoCapture("data/video.mp4")
 
 # out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), cap.get(cv2.CAP_PROP_FPS), (3840, 2160))
 
-# Initialize YOLOv7 model
 model_path = "models/yolov8n.onnx"
-yolov8_detector = YOLOv8(model_path, conf_thres=0.5, iou_thres=0.5)
+detector = YOLOv8ObjectDetector(model_path, conf_thres=0.5, iou_thres=0.5)
 
 cv2.namedWindow("Detected Objects", cv2.WINDOW_NORMAL)
 while cap.isOpened():
@@ -39,11 +38,11 @@ while cap.isOpened():
         continue
 
     # Update object localizer
-    boxes, scores, class_ids = yolov8_detector(frame)
+    boxes, scores, class_ids = detector.detect_objects(frame)
 
-    combined_img = yolov8_detector.draw_detections(frame)
+    combined_img = detector.draw_detections(frame, boxes, scores, class_ids)
     cv2.imshow("Detected Objects", combined_img)
     # out.write(combined_img)
 
-yolov8_detector.print_benchmark()
+detector.print_benchmark()
 # out.release()

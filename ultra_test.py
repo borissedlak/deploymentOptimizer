@@ -27,14 +27,14 @@ while cap.isOpened():
     if cv2.waitKey(1) == ord('q'):
         break
 
-    success, im0 = cap.read()
+    success, frame = cap.read()
 
     if not success:
         print("Video frame is empty or video processing has been successfully completed.")
         break
-    tracks = model.track(im0, persist=True, show=False)
+    tracks = model.track(frame, persist=True, show=False)
 
-    im0 = counter.start_counting(im0, tracks)
+    frame = counter.start_counting(frame, tracks)
     # video_writer.write(im0)
 
 cap.release()

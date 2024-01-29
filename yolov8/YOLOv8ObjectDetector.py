@@ -7,9 +7,16 @@ import onnxruntime
 from yolov8.utils import xywh2xyxy, draw_detections, multiclass_nms
 
 
-class YOLOv8:
-
+class YOLOv8ObjectDetector:
     def __init__(self, path, conf_thres=0.7, iou_thres=0.5):
+
+        # Can be assumed to stay constant for simplicity
+        self.img_width = None
+        self.img_height = None
+
+        self.model_input_height = None
+        self.model_input_width = None
+        self.session = None
         self.conf_threshold = conf_thres
         self.hist = []
         self.iou_threshold = iou_thres
@@ -17,33 +24,27 @@ class YOLOv8:
         # Initialize model
         self.initialize_model(path)
 
-    def __call__(self, image):
-        return self.detect_objects(image)
-
     def initialize_model(self, path):
         # onnxruntime.get_available_providers() returns also the TensorrtExecutionProvider, though it is not supported by the lib
         self.session = onnxruntime.InferenceSession(path, providers=['CUDAExecutionProvider'])
         # Get model info
-        self.get_input_details()
-        self.get_output_details()
+        self.set_input_details()
+        self.set_output_details()
 
     def detect_objects(self, image):
-        input_tensor = self.prepare_input(image)
+        input_tensor = self.prepare_model_input(image)
 
         # Perform inference on the image
-        outputs = self.inference(input_tensor)
+        model_outputs = self.inference(input_tensor)
+        boxes, scores, class_ids = self.process_output(model_outputs)
+        return boxes, scores, class_ids
 
-        self.boxes, self.scores, self.class_ids = self.process_output(outputs)
-
-        return self.boxes, self.scores, self.class_ids
-
-    def prepare_input(self, image):
+    def prepare_model_input(self, image):
         self.img_height, self.img_width = image.shape[:2]
-
         input_img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # Resize input image
-        input_img = cv2.resize(input_img, (self.input_width, self.input_height))
+        input_img = cv2.resize(input_img, (self.model_input_width, self.model_input_height))
 
         # Scale input pixel values to 0 to 1
         input_img = input_img / 255.0
@@ -98,24 +99,24 @@ class YOLOv8:
 
     def rescale_boxes(self, boxes):
         # Rescale boxes to original image dimensions
-        input_shape = np.array([self.input_width, self.input_height, self.input_width, self.input_height])
+        input_shape = np.array([self.model_input_width, self.model_input_height, self.model_input_width, self.model_input_height])
         boxes = np.divide(boxes, input_shape, dtype=np.float32)
         boxes *= np.array([self.img_width, self.img_height, self.img_width, self.img_height])
         return boxes
 
-    def draw_detections(self, image, draw_scores=True, mask_alpha=0.4):
-        return draw_detections(image, self.boxes, self.scores,
-                               self.class_ids, mask_alpha)
+    def draw_detections(self, image, boxes, scores, class_ids, draw_scores=True, mask_alpha=0.4):
+        return draw_detections(image, boxes, scores,
+                               class_ids, mask_alpha)
 
-    def get_input_details(self):
+    def set_input_details(self):
         model_inputs = self.session.get_inputs()
         self.input_names = [model_inputs[i].name for i in range(len(model_inputs))]
 
-        self.input_shape = model_inputs[0].shape
-        self.input_height = self.input_shape[2]
-        self.input_width = self.input_shape[3]
+        input_shape = model_inputs[0].shape
+        self.model_input_height = input_shape[2]
+        self.model_input_width = input_shape[3]
 
-    def get_output_details(self):
+    def set_output_details(self):
         model_outputs = self.session.get_outputs()
         self.output_names = [model_outputs[i].name for i in range(len(model_outputs))]
 
@@ -131,13 +132,13 @@ if __name__ == '__main__':
     model_path = "../models/yolov8m.onnx"
 
     # Initialize YOLOv8 object detector
-    yolov8_detector = YOLOv8(model_path, conf_thres=0.3, iou_thres=0.5)
+    yolov8_detector = YOLOv8ObjectDetector(model_path, conf_thres=0.3, iou_thres=0.5)
 
     img_url = "https://live.staticflickr.com/13/19041780_d6fd803de0_3k.jpg"
     img = imread_from_url(img_url)
 
     # Detect Objects
-    yolov8_detector(img)
+    yolov8_detector.detect_objects(img)
 
     # Draw detections
     combined_img = yolov8_detector.draw_detections(img)
