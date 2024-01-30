@@ -13,7 +13,6 @@ from consumption.ConsRegression import ConsRegression
 #
 #     def report_metrics(self) -> None:
 #         pass
-print(os.environ)
 DEVICE_NAME = os.environ.get('DEVICE_NAME')
 if DEVICE_NAME:
     print(f'Found ENV value for DEVICE_NAME: {DEVICE_NAME}')
@@ -21,13 +20,20 @@ else:
     DEVICE_NAME = "Unknown"
     print(f"Didn't find ENV value for DEVICE_NAME, default to: {DEVICE_NAME}")
 
+MONGO_HOST = os.environ.get('MONGO_HOST')
+if MONGO_HOST:
+    print(f'Found ENV value for MONGO_HOST: {MONGO_HOST}')
+else:
+    MONGO_HOST = "localhost"
+    print(f"Didn't find ENV value for MONGO_HOST, default to: {MONGO_HOST}")
+
 
 class DeviceMetricReporter:
     def __init__(self, clear_collection=False):
         # TODO: Get this from env variables
         self.target = DEVICE_NAME
         self.consumption_regression = ConsRegression(self.target)
-        self.mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")["metrics"]
+        self.mongoClient = pymongo.MongoClient(f"mongodb://{MONGO_HOST}:27017/")["metrics"]
 
         if clear_collection:
             self.mongoClient.drop_collection(self.target)

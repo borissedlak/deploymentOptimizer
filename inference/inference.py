@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import pgmpy
 import pymongo
@@ -7,8 +9,15 @@ from pgmpy.models import BayesianNetwork
 
 from yolov8 import utils
 
+MONGO_HOST = os.environ.get('MONGO_HOST')
+if MONGO_HOST:
+    print(f'Found ENV value for MONGO_HOST: {MONGO_HOST}')
+else:
+    MONGO_HOST = "localhost"
+    print(f"Didn't find ENV value for MONGO_HOST, default to: {MONGO_HOST}")
+
 # Connect to MongoDB
-mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")["metrics"]
+mongoClient = pymongo.MongoClient(f"mongodb://{MONGO_HOST}:27017/")["metrics"]
 
 merged_list = list(mongoClient['Laptop-Provider'].find())
 # c2 = list(mongoClient['Provider'].find())
