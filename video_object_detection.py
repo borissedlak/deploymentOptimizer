@@ -85,5 +85,6 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
 if __name__ == "__main__":
     process_video(video_path="../video_data/",
-                  video_info=[4, 8, 12, 16],
-                  show_result=True)
+                  video_info=[5, 10, 15, 20, 25, 30, 35, 40],
+                  show_result=False,
+                  repeat=5)

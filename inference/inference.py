@@ -19,7 +19,9 @@ else:
 # Connect to MongoDB
 mongoClient = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
-merged_list = list(mongoClient['Laptop-Provider'].find())
+laptop = pd.DataFrame(list(mongoClient['Laptop-Provider'].find()))
+orin = pd.DataFrame(list(mongoClient['Orin-Provider'].find()))
+merged_list = pd.concat([laptop, orin])
 # c2 = list(mongoClient['Provider'].find())
 # merged_list = utils.merge_single_dict(c1, c2)
 

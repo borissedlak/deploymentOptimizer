@@ -54,4 +54,5 @@ class DeviceMetricReporter:
     #     self.mongoClient[self.target].insert_one(record)
 
     def report_metrics(self, target, record):
+        # TODO: Run in detached thread
         self.mongoClient[target].insert_one(record)
