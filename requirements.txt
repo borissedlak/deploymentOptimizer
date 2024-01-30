@@ -1,9 +1,12 @@
 opencv-python~=4.9.0.80
-imread-from-url
-cap-from-youtube
-prometheus_client
-numpy~=1.26.0
+numpy~=1.26.3
 requests~=2.31.0
-psutil~=5.9.5
+psutil~=5.9.8
 pymongo~=4.6.1
 paho-mqtt~=1.6.1
+networkx~=3.2.1
+pgmpy~=0.1.24
+matplotlib~=3.8.2
+pandas~=1.5.3
+joblib~=1.3.2
+scikit-learn~=1.4.0
