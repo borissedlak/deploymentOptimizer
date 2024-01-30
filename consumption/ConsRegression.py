@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-from yolov8.utils import print_execution_time
+from detector.utils import print_execution_time
 
 warnings.filterwarnings("ignore", category=UserWarning)
 ROOT = os.path.dirname(__file__)

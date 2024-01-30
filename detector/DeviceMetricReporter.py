@@ -33,7 +33,7 @@ class DeviceMetricReporter:
         # TODO: Get this from env variables
         self.target = DEVICE_NAME
         self.consumption_regression = ConsRegression(self.target)
-        self.mongoClient = pymongo.MongoClient(f"mongodb://{MONGO_HOST}:27017/")["metrics"]
+        self.mongoClient = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
         if clear_collection:
             self.mongoClient.drop_collection(self.target)

@@ -1,6 +1,6 @@
 import cv2
 
-from yolov8 import YOLOv8ObjectDetector
+from detector import YOLOv8ObjectDetector
 
 # Initialize the webcam
 cap = cv2.VideoCapture(0)

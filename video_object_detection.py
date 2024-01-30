@@ -1,12 +1,11 @@
-import itertools
 import time
 
 import cv2
 
-from yolov8 import utils
-from yolov8.ServiceMetricReporter import ServiceMetricReporter
-from yolov8.DeviceMetricReporter import DeviceMetricReporter
-from yolov8.YOLOv8ObjectDetector import YOLOv8ObjectDetector
+from detector import utils
+from detector.DeviceMetricReporter import DeviceMetricReporter
+from detector.ServiceMetricReporter import ServiceMetricReporter
+from detector.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 
 # Benchmark for road race with 'video.mp4'
 # PC GPU --> 64 FPS

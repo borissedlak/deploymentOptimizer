@@ -3,7 +3,7 @@ import sys
 import cv2
 from imread_from_url import imread_from_url
 
-from yolov8 import YOLOv8ObjectDetector
+from detector import YOLOv8ObjectDetector
 
 # Initialize yolov8 object detector
 model_path = "models/yolov8n.onnx"

@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import onnxruntime
 
-from yolov8.utils import xywh2xyxy, merge_image_with_overlay, multiclass_nms
+from detector.utils import xywh2xyxy, merge_image_with_overlay, multiclass_nms
 
 
 class YOLOv8ObjectDetector:

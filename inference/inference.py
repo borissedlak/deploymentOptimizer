@@ -7,7 +7,7 @@ from pgmpy.base import DAG
 from pgmpy.estimators import AICScore, HillClimbSearch, MaximumLikelihoodEstimator
 from pgmpy.models import BayesianNetwork
 
-from yolov8 import utils
+from detector import utils
 
 MONGO_HOST = os.environ.get('MONGO_HOST')
 if MONGO_HOST:
