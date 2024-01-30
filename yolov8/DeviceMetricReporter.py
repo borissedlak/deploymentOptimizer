@@ -23,5 +23,6 @@ class DeviceMetricReporter:
         cpu = psutil.cpu_percent()
         cons = self.consumption_regression.predict(cpu, 0)
 
-        record = {"cpu": cpu, "memory": mem, "consumption": cons, "timestamp": datetime.now()}
+        record = {"device_type": self.target, "cpu": cpu, "memory": mem, "consumption": cons,
+                  "timestamp": datetime.now()}
         self.mongoClient[self.target].insert_one(record)

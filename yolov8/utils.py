@@ -1,7 +1,13 @@
 import time
 
 import cv2
+import networkx as nx
 import numpy as np
+import pgmpy
+from matplotlib import pyplot as plt
+from networkx.drawing.nx_pydot import graphviz_layout
+from pgmpy.base import DAG
+from pgmpy.models import BayesianNetwork
 
 class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -153,3 +159,36 @@ def draw_masks(image: np.ndarray, boxes: np.ndarray, classes: np.ndarray, mask_a
         cv2.rectangle(mask_img, (x1, y1), (x2, y2), color, -1)
 
     return cv2.addWeighted(mask_img, mask_alpha, image, 1 - mask_alpha, 0)
+
+def merge_lists_of_dicts(list1, list2):
+    merged_list = []
+    for dict1, dict2 in zip(list1, list2):
+        merged_dict = {**dict1, **dict2}
+        merged_list.append(merged_dict)
+    return merged_list
+
+def export_BN_to_graph(bn: BayesianNetwork or pgmpy.base.DAG, root=None, try_visualization=False, vis_ls=None,
+                       save=False,
+                       name=None, show=True, color_map=None):
+    if vis_ls is None:
+        vis_ls = ["fdp"]
+    else:
+        vis_ls = vis_ls
+
+    if name is None:
+        name = root
+
+    if try_visualization:
+        vis_ls = ['neato', 'dot', 'twopi', 'fdp', 'sfdp', 'circo']
+
+    for s in vis_ls:
+        pos = graphviz_layout(bn, root=root, prog=s)
+        nx.draw(
+            bn, pos, with_labels=True, arrowsize=20, node_size=1500,  # alpha=1.0, font_weight="bold",
+            node_color=color_map
+        )
+        if save:
+            plt.box(False)
+            plt.savefig(f"{name}.png", dpi=400, bbox_inches="tight")  # default dpi is 100
+        if show:
+            plt.show()

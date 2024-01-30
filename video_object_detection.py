@@ -1,3 +1,4 @@
+import itertools
 import time
 
 import cv2
@@ -15,9 +16,9 @@ from yolov8.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 # Xavier CPU --> 4 FPS
 
 # cpu = Gauge('cpu', 'Description of gauge')
-device_metric_reporter = DeviceMetricReporter("Laptop", clear_collection=True)
-provider_metric_reporter = CustomMetricReporter("Provider", clear_collection=True)
-cap = cv2.VideoCapture("data/video.mp4")
+device_metric_reporter = DeviceMetricReporter("Laptop", clear_collection=False)
+provider_metric_reporter = CustomMetricReporter("Provider", clear_collection=False)
+# cap = cv2.VideoCapture("data/video.mp4")
 
 # videoUrl = 'https://youtu.be/Snyg0RqpVxY'
 # cap = cap_from_youtube(videoUrl, resolution='720p')
@@ -27,41 +28,59 @@ cap = cv2.VideoCapture("data/video.mp4")
 
 model_path = "models/yolov8n.onnx"
 detector = YOLOv8ObjectDetector(model_path, conf_threshold=0.5, iou_threshold=0.5)
+simulate_fps = True
+cv2.namedWindow("Detected Objects", cv2.WINDOW_AUTOSIZE)
 
-cv2.namedWindow("Detected Objects", cv2.WINDOW_NORMAL)
-while cap.isOpened():
 
-    # Press key q to stop
-    if cv2.waitKey(1) == ord('q'):
-        break
+def process_video(video_path, video_info, show_result=False, repeat=1):
+    for source_fps in video_info:
+        for x in range(repeat):
 
-    try:
-        # Read frame from the video
-        ret, frame = cap.read()
-        if not ret:
-            break
-    except Exception as e:
-        print(e)
-        continue
+            print(f"Now processing: {source_fps} Round {x + 1}")
+            available_time_frame = (1000 / source_fps)
+            cap = cv2.VideoCapture("data/original_cut.mp4")
+            # cap = cv2.VideoCapture(video_path + source_res + "_" + str(source_fps) + ".mp4")
+            if not cap.isOpened():
+                print("Error opening video ...")
+                return
 
-    # TODO: What could be interesting here? I can extract all this exactly here
-    # --> Processing time per frame, fps, resolution
+            while cap.isOpened():
 
-    start_time = time.time()
-    boxes, scores, class_ids = detector.detect_objects(frame)
-    combined_img = utils.merge_image_with_overlay(frame, boxes, scores, class_ids)
-    cv2.imshow("Detected Objects", combined_img)
+                # Press key q to stop
+                if cv2.waitKey(1) == ord('q'):
+                    break
 
-    processing_time = (time.time() - start_time) * 1000.0
-    fps = 15  # Must actually replay in correct FPS
-    pixel = combined_img.shape[0]
+                try:
+                    # Read frame from the video
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                except Exception as e:
+                    print(e)
+                    continue
 
-    # TODO: Add some SLO-relevant metrics
-    # TODO: Report device and SLO at the same time
-    device_metric_reporter.report_now()
-    provider_metric_reporter.report_this(processing_time, fps, pixel)
+                start_time = time.time()
+                boxes, scores, class_ids = detector.detect_objects(frame)
+                combined_img = utils.merge_image_with_overlay(frame, boxes, scores, class_ids)
 
-    # out.write(combined_img)
+                if show_result:
+                    cv2.imshow("Detected Objects", combined_img)
 
-detector.print_benchmark()
-# out.release()
+                processing_time = (time.time() - start_time) * 1000.0
+                pixel = combined_img.shape[0]
+
+                # TODO: Report device and SLO at the same time
+                device_metric_reporter.report_now()
+                provider_metric_reporter.report_this(processing_time, source_fps, pixel)
+
+                if simulate_fps:
+                    if processing_time < available_time_frame:
+                        time.sleep((available_time_frame - processing_time) / 1000)
+
+    detector.print_benchmark()
+
+
+if __name__ == "__main__":
+    process_video(video_path="../video_data/",
+                  video_info=[4, 8, 12, 16],
+                  show_result=True)
