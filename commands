@@ -118,3 +118,5 @@ docker cp eloquent_davinci:/data/ $HOME/
 sudo nano /etc/environment
 # Add at the end of the file without export
 source /etc/environment
+
+mongodb+srv://<user>:<pw>@cluster0.rqaj0m9.mongodb.net/

@@ -17,7 +17,7 @@ else:
     print(f"Didn't find ENV value for MONGO_HOST, default to: {MONGO_HOST}")
 
 # Connect to MongoDB
-mongoClient = pymongo.MongoClient(f"mongodb://{MONGO_HOST}:27017/")["metrics"]
+mongoClient = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
 merged_list = list(mongoClient['Laptop-Provider'].find())
 # c2 = list(mongoClient['Provider'].find())
