@@ -113,3 +113,8 @@ docker cp eloquent_davinci:/data/ $HOME/
 360p = 230400
 480p = 409920
 720p = 921600
+
+
+sudo nano /etc/environment
+# Add at the end of the file without export
+source /etc/environment

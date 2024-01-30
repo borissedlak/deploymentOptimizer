@@ -4,7 +4,7 @@ import time
 import cv2
 
 from yolov8 import utils
-from yolov8.CustomMetricReporter import CustomMetricReporter
+from yolov8.ServiceMetricReporter import ServiceMetricReporter
 from yolov8.DeviceMetricReporter import DeviceMetricReporter
 from yolov8.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 
@@ -16,8 +16,8 @@ from yolov8.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 # Xavier CPU --> 4 FPS
 
 # cpu = Gauge('cpu', 'Description of gauge')
-device_metric_reporter = DeviceMetricReporter("Laptop", clear_collection=False)
-provider_metric_reporter = CustomMetricReporter("Provider", clear_collection=False)
+device_metric_reporter = DeviceMetricReporter(clear_collection=True)
+provider_metric_reporter = ServiceMetricReporter("Provider", clear_collection=True)
 # cap = cv2.VideoCapture("data/video.mp4")
 
 # videoUrl = 'https://youtu.be/Snyg0RqpVxY'
@@ -70,8 +70,12 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
                 pixel = combined_img.shape[0]
 
                 # TODO: Report device and SLO at the same time
-                device_metric_reporter.report_now()
-                provider_metric_reporter.report_this(processing_time, source_fps, pixel)
+                blanket_a = device_metric_reporter.create_metrics()
+                blanket_b = provider_metric_reporter.create_metrics(processing_time, source_fps, pixel)
+
+                intersection_name = utils.sort_and_join(blanket_a["target"], blanket_b["target"])
+                merged_metrics = utils.merge_single_dicts(blanket_a["metrics"], blanket_b["metrics"])
+                device_metric_reporter.report_metrics(intersection_name, merged_metrics)
 
                 if simulate_fps:
                     if processing_time < available_time_frame:

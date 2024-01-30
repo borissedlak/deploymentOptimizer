@@ -10,9 +10,9 @@ from yolov8 import utils
 # Connect to MongoDB
 mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")["metrics"]
 
-c1 = list(mongoClient['Laptop'].find())
-c2 = list(mongoClient['Provider'].find())
-merged_list = utils.merge_lists_of_dicts(c1, c2)
+merged_list = list(mongoClient['Laptop-Provider'].find())
+# c2 = list(mongoClient['Provider'].find())
+# merged_list = utils.merge_single_dict(c1, c2)
 
 samples = pd.DataFrame(merged_list)
 del samples['_id']

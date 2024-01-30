@@ -160,12 +160,18 @@ def draw_masks(image: np.ndarray, boxes: np.ndarray, classes: np.ndarray, mask_a
 
     return cv2.addWeighted(mask_img, mask_alpha, image, 1 - mask_alpha, 0)
 
+
 def merge_lists_of_dicts(list1, list2):
     merged_list = []
     for dict1, dict2 in zip(list1, list2):
         merged_dict = {**dict1, **dict2}
         merged_list.append(merged_dict)
     return merged_list
+
+
+def merge_single_dicts(dict1, dict2):
+    return {**dict1, **dict2}
+
 
 def export_BN_to_graph(bn: BayesianNetwork or pgmpy.base.DAG, root=None, try_visualization=False, vis_ls=None,
                        save=False,
@@ -192,3 +198,8 @@ def export_BN_to_graph(bn: BayesianNetwork or pgmpy.base.DAG, root=None, try_vis
             plt.savefig(f"{name}.png", dpi=400, bbox_inches="tight")  # default dpi is 100
         if show:
             plt.show()
+
+
+def sort_and_join(s1, s2):
+    sorted_strings = sorted([s1, s2], reverse=False)
+    return '-'.join(sorted_strings)
