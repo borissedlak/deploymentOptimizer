@@ -8,7 +8,8 @@ from detector.ServiceMetricReporter import ServiceMetricReporter
 from detector.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 
 # Benchmark for road race with 'video.mp4'
-# PC GPU --> 64 FPS
+# PC CPU --> 64 FPS
+# PC GPU --> XX FPS
 # Laptop CPU --> 15 / 24 FPS
 # Orin GPU --> 35 FPS
 # Xavier GPU --> 34 FPS
@@ -69,6 +70,8 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
                     cv2.imshow("Detected Objects", combined_img)
 
                 processing_time = (time.time() - start_time) * 1000.0
+                print(f"Inference time: {processing_time:.2f} ms")
+
                 pixel = combined_img.shape[0]
 
                 # TODO: Report device and SLO at the same time

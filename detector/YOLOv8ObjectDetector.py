@@ -60,7 +60,7 @@ class YOLOv8ObjectDetector:
 
         delta = (time.perf_counter() - start) * 1000
         self.hist.append(delta)
-        print(f"Inference time: {delta:.2f} ms")
+        # print(f"Inference time: {delta:.2f} ms")
         return outputs
 
     # I don't understand this and I don't have the ambition to do so

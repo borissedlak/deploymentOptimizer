@@ -1,3 +1,4 @@
+import copy
 import time
 
 import cv2
@@ -199,7 +200,55 @@ def export_BN_to_graph(bn: BayesianNetwork or pgmpy.base.DAG, root=None, try_vis
         if show:
             plt.show()
 
+def get_mbs_as_bn(model: DAG or BayesianNetwork, center: [str]):
+    mb_list = []
+    for node in center:
+        mb_list.extend(model.get_markov_blanket(node))
+    mb = copy.deepcopy(model)
+
+    mb_list.extend(center)
+    for n in model.nodes:
+        if n not in mb_list:
+            mb.remove_node(n)
+
+    return mb
 
 def sort_and_join(s1, s2):
     sorted_strings = sorted([s1, s2], reverse=False)
     return '-'.join(sorted_strings)
+
+
+def get_true(param):
+    if len(param.variables) > 2:
+        raise Exception("How come?")
+    if len(param.variables) == 2:
+        if param.values.shape == (1, 1):
+            if (param.__getattribute__("state_names")[param.variables[0]][0] == 'True' and
+                    param.__getattribute__("state_names")[param.variables[1]][0] == 'True'):
+                return 1
+            else:
+                return 0
+        elif param.values.shape == (2, 1):
+            if (param.__getattribute__("state_names")[param.variables[0]][0] == 'True' or
+                    param.__getattribute__("state_names")[param.variables[1]][0] == 'True'):
+                return param.values[1][0]
+            else:
+                return 0
+        elif param.values.shape == (1, 2):
+            if (param.__getattribute__("state_names")[param.variables[0]][0] == 'True' or
+                    param.__getattribute__("state_names")[param.variables[1]][0] == 'True'):
+                return param.values[0][1]
+            else:
+                return 0
+        elif param.values.shape == (2, 2):
+            return param.values[1][1]
+        else:
+            return param.values[1]
+    elif len(param.variables) == 1:
+        if param.values.shape == (2, 1):
+            return param.values[1]
+        elif param.__getattribute__("state_names")[param.variables[0]][0] == True:
+            return 1
+        else:
+            return 0
+        # else param.values[0]
