@@ -25,7 +25,7 @@ class YOLOv8ObjectDetector:
 
     def initialize_model(self, path):
         # onnxruntime.get_available_providers() returns also the TensorrtExecutionProvider, though it is not supported by the lib
-        self.session = onnxruntime.InferenceSession(path, providers=['CPUExecutionProvider'])
+        self.session = onnxruntime.InferenceSession(path, providers=['CUDAExecutionProvider'])
         self.set_input_details()
         self.set_output_details()
 
