@@ -35,6 +35,7 @@ def train():
     samples["delta"] = samples["delta"].apply(np.floor).astype(int)
     samples["cpu"] = samples["cpu"].apply(np.floor).astype(int)
     samples["memory"] = samples["memory"].apply(np.floor).astype(int)
+    samples['in_time'] = samples['delta'] <= (1000 / samples['fps'])
 
     del samples['_id']
     del samples['timestamp']
@@ -63,10 +64,19 @@ def train():
 def infer():
     model = XMLBIFReader(f'model.xml').get_model()
 
+    # get_median_demand(model)
+    # return None
+
     inference = VariableElimination(model)
-    evidence = {'device_type': 'Orin'}
-    print(inference.query(variables=["delta"], evidence=evidence))
+    evidence = {'in_time': 'True'}
+    print(inference.query(variables=["device_type"], evidence=evidence))
     # pv = utils.get_true(inference.query(variables=["success", "distance"], evidence=evidence))
+
+
+def get_median_demand(model: BayesianNetwork):
+    inference = VariableElimination(model)
+    evidence = {}
+    print(inference.query(variables=["fps"], evidence=evidence))
 
 
 if __name__ == "__main__":
