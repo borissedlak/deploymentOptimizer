@@ -14,10 +14,6 @@ from detector.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 # Xavier GPU --> 34 FPS
 # Xavier CPU --> 4 FPS
 
-# cpu = Gauge('cpu', 'Description of gauge')
-device_metric_reporter = DeviceMetricReporter()
-provider_metric_reporter = ServiceMetricReporter("Provider")
-# cap = cv2.VideoCapture("data/video.mp4")
 
 # videoUrl = 'https://youtu.be/Snyg0RqpVxY'
 # cap = cap_from_youtube(videoUrl, resolution='720p')
@@ -29,6 +25,11 @@ model_path = "models/yolov8n.onnx"
 detector = YOLOv8ObjectDetector(model_path, conf_threshold=0.5, iou_threshold=0.5)
 simulate_fps = True
 
+device_metric_reporter = DeviceMetricReporter(detector.gpu_available())
+provider_metric_reporter = ServiceMetricReporter("Provider")
+
+
+# cap = cv2.VideoCapture("data/video.mp4")
 
 # cv2.namedWindow("Detected Objects", cv2.WINDOW_AUTOSIZE)
 
@@ -87,6 +88,6 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
 if __name__ == "__main__":
     process_video(video_path="../video_data/",
-                  video_info=[70, 60, 50, 40, 30, 20, 10, 5],
+                  video_info=[80, 70, 60, 50, 40, 30, 20, 10, 5],
                   show_result=False,
-                  repeat=1)
+                  repeat=2)

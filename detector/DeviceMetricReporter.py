@@ -31,11 +31,12 @@ else:
 
 
 class DeviceMetricReporter:
-    def __init__(self):
+    def __init__(self, gpu_available=0):
         # TODO: Get this from env variables
         self.target = DEVICE_NAME
         self.consumption_regression = ConsRegression(self.target)
         self.mongoClient = pymongo.MongoClient(MONGO_HOST)["metrics"]
+        self.gpu_available = gpu_available
 
         # if clear_collection:
         #     self.mongoClient.drop_collection(target)
@@ -46,7 +47,7 @@ class DeviceMetricReporter:
         mem_buffer = psutil.virtual_memory()
         mem = (mem_buffer.total - mem_buffer.available) / mem_buffer.total * 100
         cpu = psutil.cpu_percent()
-        cons = self.consumption_regression.predict(cpu, 0)
+        cons = self.consumption_regression.predict(cpu, self.gpu_available)
 
         return {"target": self.target,
                 "metrics": {"device_type": self.target, "cpu": cpu, "memory": mem, "consumption": cons,
