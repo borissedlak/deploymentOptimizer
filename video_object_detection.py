@@ -15,8 +15,8 @@ from detector.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 # Xavier CPU --> 4 FPS
 
 # cpu = Gauge('cpu', 'Description of gauge')
-device_metric_reporter = DeviceMetricReporter(clear_collection=True)
-provider_metric_reporter = ServiceMetricReporter("Provider", clear_collection=True)
+device_metric_reporter = DeviceMetricReporter()
+provider_metric_reporter = ServiceMetricReporter("Provider")
 # cap = cv2.VideoCapture("data/video.mp4")
 
 # videoUrl = 'https://youtu.be/Snyg0RqpVxY'
@@ -28,14 +28,16 @@ provider_metric_reporter = ServiceMetricReporter("Provider", clear_collection=Tr
 model_path = "models/yolov8n.onnx"
 detector = YOLOv8ObjectDetector(model_path, conf_threshold=0.5, iou_threshold=0.5)
 simulate_fps = True
-cv2.namedWindow("Detected Objects", cv2.WINDOW_AUTOSIZE)
+
+
+# cv2.namedWindow("Detected Objects", cv2.WINDOW_AUTOSIZE)
 
 
 def process_video(video_path, video_info, show_result=False, repeat=1):
     for source_fps in video_info:
         for x in range(repeat):
 
-            print(f"Now processing: {source_fps} Round {x + 1}")
+            print(f"Now processing: {source_fps} FPS, Round {x + 1}")
             available_time_frame = (1000 / source_fps)
             cap = cv2.VideoCapture("data/original_cut.mp4")
             # cap = cv2.VideoCapture(video_path + source_res + "_" + str(source_fps) + ".mp4")
@@ -85,6 +87,6 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
 if __name__ == "__main__":
     process_video(video_path="../video_data/",
-                  video_info=[5, 10, 15, 20, 25, 30, 35, 40],
+                  video_info=[70, 60, 50, 40, 30, 20, 10, 5],
                   show_result=False,
-                  repeat=5)
+                  repeat=1)

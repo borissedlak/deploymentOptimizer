@@ -1,10 +1,12 @@
 import os
+import threading
 from datetime import datetime
 
 import psutil
 import pymongo
 
 from consumption.ConsRegression import ConsRegression
+from detector import utils
 
 # This might actually run as a detached thread, but I think it facilitates the linking of entries
 # class Reporter:
@@ -29,14 +31,15 @@ else:
 
 
 class DeviceMetricReporter:
-    def __init__(self, clear_collection=False):
+    def __init__(self):
         # TODO: Get this from env variables
         self.target = DEVICE_NAME
         self.consumption_regression = ConsRegression(self.target)
         self.mongoClient = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
-        if clear_collection:
-            self.mongoClient.drop_collection(self.target)
+        # if clear_collection:
+        #     self.mongoClient.drop_collection(target)
+        #     print(f"Dropping collection {target}")
 
     def create_metrics(self):
         # TODO: This might also include network traffic information
@@ -49,10 +52,10 @@ class DeviceMetricReporter:
                 "metrics": {"device_type": self.target, "cpu": cpu, "memory": mem, "consumption": cons,
                             "timestamp": datetime.now()}}
 
-    # def report_metrics(self):
-    #     record = self.create_metrics()
-    #     self.mongoClient[self.target].insert_one(record)
-
+    # @utils.print_execution_time
     def report_metrics(self, target, record):
-        # TODO: Run in detached thread
+        insert_thread = threading.Thread(target=self.run_detached, args=(target, record))
+        insert_thread.start()
+
+    def run_detached(self, target, record):
         self.mongoClient[target].insert_one(record)

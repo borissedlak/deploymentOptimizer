@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import onnxruntime
 
-from detector.utils import xywh2xyxy, merge_image_with_overlay, multiclass_nms
+from detector.utils import xywh2xyxy, multiclass_nms
 
 
 class YOLOv8ObjectDetector:
@@ -121,7 +121,6 @@ class YOLOv8ObjectDetector:
         m = np.mean(self.hist)
         print(f"Average processing time: {m:.2f} ms")
         print(f"Respective FPS: {1000 / m:.0f}")
-
 
 # if __name__ == '__main__':
 #     from imread_from_url import imread_from_url

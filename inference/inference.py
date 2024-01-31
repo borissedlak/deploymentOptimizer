@@ -1,5 +1,7 @@
 import os
+import sys
 
+import numpy as np
 import pandas as pd
 import pgmpy
 import pymongo
@@ -21,13 +23,19 @@ mongoClient = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
 laptop = pd.DataFrame(list(mongoClient['Laptop-Provider'].find()))
 orin = pd.DataFrame(list(mongoClient['Orin-Provider'].find()))
-merged_list = pd.concat([laptop, orin])
+xavier = pd.DataFrame(list(mongoClient['Provider-Xavier'].find()))
+merged_list = pd.concat([laptop, orin, xavier])
 # c2 = list(mongoClient['Provider'].find())
 # merged_list = utils.merge_single_dict(c1, c2)
 
 samples = pd.DataFrame(merged_list)
+samples["delta"] = samples["delta"].apply(np.floor).astype(int)
+samples["cpu"] = samples["cpu"].apply(np.floor).astype(int)
+samples["memory"] = samples["memory"].apply(np.floor).astype(int)
+
 del samples['_id']
 del samples['timestamp']
+del samples['memory']
 
 scoring_method = AICScore(data=samples)  # BDeuScore | AICScore
 
@@ -41,3 +49,4 @@ utils.export_BN_to_graph(dag, vis_ls=['circo'], save=False, name="raw_model", sh
 
 model = BayesianNetwork(ebunch=dag)
 model.fit(data=samples, estimator=MaximumLikelihoodEstimator)
+sys.exit()
