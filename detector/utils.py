@@ -248,7 +248,6 @@ def get_true(param):
         if param.values.shape == (2, 1):
             return param.values[1]
         elif param.__getattribute__("state_names")[param.variables[0]][0] == True:
-            return 1
+            return param.values[0]
         else:
-            return 0
-        # else param.values[0]
+            return param.values[1]

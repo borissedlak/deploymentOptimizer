@@ -19,8 +19,10 @@ else:
     MONGO_HOST = "localhost"
     print(f"Didn't find ENV value for MONGO_HOST, default to: {MONGO_HOST}")
 
+sample_file = "samples.csv"
 
-def train():
+
+def load():
     # Connect to MongoDB
     mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
@@ -42,8 +44,14 @@ def train():
     del samples['memory']
     # del samples['device_type']
 
-    scoring_method = AICScore(data=samples)  # BDeuScore | AICScore
+    samples.to_csv(sample_file, index=False)
+    print(f"Loaded {samples} from MongoDB")
 
+
+def train():
+    samples = pd.read_csv("samples.csv")
+
+    scoring_method = AICScore(data=samples)  # BDeuScore | AICScore
     estimator = HillClimbSearch(data=samples)
 
     dag: pgmpy.base.DAG = estimator.estimate(
@@ -51,7 +59,6 @@ def train():
     )
 
     utils.export_BN_to_graph(dag, vis_ls=['circo'], save=False, name="raw_model", show=True)
-
     model = BayesianNetwork(ebunch=dag)
     model.fit(data=samples, estimator=MaximumLikelihoodEstimator)
 
@@ -63,22 +70,22 @@ def train():
 
 def infer():
     model = XMLBIFReader(f'model.xml').get_model()
+    samples = pd.read_csv(sample_file)
 
-    # get_median_demand(model)
-    # return None
+    median_fps = get_median_demand(samples, "Laptop")
 
     inference = VariableElimination(model)
-    evidence = {'in_time': 'True'}
-    print(inference.query(variables=["device_type"], evidence=evidence))
+    evidence = {'device_type': 'Laptop', 'fps': f'{median_fps}'}
+    print(utils.get_true(inference.query(variables=["in_time"], evidence=evidence)))
     # pv = utils.get_true(inference.query(variables=["success", "distance"], evidence=evidence))
 
 
-def get_median_demand(model: BayesianNetwork):
-    inference = VariableElimination(model)
-    evidence = {}
-    print(inference.query(variables=["fps"], evidence=evidence))
-
+def get_median_demand(samples: pd.DataFrame, device_name) -> int:
+    filtered = samples[samples['device_type'] == device_name]
+    median = filtered['fps'].median().astype(int)
+    return median
 
 if __name__ == "__main__":
+    # load()
     # train()
     infer()
