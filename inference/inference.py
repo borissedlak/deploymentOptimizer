@@ -45,7 +45,7 @@ def load():
     # del samples['device_type']
 
     samples.to_csv(sample_file, index=False)
-    print(f"Loaded {samples} from MongoDB")
+    print(f"Loaded {sample_file} from MongoDB")
 
 
 def train():
@@ -68,24 +68,41 @@ def train():
     print(f"Model exported as '{file_name}'")
 
 
-def infer():
+# TODO: This needs some sort of abstraction here so that I can evaluate multiple services
+def infer(device):
     model = XMLBIFReader(f'model.xml').get_model()
     samples = pd.read_csv(sample_file)
 
-    median_fps = get_median_demand(samples, "Laptop")
+    median_fps = get_median_demand(samples)
 
     inference = VariableElimination(model)
-    evidence = {'device_type': 'Laptop', 'fps': f'{median_fps}'}
-    print(utils.get_true(inference.query(variables=["in_time"], evidence=evidence)))
-    # pv = utils.get_true(inference.query(variables=["success", "distance"], evidence=evidence))
+    evidence = {'device_type': device, 'fps': f'{median_fps}'}
+    return utils.get_true(inference.query(variables=["in_time"], evidence=evidence))
 
 
-def get_median_demand(samples: pd.DataFrame, device_name) -> int:
-    filtered = samples[samples['device_type'] == device_name]
-    median = filtered['fps'].median().astype(int)
-    return median
+def rate_devices_for_internal():
+    device_list = ['Orin', 'Laptop', 'PC']
+    internal_slo = []
+
+    for device in device_list:
+        slo_fulfillment = infer(device)
+        internal_slo.append((device, slo_fulfillment))
+
+    sorted_tuples = sorted(internal_slo, key=lambda x: x[1], reverse=True)
+    print(sorted_tuples)
+
+
+def rate_devices_for_interaction():
+    pass
+
+
+def get_median_demand(samples: pd.DataFrame) -> int:
+    # filtered = samples[samples['device_type'] == device_name]
+    median = samples['fps'].median().astype(int)
+    return 20  # median
+
 
 if __name__ == "__main__":
     # load()
     # train()
-    infer()
+    rate_devices_for_internal()
