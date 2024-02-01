@@ -32,7 +32,6 @@ else:
 
 class DeviceMetricReporter:
     def __init__(self, gpu_available=0):
-        # TODO: Get this from env variables
         self.target = DEVICE_NAME
         self.consumption_regression = ConsRegression(self.target)
         self.mongoClient = pymongo.MongoClient(MONGO_HOST)["metrics"]

@@ -1,3 +1,4 @@
+import itertools
 import time
 
 import cv2
@@ -15,13 +16,6 @@ from detector.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 # Xavier GPU --> 34 FPS
 # Xavier CPU --> 4 FPS
 
-
-# videoUrl = 'https://youtu.be/Snyg0RqpVxY'
-# cap = cap_from_youtube(videoUrl, resolution='720p')
-# start_time = 5 # skip first {start_time} seconds
-# cap.set(cv2.CAP_PROP_POS_FRAMES, start_time * cap.get(cv2.CAP_PROP_FPS))
-# out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), cap.get(cv2.CAP_PROP_FPS), (3840, 2160))
-
 model_path = "models/yolov8n.onnx"
 detector = YOLOv8ObjectDetector(model_path, conf_threshold=0.5, iou_threshold=0.5)
 simulate_fps = True
@@ -36,10 +30,10 @@ provider_metric_reporter = ServiceMetricReporter("Provider")
 
 
 def process_video(video_path, video_info, show_result=False, repeat=1):
-    for source_fps in video_info:
+    for (source_pixel, source_fps) in video_info:
         for x in range(repeat):
 
-            print(f"Now processing: {source_fps} FPS, Round {x + 1}")
+            print(f"Now processing: {source_pixel} p, {source_fps} FPS, Round {x + 1}")
             available_time_frame = (1000 / source_fps)
             cap = cv2.VideoCapture("data/original_cut.mp4")
             # cap = cv2.VideoCapture(video_path + source_res + "_" + str(source_fps) + ".mp4")
@@ -54,8 +48,13 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
                     break
 
                 try:
-                    # Read frame from the video
-                    ret, frame = cap.read()
+                    # Prepare the frame
+                    ret, original_frame = cap.read()
+                    original_width, original_height = original_frame.shape[1], original_frame.shape[0]
+                    ratio = original_height / source_pixel
+
+                    frame = cv2.resize(original_frame, (int(original_width / ratio), int(original_height / ratio)))
+
                     if not ret:
                         break
                 except Exception as e:
@@ -74,7 +73,6 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
                 pixel = combined_img.shape[0]
 
-                # TODO: Report device and SLO at the same time
                 blanket_a = device_metric_reporter.create_metrics()
                 blanket_b = provider_metric_reporter.create_metrics(processing_time, source_fps, pixel)
 
@@ -91,6 +89,6 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
 if __name__ == "__main__":
     process_video(video_path="../video_data/",
-                  video_info=[5, 10, 15, 20, 30, 40],
-                  show_result=False,
-                  repeat=2)
+                  video_info=list(itertools.product([720, 420, 360, 240], [5, 10, 15, 20, 30, 40])),
+                  show_result=True,
+                  repeat=1)

@@ -11,6 +11,7 @@ from pgmpy.models import BayesianNetwork
 from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
 
 from detector import utils
+from dummy import dummy_A
 
 MONGO_HOST = os.environ.get('MONGO_HOST')
 if MONGO_HOST:
@@ -26,10 +27,10 @@ def load():
     # Connect to MongoDB
     mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
-    laptop = pd.DataFrame(list(mongo_client['Laptop-Provider'].find()))
+    # laptop = pd.DataFrame(list(mongo_client['Laptop-Provider'].find()))
     orin = pd.DataFrame(list(mongo_client['Orin-Provider'].find()))
     pc = pd.DataFrame(list(mongo_client['PC-Provider'].find()))
-    merged_list = pd.concat([laptop, orin, pc])
+    merged_list = pd.concat([orin, pc])
     # c2 = list(mongoClient['Provider'].find())
     # merged_list = utils.merge_single_dict(c1, c2)
 
@@ -81,7 +82,7 @@ def infer(device):
 
 
 def rate_devices_for_internal():
-    device_list = ['Orin', 'Laptop', 'PC']
+    device_list = ['Orin', 'PC']
     internal_slo = []
 
     for device in device_list:
@@ -89,11 +90,13 @@ def rate_devices_for_internal():
         internal_slo.append((device, slo_fulfillment))
 
     sorted_tuples = sorted(internal_slo, key=lambda x: x[1], reverse=True)
-    print(sorted_tuples)
+    return sorted_tuples
 
 
 def rate_devices_for_interaction():
-    pass
+    print("Service A", dummy_A.evaluate_slo_fulfillment())
+    # dummy_A.evaluate_slo_fulfillment()
+    # dummy_A.evaluate_slo_fulfillment()
 
 
 def get_median_demand(samples: pd.DataFrame) -> int:
@@ -105,4 +108,5 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 if __name__ == "__main__":
     # load()
     # train()
-    rate_devices_for_internal()
+    print("Service P", rate_devices_for_internal())
+    rate_devices_for_interaction()

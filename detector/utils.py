@@ -200,6 +200,7 @@ def export_BN_to_graph(bn: BayesianNetwork or pgmpy.base.DAG, root=None, try_vis
         if show:
             plt.show()
 
+
 def get_mbs_as_bn(model: DAG or BayesianNetwork, center: [str]):
     mb_list = []
     for node in center:
@@ -212,6 +213,7 @@ def get_mbs_as_bn(model: DAG or BayesianNetwork, center: [str]):
             mb.remove_node(n)
 
     return mb
+
 
 def sort_and_join(s1, s2):
     sorted_strings = sorted([s1, s2], reverse=False)
@@ -251,3 +253,15 @@ def get_true(param):
             return param.values[0]
         else:
             return param.values[1]
+
+
+def get_latency_for_devices(d1, d2):
+    translate_dict = {'Xavier': 0, 'Orin': 1, 'PC': 2}
+    distance = np.array([[1, 5, 25],
+                         [5, 5, 15],
+                         [25, 15, 10]])
+
+    a = translate_dict[d1]
+    b = translate_dict[d2]
+
+    return distance[a, b]
