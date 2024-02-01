@@ -34,7 +34,7 @@ class DeviceMetricReporter:
     def __init__(self, gpu_available=0):
         self.target = DEVICE_NAME
         self.consumption_regression = ConsRegression(self.target)
-        self.mongoClient = pymongo.MongoClient(MONGO_HOST)["metrics"]
+        # self.mongoClient = pymongo.MongoClient(MONGO_HOST)["metrics"]
         self.gpu_available = gpu_available
 
         # if clear_collection:
@@ -58,4 +58,5 @@ class DeviceMetricReporter:
         insert_thread.start()
 
     def run_detached(self, target, record):
-        self.mongoClient[target].insert_one(record)
+        mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
+        mongo_client[target].insert_one(record)

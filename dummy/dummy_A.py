@@ -2,18 +2,15 @@
 # 2) Evaluate whether the SLOs are fulfilled from that
 # 3) Log the entry in a new collection that can be optimized
 
-import os
-
 import pandas as pd
 
-from detector import utils
 import inference
+from detector import utils
 
 local_device = 'Xavier'
 latency_thresh = 45
 
 
-# TODO: Just log which device hosted the producer service
 def evaluate_slo_fulfillment():
     samples = pd.read_csv("samples.csv")
 

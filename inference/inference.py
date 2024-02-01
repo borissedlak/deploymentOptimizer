@@ -11,7 +11,7 @@ from pgmpy.models import BayesianNetwork
 from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
 
 from detector import utils
-from dummy import dummy_A
+from dummy import dummy_A, dummy_B
 
 MONGO_HOST = os.environ.get('MONGO_HOST')
 if MONGO_HOST:
@@ -95,6 +95,7 @@ def rate_devices_for_internal():
 
 def rate_devices_for_interaction():
     print("Service A", dummy_A.evaluate_slo_fulfillment())
+    print("Service B", dummy_B.evaluate_slo_fulfillment())
     # dummy_A.evaluate_slo_fulfillment()
     # dummy_A.evaluate_slo_fulfillment()
 
@@ -102,7 +103,7 @@ def rate_devices_for_interaction():
 def get_median_demand(samples: pd.DataFrame) -> int:
     # filtered = samples[samples['device_type'] == device_name]
     median = samples['fps'].median().astype(int)
-    return 20  # median
+    return median  # or 20
 
 
 if __name__ == "__main__":

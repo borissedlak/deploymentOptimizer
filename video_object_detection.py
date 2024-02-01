@@ -35,7 +35,7 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
             print(f"Now processing: {source_pixel} p, {source_fps} FPS, Round {x + 1}")
             available_time_frame = (1000 / source_fps)
-            cap = cv2.VideoCapture("data/original_cut.mp4")
+            cap = cv2.VideoCapture("data/video_cut.mp4")
             # cap = cv2.VideoCapture(video_path + source_res + "_" + str(source_fps) + ".mp4")
             if not cap.isOpened():
                 print("Error opening video ...")
@@ -50,13 +50,14 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
                 try:
                     # Prepare the frame
                     ret, original_frame = cap.read()
+                    if not ret:
+                        break
+
                     original_width, original_height = original_frame.shape[1], original_frame.shape[0]
                     ratio = original_height / source_pixel
 
                     frame = cv2.resize(original_frame, (int(original_width / ratio), int(original_height / ratio)))
 
-                    if not ret:
-                        break
                 except Exception as e:
                     print(e)
                     continue
@@ -89,6 +90,6 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
 if __name__ == "__main__":
     process_video(video_path="../video_data/",
-                  video_info=list(itertools.product([720, 420, 360, 240], [5, 10, 15, 20, 30, 40])),
+                  video_info=list(itertools.product([1080, 720, 480], [15, 20, 25, 30, 35])),
                   show_result=True,
                   repeat=1)
