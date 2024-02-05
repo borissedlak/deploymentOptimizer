@@ -91,5 +91,5 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 if __name__ == "__main__":
     process_video(video_path="../video_data/",
                   video_info=list(itertools.product([1080, 720, 480], [15, 20, 25, 30, 35])),
-                  show_result=True,
+                  show_result=False,
                   repeat=1)

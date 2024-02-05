@@ -45,6 +45,10 @@ def load():
     del samples['memory']
     # del samples['device_type']
 
+    del samples['cpu']
+    del samples['consumption']
+    del samples['device_type']
+
     samples.to_csv(sample_file, index=False)
     print(f"Loaded {sample_file} from MongoDB")
 
@@ -94,8 +98,8 @@ def rate_devices_for_internal():
 
 
 def rate_devices_for_interaction():
-    print("Service A", dummy_A.evaluate_slo_fulfillment())
-    print("Service B", dummy_B.evaluate_slo_fulfillment())
+    print("Service A SLO fulfillment if Service ", dummy_A.evaluate_slo_fulfillment())
+    print("Service B SLO fulfillment if Service ", dummy_B.evaluate_slo_fulfillment())
     # dummy_A.evaluate_slo_fulfillment()
     # dummy_A.evaluate_slo_fulfillment()
 
@@ -107,7 +111,7 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 
 
 if __name__ == "__main__":
-    # load()
-    # train()
-    print("Service P", rate_devices_for_internal())
-    rate_devices_for_interaction()
+    load()
+    train()
+    # print("Service P", rate_devices_for_internal())
+    # rate_devices_for_interaction()
