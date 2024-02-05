@@ -1,13 +1,15 @@
 # 1) Consume what comes from the producer service --> for this I can use the last MongoDB entry
 # 2) Evaluate whether the SLOs are fulfilled from that
 # 3) Log the entry in a new collection that can be optimized
-import numpy as np
+import random
+
 import pandas as pd
-from matplotlib import pyplot as plt
-from pgmpy.estimators import MaximumLikelihoodEstimator
-from pgmpy.models import BayesianModel
+import pgmpy
+from pgmpy.base import DAG
+from pgmpy.estimators import MaximumLikelihoodEstimator, AICScore, HillClimbSearch
+from pgmpy.models import BayesianNetwork
 from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
-from pgmpy.sampling import BayesianModelSampling
+from scipy.stats import wasserstein_distance
 
 from detector import utils
 
@@ -18,18 +20,27 @@ file_name = f'dummy_A_model.xml'
 
 
 def create_MB():
-    samples = pd.read_csv("samples.csv")
+    raw_samples = pd.read_csv("samples.csv")
+    # TODO: Does it mather which device its from?
+    raw_samples = raw_samples[raw_samples['device_type'] == 'Laptop']
 
-    model = BayesianModel()
-    model.add_node('latency')
-    model.add_node('size')
-
-    latency = samples[samples['device_type'] == 'PC']['delta'] + 30
+    size_higher_blanket = raw_samples['pixel']
+    latency_higher_blanket = raw_samples['delta'] + 50
+    # latency_higher_blanket = [value + random.randint(1, 500) for value in latency_higher_blanket]
 
     # Use ParameterEstimator to estimate CPDs based on data (you can replace data with your own dataset)
-    data = pd.DataFrame(data={'size': [480, 720, 1080] * 1204, # 1204, 1806
-                              'latency': latency})
-    model.fit(data, estimator=MaximumLikelihoodEstimator)
+    higher_blanket_data = pd.DataFrame(data={'size': size_higher_blanket,  # 1204, 1806
+                                             'latency': latency_higher_blanket})
+
+    scoring_method = AICScore(data=higher_blanket_data)  # BDeuScore | AICScore
+    estimator = HillClimbSearch(data=higher_blanket_data)
+
+    dag: pgmpy.base.DAG = estimator.estimate(
+        scoring_method=scoring_method, max_indegree=4, epsilon=1,
+    )
+
+    model = BayesianNetwork(ebunch=dag)
+    model.fit(higher_blanket_data, estimator=MaximumLikelihoodEstimator)
 
     utils.export_BN_to_graph(model, vis_ls=['circo'], save=False, name="raw_model", show=True)
 
@@ -38,36 +49,21 @@ def create_MB():
     print(f"Model exported as '{file_name}'")
 
 
+# TODO: Move to master class and do for all dummy services
 def check_dependencies():
-    model_a = XMLBIFReader(f'{file_name}').get_model()
-    model_main = XMLBIFReader(f'../inference/model.xml').get_model()
-    sample_size = 100
+    model_lower_blanket = XMLBIFReader(f'../inference/model.xml').get_model()
+    model_higher_blanket = XMLBIFReader(f'{file_name}').get_model()
 
-    samples_lower_blanket = BayesianModelSampling(model_main).forward_sample(size=sample_size, seed=35)
-    samples_higher_blanket = BayesianModelSampling(model_a).forward_sample(size=sample_size, seed=35)
-
-    for lower_blanket_name in samples_lower_blanket.columns:
-        if lower_blanket_name in ['in_time', 'device_type']:
+    for lower_blanket_name in model_lower_blanket.nodes:
+        if lower_blanket_name in ['in_time', 'device_type', 'consumption', 'cpu']:
             continue
 
-        for higher_blanket_name in ['size', 'latency']:
-
-            list1 = sorted(samples_lower_blanket[lower_blanket_name].astype(int))
-            list2 = sorted(samples_higher_blanket[higher_blanket_name].astype(int))
-
-            # TODO: Do with all columns
-            correlation_coefficient = np.corrcoef(list1, list2)[0, 1]
-
-            # Create a scatter plot
-            plt.scatter(list1, list2)
-
-            # Add labels and title
-            plt.xlabel(f'{lower_blanket_name}')
-            plt.ylabel(f'{higher_blanket_name}')
-            plt.title(f'Correlation Coefficient for {higher_blanket_name} --> {lower_blanket_name}: {correlation_coefficient:.2f}')
-
-            # Show the plot
-            plt.show()
+        # 1 Check which variables could potentially match
+        for higher_blanket_name in model_higher_blanket.nodes:
+            wd = wasserstein_distance(model_higher_blanket.get_cpds(higher_blanket_name).values.flatten(),
+                                      model_lower_blanket.get_cpds(lower_blanket_name).values.flatten())
+            print(f"Wasserstein Distance ({higher_blanket_name} --> {lower_blanket_name}): ", wd)
+        # 2 TODO: Missing conditional dependency linking
 
 
 # TODO: Move to master class?
