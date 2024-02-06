@@ -21,6 +21,7 @@ class DummyMaster:
         self.service_name = name
         self.file_name = name + "_model.xml"
         self.wd_thresh = 0.1
+        self.js_thresh = 0.9
         self.slos = slos
 
     def create_MB(self):
@@ -82,7 +83,8 @@ class DummyMaster:
                 wd = wasserstein_distance(p, q)
 
                 if wd <= self.wd_thresh:
-                    print(f"High WD ({higher_blanket_variable_name} --> {lower_blanket_variable_name}): ", wd)
+                    print(f"High WD ({higher_blanket_variable_name} --> {lower_blanket_variable_name}): ", wd,
+                          ", indicating a (potentially confounded) dependency")
                     promising_combinations.append((higher_blanket_variable_name, lower_blanket_variable_name))
 
         print("---------------")
@@ -103,7 +105,8 @@ class DummyMaster:
 
             # Low similarity indicates a constant shift within the distribution due to a confounding var
             similarity = utils.jaccard_similarity(p, q)
-            print(f"Jaccard similarity: {similarity}")
+            if similarity < self.js_thresh:
+                print(f"Low JS ({hb_v} --> {lb_v}): ", similarity, ", flagging as confounded")
 
     # TODO: Move to master class?
     def evaluate_slo_fulfillment(self):
