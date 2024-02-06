@@ -45,9 +45,9 @@ def load():
     del samples['memory']
     # del samples['device_type']
 
-    del samples['cpu']
-    del samples['consumption']
-    del samples['device_type']
+    # del samples['cpu']
+    # del samples['consumption']
+    # del samples['device_type']
 
     samples.to_csv(sample_file, index=False)
     print(f"Loaded {sample_file} from MongoDB")

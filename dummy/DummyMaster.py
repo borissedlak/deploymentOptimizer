@@ -1,10 +1,12 @@
+import random
+
 import pandas as pd
 import pgmpy
 from pgmpy.base import DAG
 from pgmpy.estimators import MaximumLikelihoodEstimator, AICScore, HillClimbSearch
 from pgmpy.models import BayesianNetwork
 from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
-from scipy.stats import wasserstein_distance
+from scipy.stats import wasserstein_distance, entropy
 
 from detector import utils
 
@@ -23,15 +25,23 @@ class DummyMaster:
     def create_MB(self):
         raw_samples = pd.read_csv("samples.csv")
         # TODO: Does it mather which device its from?
-        # raw_samples = raw_samples[raw_samples['device_type'] == 'Laptop']
+        # raw_samples = raw_samples[raw_samples['device_type'] == 'PC']
 
-        size_higher_blanket = raw_samples['pixel']
-        latency_higher_blanket = raw_samples['delta'] + 50
-        # latency_higher_blanket = [value + random.randint(1, 50000) for value in latency_higher_blanket]
+        data = {}
+        for (var, rel, val) in self.slos:
+            if 'size' == var:
+                size_higher_blanket = raw_samples['pixel']
+                data.update({'size': size_higher_blanket})
+            elif 'latency' == var:
+                latency_higher_blanket = raw_samples['delta'] + random.randint(20, 30)
+                # latency_higher_blanket = [value + random.randint(1, 50000) for value in latency_higher_blanket]
+                data.update({'latency': latency_higher_blanket})
+            elif 'rate' == var:
+                rate_higher_blanket = raw_samples['fps']
+                data.update({'rate': rate_higher_blanket})
 
         # Use ParameterEstimator to estimate CPDs based on data (you can replace data with your own dataset)
-        higher_blanket_data = pd.DataFrame(data={'size': size_higher_blanket,  # 1204, 1806
-                                                 'latency': latency_higher_blanket})
+        higher_blanket_data = pd.DataFrame(data=data)
 
         scoring_method = AICScore(data=higher_blanket_data)  # BDeuScore | AICScore
         estimator = HillClimbSearch(data=higher_blanket_data)
@@ -54,7 +64,7 @@ class DummyMaster:
         model_lower_blanket = XMLBIFReader(f'../inference/model.xml').get_model()
         model_higher_blanket = XMLBIFReader(f'{self.file_name}').get_model()
 
-        #TODO: Limit two two devices, one from each side
+        # TODO: Limit two two devices, one from each side
         promising_combinations = []
         for lower_blanket_variable_name in model_lower_blanket.nodes:
             if lower_blanket_variable_name in ['in_time', 'device_type', 'consumption', 'cpu']:
@@ -67,14 +77,21 @@ class DummyMaster:
                 wd = wasserstein_distance(p, q)
 
                 if wd <= self.wd_thresh:
-                    print(f"WD ({higher_blanket_variable_name} --> {lower_blanket_variable_name}): ", wd)
+                    print(f"High WD ({higher_blanket_variable_name} --> {lower_blanket_variable_name}): ", wd)
                     promising_combinations.append((higher_blanket_variable_name, lower_blanket_variable_name))
-
 
         # 2 TODO: Missing conditional dependency linking, this must include device_type!
         # TODO: Simply sort from top to bottom (make sure same number of samples) and create linear interpolation
         for (hb_v, lb_v) in promising_combinations:
-            pass
+            p = model_higher_blanket.get_cpds(hb_v).values.flatten()
+            q = model_lower_blanket.get_cpds(lb_v).values.flatten()
+
+            if len(p) is not len(q):
+                min_len = min(len(p), len(q))
+                p = utils.normalize_to_pods(p, min_len)
+                q = utils.normalize_to_pods(q, min_len)
+
+            print(entropy(p, q))
 
     # TODO: Move to master class?
     def evaluate_slo_fulfillment(self):

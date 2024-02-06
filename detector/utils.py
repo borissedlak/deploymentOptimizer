@@ -265,3 +265,20 @@ def get_latency_for_devices(d1, d2):
     b = translate_dict[d2]
 
     return distance[a, b]
+
+
+def normalize_to_pods(prob_distribution, num_pods):
+    """
+    Normalize a probability distribution to a specified number of pods (bins).
+
+    Parameters:
+    - prob_distribution: NumPy array representing the probability distribution.
+    - num_pods: Number of pods (bins) to normalize the distribution to.
+
+    Returns:
+    - Normalized probability distribution.
+    """
+    hist, bin_edges = np.histogram(prob_distribution, bins=num_pods, density=True)
+    bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
+
+    return hist / np.sum(hist), bin_centers
