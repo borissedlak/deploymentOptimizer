@@ -9,6 +9,9 @@ from matplotlib import pyplot as plt
 from networkx.drawing.nx_pydot import graphviz_layout
 from pgmpy.base import DAG
 from pgmpy.models import BayesianNetwork
+from scipy.stats import entropy
+from numpy.linalg import norm
+import numpy as np
 
 class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -282,3 +285,11 @@ def normalize_to_pods(prob_distribution, num_pods):
     bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 
     return hist / np.sum(hist), bin_centers
+
+
+def jaccard_similarity(list1, list2):
+    set1 = set(list1)
+    set2 = set(list2)
+    intersection_size = len(set1.intersection(set2))
+    union_size = len(set1.union(set2))
+    return intersection_size / union_size

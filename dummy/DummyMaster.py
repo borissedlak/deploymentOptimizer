@@ -4,6 +4,7 @@ import pandas as pd
 import pgmpy
 from pgmpy.base import DAG
 from pgmpy.estimators import MaximumLikelihoodEstimator, AICScore, HillClimbSearch
+from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
 from scipy.stats import wasserstein_distance, entropy
@@ -33,8 +34,9 @@ class DummyMaster:
                 size_higher_blanket = raw_samples['pixel']
                 data.update({'size': size_higher_blanket})
             elif 'latency' == var:
-                latency_higher_blanket = raw_samples['delta'] + random.randint(20, 30)
-                # latency_higher_blanket = [value + random.randint(1, 50000) for value in latency_higher_blanket]
+                # Write: That I introduced this fluctuation
+                latency_higher_blanket = raw_samples['delta'] + 20
+                latency_higher_blanket = [value + random.randint(1, 5) for value in latency_higher_blanket]
                 data.update({'latency': latency_higher_blanket})
             elif 'rate' == var:
                 rate_higher_blanket = raw_samples['fps']
@@ -72,26 +74,36 @@ class DummyMaster:
 
             # 1 Check which variables could potentially match
             for higher_blanket_variable_name in model_higher_blanket.nodes:
-                p = model_higher_blanket.get_cpds(higher_blanket_variable_name).values.flatten()
-                q = model_lower_blanket.get_cpds(lower_blanket_variable_name).values.flatten()
+                # TODO: Watch out, distributions are same but not the values assigned!
+
+                p = VariableElimination(model_higher_blanket).query(variables=[higher_blanket_variable_name]).values
+                q = VariableElimination(model_lower_blanket).query(variables=[lower_blanket_variable_name]).values
+
                 wd = wasserstein_distance(p, q)
 
                 if wd <= self.wd_thresh:
                     print(f"High WD ({higher_blanket_variable_name} --> {lower_blanket_variable_name}): ", wd)
                     promising_combinations.append((higher_blanket_variable_name, lower_blanket_variable_name))
 
-        # 2 TODO: Missing conditional dependency linking, this must include device_type!
-        # TODO: Simply sort from top to bottom (make sure same number of samples) and create linear interpolation
+        print("---------------")
+
         for (hb_v, lb_v) in promising_combinations:
-            p = model_higher_blanket.get_cpds(hb_v).values.flatten()
-            q = model_lower_blanket.get_cpds(lb_v).values.flatten()
+            p = VariableElimination(model_higher_blanket).query(variables=[hb_v]).state_names[hb_v]
+            q = VariableElimination(model_lower_blanket).query(variables=[lb_v]).state_names[lb_v]
 
-            if len(p) is not len(q):
-                min_len = min(len(p), len(q))
-                p = utils.normalize_to_pods(p, min_len)
-                q = utils.normalize_to_pods(q, min_len)
+            # # Write: Must normalize length of distributions
+            # if len(p) is not len(q):
+            #     min_len = min(len(p), len(q))
+            #     p, bin_centers_p = utils.normalize_to_pods(p, min_len)
+            #     q, bin_centers_q = utils.normalize_to_pods(q, min_len)
+            #
+            #     # KL Divergence is asymmetric!
+            # print(entropy(p, q))
+            # print(utils.JSD(p, q))
 
-            print(entropy(p, q))
+            # Low similarity indicates a constant shift within the distribution due to a confounding var
+            similarity = utils.jaccard_similarity(p, q)
+            print(f"Jaccard similarity: {similarity}")
 
     # TODO: Move to master class?
     def evaluate_slo_fulfillment(self):
