@@ -11,6 +11,7 @@ class DummyA(DummyMaster):
 
 if __name__ == '__main__':
     dummy_A = DummyA("dummy_A", [("latency", "<", 100), ("size", ">=", 720)])
-    dummy_A.create_MB()
-    dummy_A.check_dependencies()
+    # dummy_A.create_service_MB()
+    # dummy_A.check_dependencies()
+    dummy_A.add_footprint_MB()
     # evaluate_slo_fulfillment()

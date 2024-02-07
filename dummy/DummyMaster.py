@@ -1,12 +1,9 @@
 import random
 
 import pandas as pd
-import pgmpy
-from pgmpy.base import DAG
-from pgmpy.estimators import MaximumLikelihoodEstimator, AICScore, HillClimbSearch
+from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
-from pgmpy.models import BayesianNetwork
-from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
+from pgmpy.readwrite import XMLBIFReader
 from scipy.stats import wasserstein_distance
 
 from detector import utils
@@ -24,7 +21,7 @@ class DummyMaster:
         self.js_thresh = 0.9
         self.slos = slos
 
-    def create_MB(self):
+    def create_service_MB(self):
         raw_samples = pd.read_csv("samples.csv")
         # TODO: Does it mather which device its from?
         # Idea: Add this filtering mechanism below for the variable elimination
@@ -44,7 +41,8 @@ class DummyMaster:
                 rate_higher_blanket = raw_samples['fps']
                 data.update({'rate': rate_higher_blanket})
 
-        utils.train_to_MB(data, export_file=self.file_name)
+        higher_blanket_data = pd.DataFrame(data=data)
+        utils.train_to_MB(higher_blanket_data, export_file=self.file_name)
 
     def check_dependencies(self):
         # TODO: Move this to master class
@@ -94,6 +92,28 @@ class DummyMaster:
             similarity = utils.jaccard_similarity(p, q)
             if similarity < self.js_thresh:
                 print(f"Low JS ({hb_v} --> {lb_v}): ", similarity, ", flagging as confounded")
+
+    # TODO: Add the other hardware variables as cpds
+    def add_footprint_MB(self):
+        current_blanket = XMLBIFReader(f'{self.file_name}').get_model()
+        current_blanket.add_node("cpu")
+        current_blanket.add_node("device_type")
+
+        current_blanket.add_edge("device_type", "cpu")
+
+        cpd_device_type = TabularCPD(variable='device_type', variable_card=3, values=[[0.33], [0.33], [0.33]],
+                                     state_names={'device_type': ['Orin', 'Laptop', 'PC']})
+        cpd_cpu = TabularCPD(variable='cpu', variable_card=3,
+                             values=[[0.0, 0.0, 1.0],
+                                     [0.0, 1.0, 0.0],
+                                     [1.0, 0.0, 0.0]],
+                             evidence=['device_type'],
+                             evidence_card=[3],
+                             state_names={'cpu': ['15', '20', '25'],
+                                          'device_type': ['Orin', 'Laptop', 'PC']})
+
+        current_blanket.add_cpds(cpd_device_type, cpd_cpu)
+        utils.export_model_to_path(current_blanket, self.file_name)
 
     # TODO: Move to master class?
     def evaluate_slo_fulfillment(self):

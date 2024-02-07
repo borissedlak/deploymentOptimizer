@@ -1,5 +1,7 @@
 import copy
+import os
 import time
+from itertools import combinations
 
 import cv2
 import networkx as nx
@@ -11,7 +13,7 @@ from networkx.drawing.nx_pydot import graphviz_layout
 from pgmpy.base import DAG
 from pgmpy.estimators import AICScore, HillClimbSearch, MaximumLikelihoodEstimator
 from pgmpy.models import BayesianNetwork
-from pgmpy.readwrite import XMLBIFWriter
+from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
 
 class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -334,9 +336,61 @@ def train_to_MB(samples, export_file=None, samples_path=None):
     model.fit(data=samples, estimator=MaximumLikelihoodEstimator)
 
     if export_file is not None:
-        writer = XMLBIFWriter(model)
-        file_name = f'model.xml'
-        writer.write_xmlbif(filename=file_name)
-        print(f"Model exported as '{file_name}'")
+        export_model_to_path(model, export_file)
 
     return model
+
+
+def export_model_to_path(model, export_file):
+    writer = XMLBIFWriter(model)
+    writer.write_xmlbif(filename=export_file)
+    print(f"Model exported as '{export_file}'")
+
+
+def find_files_with_prefix(directory, prefix, suffix):
+    file_list = [f for f in os.listdir(directory) if
+                 f.startswith(prefix) and os.path.isfile(os.path.join(directory, f)) and f.endswith(suffix)]
+    return file_list
+
+
+def check_similar_services_same_host(host):
+    d = "../dummy/"
+    similar_services_at_same_host = []
+
+    potential_matches = find_files_with_prefix(d, "dummy_", ".xml")
+    for potential_match in potential_matches:
+        model = XMLBIFReader(d + potential_match).get_model()
+        if not model.has_node('device_type'):
+            continue
+
+        host_known = host in model.get_cpds('device_type').__getattribute__('state_names')['device_type']
+        if host_known:
+            similar_services_at_same_host.append(model)
+
+    return similar_services_at_same_host
+
+
+def plug_in_service_variables(service_mb: BayesianNetwork, potential_host_mb: BayesianNetwork):
+    service_mb.add_node('cpu')
+    service_mb.add_node('device_type')
+    service_mb.add_cpds(potential_host_mb.get_cpds('device_type'))
+    service_mb.add_cpds(potential_host_mb.get_cpds('cpu'))
+
+    return service_mb
+
+
+def check_no_edges_with_service(potential_host_mb: BayesianNetwork):
+    hardware_variables = ['cpu', 'device_type']  # TODO: 'memory', 'consumption',
+    all_combinations = list(combinations(hardware_variables, 2))
+
+    for (u, v) in all_combinations:
+        if potential_host_mb.has_edge(u, v):
+            potential_host_mb.remove_edge(u, v)
+        elif potential_host_mb.has_edge(v, u):
+            potential_host_mb.remove_edge(v, u)
+
+    for variable in hardware_variables:
+        if potential_host_mb.degree[variable] != 0:
+            return False
+
+    return True
