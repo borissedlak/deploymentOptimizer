@@ -20,14 +20,15 @@ class DummyMaster:
     def __init__(self, name, slos):
         self.service_name = name
         self.file_name = name + "_model.xml"
-        self.wd_thresh = 0.05
+        self.wd_thresh = 0.01
         self.js_thresh = 0.9
         self.slos = slos
 
     def create_MB(self):
         raw_samples = pd.read_csv("samples.csv")
         # TODO: Does it mather which device its from?
-        # raw_samples = raw_samples[raw_samples['device_type'] == 'PC']
+        # Idea: Add this filtering mechanism below for the variable elimination
+        # raw_samples = raw_samples[raw_samples['device_type'] == 'Orin']
 
         data = {}
         for (var, rel, val) in self.slos:
@@ -80,6 +81,8 @@ class DummyMaster:
                 p = VariableElimination(model_higher_blanket).query(variables=[higher_blanket_variable_name]).values
                 q = VariableElimination(model_lower_blanket).query(variables=[lower_blanket_variable_name]).values
 
+                # Idea: Compare (all) combination of MB [device_type = x] between the models. Some should match well
+                # Idea: OR do this repeatedly for multiple combinations and compare the results
                 wd = wasserstein_distance(p, q)
 
                 if wd <= self.wd_thresh:
@@ -94,7 +97,7 @@ class DummyMaster:
             p = VariableElimination(model_higher_blanket).query(variables=[hb_v]).state_names[hb_v]
             q = VariableElimination(model_lower_blanket).query(variables=[lb_v]).state_names[lb_v]
 
-            # # Write: Must normalize length of distributions
+            # # vrite: Must normalize length of distributions
             # if len(p) is not len(q):
             #     min_len = min(len(p), len(q))
             #     p, bin_centers_p = utils.normalize_to_pods(p, min_len)

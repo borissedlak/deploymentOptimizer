@@ -218,10 +218,10 @@ def get_mbs_as_bn(model: DAG or BayesianNetwork, center: [str]):
     return mb
 
 
-def sort_and_join(s1, s2):
-    sorted_strings = sorted([s1, s2], reverse=False)
-    return '-'.join(sorted_strings)
-
+def get_mb_name(service, host):
+    # sorted_strings = sorted([s1, s2], reverse=False)
+    # return '-'.join(sorted_strings)
+    return service + '-' + host
 
 def get_true(param):
     if len(param.variables) > 2:

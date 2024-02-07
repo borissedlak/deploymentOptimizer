@@ -21,7 +21,7 @@ detector = YOLOv8ObjectDetector(model_path, conf_threshold=0.5, iou_threshold=0.
 simulate_fps = True
 
 device_metric_reporter = DeviceMetricReporter(detector.gpu_available())
-provider_metric_reporter = ServiceMetricReporter("Provider")
+provider_metric_reporter = ServiceMetricReporter("Processor")
 
 
 # cap = cv2.VideoCapture("data/video.mp4")
@@ -74,11 +74,11 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
                 pixel = combined_img.shape[0]
 
-                blanket_a = device_metric_reporter.create_metrics()
-                blanket_b = provider_metric_reporter.create_metrics(processing_time, source_fps, pixel)
+                service_blanket = device_metric_reporter.create_metrics()
+                device_blanket = provider_metric_reporter.create_metrics(processing_time, source_fps, pixel)
 
-                intersection_name = utils.sort_and_join(blanket_a["target"], blanket_b["target"])
-                merged_metrics = utils.merge_single_dicts(blanket_a["metrics"], blanket_b["metrics"])
+                intersection_name = utils.get_mb_name(["target"], device_blanket["target"])
+                merged_metrics = utils.merge_single_dicts(service_blanket["metrics"], device_blanket["metrics"])
                 device_metric_reporter.report_metrics(intersection_name, merged_metrics)
 
                 if simulate_fps:

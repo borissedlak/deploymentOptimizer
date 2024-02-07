@@ -31,8 +31,6 @@ def load():
     orin = pd.DataFrame(list(mongo_client['Orin-Provider'].find()))
     pc = pd.DataFrame(list(mongo_client['PC-Provider'].find()))
     merged_list = pd.concat([laptop, pc, orin])
-    # c2 = list(mongoClient['Provider'].find())
-    # merged_list = utils.merge_single_dict(c1, c2)
 
     samples = pd.DataFrame(merged_list)
     samples["delta"] = samples["delta"].apply(np.floor).astype(int)
@@ -112,5 +110,5 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 if __name__ == "__main__":
     load()
     train()
-    # print("Service P", rate_devices_for_internal())
+    print("Service P", rate_devices_for_internal())
     # rate_devices_for_interaction()
