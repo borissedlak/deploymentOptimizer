@@ -74,11 +74,11 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
                 pixel = combined_img.shape[0]
 
-                service_blanket = device_metric_reporter.create_metrics()
-                device_blanket = provider_metric_reporter.create_metrics(processing_time, source_fps, pixel)
+                service_blanket = provider_metric_reporter.create_metrics(processing_time, source_fps, pixel)
+                device_blanket = device_metric_reporter.create_metrics()
 
                 intersection_name = utils.get_mb_name(service_blanket["target"], device_blanket["target"])
-                merged_metrics = utils.merge_single_dicts(service_blanket["metrics"], device_blanket["metrics"])
+                merged_metrics = utils.merge_single_dicts(service_blanket["metrics"], service_blanket["metrics"])
                 device_metric_reporter.report_metrics(intersection_name, merged_metrics)
 
                 if simulate_fps:
