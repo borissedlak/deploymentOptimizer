@@ -1,14 +1,9 @@
 import os
 
-import numpy as np
 import pandas as pd
-import pgmpy
 import pymongo
-from pgmpy.base import DAG
-from pgmpy.estimators import AICScore, HillClimbSearch, MaximumLikelihoodEstimator
 from pgmpy.inference import VariableElimination
-from pgmpy.models import BayesianNetwork
-from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
+from pgmpy.readwrite import XMLBIFReader
 
 from detector import utils
 from dummy import dummy_A, dummy_B
@@ -27,47 +22,12 @@ def load():
     # Connect to MongoDB
     mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
-    laptop = pd.DataFrame(list(mongo_client['Laptop-Provider'].find()))
-    orin = pd.DataFrame(list(mongo_client['Orin-Provider'].find()))
-    pc = pd.DataFrame(list(mongo_client['PC-Provider'].find()))
+    laptop = pd.DataFrame(list(mongo_client['Processor-Laptop'].find()))
+    orin = pd.DataFrame(list(mongo_client['Processor-Orin'].find()))
+    pc = pd.DataFrame(list(mongo_client['Processor-PC'].find()))
     merged_list = pd.concat([laptop, pc, orin])
 
-    samples = pd.DataFrame(merged_list)
-    samples["delta"] = samples["delta"].apply(np.floor).astype(int)
-    samples["cpu"] = samples["cpu"].apply(np.floor).astype(int)
-    samples["memory"] = samples["memory"].apply(np.floor).astype(int)
-    samples['in_time'] = samples['delta'] <= (1000 / samples['fps'])
-
-    del samples['_id']
-    del samples['timestamp']
-    del samples['memory']
-
-    # del samples['cpu']
-    # del samples['consumption']
-    # del samples['device_type']
-
-    samples.to_csv(sample_file, index=False)
-    print(f"Loaded {sample_file} from MongoDB")
-
-
-def train():
-    samples = pd.read_csv("samples.csv")
-
-    scoring_method = AICScore(data=samples)  # BDeuScore | AICScore
-    estimator = HillClimbSearch(data=samples)
-
-    dag: pgmpy.base.DAG = estimator.estimate(
-        scoring_method=scoring_method, max_indegree=4, epsilon=1,
-    )
-
-    utils.export_BN_to_graph(dag, vis_ls=['circo'], save=False, name="raw_model", show=True)
-    model = BayesianNetwork(ebunch=dag)
-    model.fit(data=samples, estimator=MaximumLikelihoodEstimator)
-
-    writer = XMLBIFWriter(model)
-    file_name = f'model.xml'
-    writer.write_xmlbif(filename=file_name)
-    print(f"Model exported as '{file_name}'")
+    utils.prepare_samples(merged_list, export_path=sample_file)
 
 
 # TODO: This needs some sort of abstraction here so that I can evaluate multiple services
@@ -109,6 +69,6 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 
 if __name__ == "__main__":
     load()
-    train()
+    utils.train_to_MB(None, samples_path=sample_file)
     print("Service P", rate_devices_for_internal())
     # rate_devices_for_interaction()

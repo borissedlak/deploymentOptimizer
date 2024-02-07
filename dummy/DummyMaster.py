@@ -44,24 +44,7 @@ class DummyMaster:
                 rate_higher_blanket = raw_samples['fps']
                 data.update({'rate': rate_higher_blanket})
 
-        # Use ParameterEstimator to estimate CPDs based on data (you can replace data with your own dataset)
-        higher_blanket_data = pd.DataFrame(data=data)
-
-        scoring_method = AICScore(data=higher_blanket_data)  # BDeuScore | AICScore
-        estimator = HillClimbSearch(data=higher_blanket_data)
-
-        dag: pgmpy.base.DAG = estimator.estimate(
-            scoring_method=scoring_method, max_indegree=4, epsilon=1,
-        )
-
-        model = BayesianNetwork(ebunch=dag)
-        model.fit(higher_blanket_data, estimator=MaximumLikelihoodEstimator)
-
-        utils.export_BN_to_graph(model, vis_ls=['circo'], save=False, name="raw_model", show=True)
-
-        writer = XMLBIFWriter(model)
-        writer.write_xmlbif(filename=self.file_name)
-        print(f"Model exported as '{self.file_name}'")
+        utils.train_to_MB(data, export_file=self.file_name)
 
     def check_dependencies(self):
         # TODO: Move this to master class

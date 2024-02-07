@@ -4,14 +4,14 @@ import time
 import cv2
 import networkx as nx
 import numpy as np
+import pandas as pd
 import pgmpy
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_pydot import graphviz_layout
 from pgmpy.base import DAG
+from pgmpy.estimators import AICScore, HillClimbSearch, MaximumLikelihoodEstimator
 from pgmpy.models import BayesianNetwork
-from scipy.stats import entropy
-from numpy.linalg import norm
-import numpy as np
+from pgmpy.readwrite import XMLBIFWriter
 
 class_names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -223,6 +223,7 @@ def get_mb_name(service, host):
     # return '-'.join(sorted_strings)
     return service + '-' + host
 
+
 def get_true(param):
     if len(param.variables) > 2:
         raise Exception("How come?")
@@ -293,3 +294,49 @@ def jaccard_similarity(list1, list2):
     intersection_size = len(set1.intersection(set2))
     union_size = len(set1.union(set2))
     return intersection_size / union_size
+
+
+def prepare_samples(samples, remove_device_metrics=False, export_path=None):
+    samples["delta"] = samples["delta"].apply(np.floor).astype(int)
+    samples["cpu"] = samples["cpu"].apply(np.floor).astype(int)
+    samples["memory"] = samples["memory"].apply(np.floor).astype(int)
+    samples['in_time'] = samples['delta'] <= (1000 / samples['fps'])
+
+    del samples['_id']
+    del samples['timestamp']
+    del samples['memory']
+
+    if remove_device_metrics:
+        del samples['cpu']
+        del samples['consumption']
+        del samples['device_type']
+
+    if export_path is not None:
+        samples.to_csv(export_path, index=False)
+        print(f"Loaded {export_path} from MongoDB")
+
+    return samples
+
+
+def train_to_MB(samples, export_file=None, samples_path=None):
+    if samples_path is not None:
+        samples = pd.read_csv(samples_path)
+
+    scoring_method = AICScore(data=samples)  # BDeuScore | AICScore
+    estimator = HillClimbSearch(data=samples)
+
+    dag: pgmpy.base.DAG = estimator.estimate(
+        scoring_method=scoring_method, max_indegree=4, epsilon=1,
+    )
+
+    export_BN_to_graph(dag, vis_ls=['circo'], save=False, name="raw_model", show=True)
+    model = BayesianNetwork(ebunch=dag)
+    model.fit(data=samples, estimator=MaximumLikelihoodEstimator)
+
+    if export_file is not None:
+        writer = XMLBIFWriter(model)
+        file_name = f'model.xml'
+        writer.write_xmlbif(filename=file_name)
+        print(f"Model exported as '{file_name}'")
+
+    return model
