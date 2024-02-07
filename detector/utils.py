@@ -354,10 +354,10 @@ def find_files_with_prefix(directory, prefix, suffix):
 
 
 def check_similar_services_same_host(host):
-    d = "../dummy/"
+    d = "../consumer/"
     similar_services_at_same_host = []
 
-    potential_matches = find_files_with_prefix(d, "dummy_", ".xml")
+    potential_matches = find_files_with_prefix(d, "Consumer_", ".xml")
     for potential_match in potential_matches:
         model = XMLBIFReader(d + potential_match).get_model()
         if not model.has_node('device_type'):
@@ -370,6 +370,30 @@ def check_similar_services_same_host(host):
     return similar_services_at_same_host
 
 
+def check_same_services_similar_host(service, host):
+    classification = pd.read_csv("../inference/device_classification.csv")
+    current_device = classification[classification['device_name'] == host].to_dict(orient='list')
+    current_device_cpu = current_device['cpu'][0]
+
+    similar_devices = classification[(classification['cpu'] >= current_device_cpu) &
+                                     (classification['device_name'] != host)]
+    model_list = []
+    d = "../consumer/"
+
+    potential_matches = find_files_with_prefix(d, service, ".xml")
+    for pm in potential_matches:
+        model = XMLBIFReader(d + pm).get_model()
+
+        if not model.has_node('device_type'):
+            continue
+
+        for index, row in similar_devices.iterrows():
+            same_service_at_similar_host = row['device_name'] in model.get_cpds('device_type').__getattribute__('state_names')['device_type']
+            if same_service_at_similar_host:
+                model_list.append(model)
+    return model_list
+
+
 def plug_in_service_variables(service_mb: BayesianNetwork, potential_host_mb: BayesianNetwork):
     service_mb.add_node('cpu')
     service_mb.add_node('device_type')
@@ -379,7 +403,7 @@ def plug_in_service_variables(service_mb: BayesianNetwork, potential_host_mb: Ba
     return service_mb
 
 
-def check_no_edges_with_service(potential_host_mb: BayesianNetwork):
+def check_edges_with_service(potential_host_mb: BayesianNetwork):
     hardware_variables = ['cpu', 'device_type']  # TODO: 'memory', 'consumption',
     all_combinations = list(combinations(hardware_variables, 2))
 

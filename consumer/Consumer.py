@@ -13,7 +13,7 @@ local_device = 'Xavier'
 latency_thresh = 45
 
 
-class DummyMaster:
+class Consumer:
     def __init__(self, name, slos):
         self.service_name = name
         self.file_name = name + "_model.xml"

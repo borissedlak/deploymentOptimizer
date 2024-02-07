@@ -1,0 +1,6 @@
+device_name,cpu,gpu
+Orin,2,2
+Xavier,2,1
+Laptop,3,0
+PC,4,3
+Nano,1,1

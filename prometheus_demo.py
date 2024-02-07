@@ -9,7 +9,7 @@ cpu = Gauge('cpu', 'Description of gauge')
 # Decorate function with metric.
 # @REQUEST_TIME.time()
 # def process_request(t):
-#     """A dummy function that takes some time."""
+#     """A consumer function that takes some time."""
 #     time.sleep(t)
 #     cpu.set(10)
 

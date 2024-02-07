@@ -6,7 +6,6 @@ from pgmpy.inference import VariableElimination
 from pgmpy.readwrite import XMLBIFReader
 
 from detector import utils
-from dummy import dummy_A, dummy_B
 
 MONGO_HOST = os.environ.get('MONGO_HOST')
 if MONGO_HOST:

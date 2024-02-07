@@ -1,0 +1,6 @@
+service,class
+Provider,A
+Processor,B
+Consumer_A,C
+Consumer_B,C
+Consumer_C,C
