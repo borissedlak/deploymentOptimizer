@@ -7,7 +7,7 @@ from pgmpy.estimators import MaximumLikelihoodEstimator, AICScore, HillClimbSear
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
-from scipy.stats import wasserstein_distance, entropy
+from scipy.stats import wasserstein_distance
 
 from detector import utils
 
@@ -20,7 +20,7 @@ class DummyMaster:
     def __init__(self, name, slos):
         self.service_name = name
         self.file_name = name + "_model.xml"
-        self.wd_thresh = 0.1
+        self.wd_thresh = 0.05
         self.js_thresh = 0.9
         self.slos = slos
 
@@ -75,8 +75,8 @@ class DummyMaster:
 
             # 1 Check which variables could potentially match
             for higher_blanket_variable_name in model_higher_blanket.nodes:
-                # TODO: Watch out, distributions are same but not the values assigned!
 
+                # Write: About this marginalization
                 p = VariableElimination(model_higher_blanket).query(variables=[higher_blanket_variable_name]).values
                 q = VariableElimination(model_lower_blanket).query(variables=[lower_blanket_variable_name]).values
 
@@ -89,6 +89,7 @@ class DummyMaster:
 
         print("---------------")
 
+        # 2 Check if they match in terms of values, if not, it's confounded by a constant factor
         for (hb_v, lb_v) in promising_combinations:
             p = VariableElimination(model_higher_blanket).query(variables=[hb_v]).state_names[hb_v]
             q = VariableElimination(model_lower_blanket).query(variables=[lb_v]).state_names[lb_v]

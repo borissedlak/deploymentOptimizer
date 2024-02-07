@@ -28,9 +28,9 @@ def load():
     mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
     laptop = pd.DataFrame(list(mongo_client['Laptop-Provider'].find()))
-    # orin = pd.DataFrame(list(mongo_client['Orin-Provider'].find()))
+    orin = pd.DataFrame(list(mongo_client['Orin-Provider'].find()))
     pc = pd.DataFrame(list(mongo_client['PC-Provider'].find()))
-    merged_list = pd.concat([laptop, pc])
+    merged_list = pd.concat([laptop, pc, orin])
     # c2 = list(mongoClient['Provider'].find())
     # merged_list = utils.merge_single_dict(c1, c2)
 
@@ -43,7 +43,6 @@ def load():
     del samples['_id']
     del samples['timestamp']
     del samples['memory']
-    # del samples['device_type']
 
     # del samples['cpu']
     # del samples['consumption']
