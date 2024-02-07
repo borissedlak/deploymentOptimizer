@@ -21,6 +21,7 @@ def extract_footprint(service, host):
 
     # Case 1: Exact match evaluated empirically
     if utils.get_mb_name(service, host) in list_of_collections:
+        print(True)
         pass  # return MB of the composition
     # Case 2:
     elif 1 == 1:
