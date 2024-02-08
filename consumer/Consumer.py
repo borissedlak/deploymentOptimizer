@@ -32,22 +32,25 @@ class Consumer:
             if 'size' == var:
                 size_higher_blanket = raw_samples['pixel']
                 data.update({'size': size_higher_blanket})
+                data.update({'size_slo': raw_samples['pixel'] >= val})
             elif 'latency' == var:
                 # Write: That I introduced this fluctuation
-                latency_higher_blanket = raw_samples['delta'] + 20
-                latency_higher_blanket = [value + random.randint(1, 5) for value in latency_higher_blanket]
+                latency_higher_blanket = raw_samples['delta']
+                latency_higher_blanket = [value + random.randint(1, 25) for value in latency_higher_blanket]
                 data.update({'latency': latency_higher_blanket})
+                data.update({'latency_slo': raw_samples['delta'] < val})
             elif 'rate' == var:
                 rate_higher_blanket = raw_samples['fps']
                 data.update({'rate': rate_higher_blanket})
+                data.update({'rate_slo': raw_samples['fps'] > val})
 
         higher_blanket_data = pd.DataFrame(data=data)
         utils.train_to_MB(higher_blanket_data, export_file=self.file_name)
 
     def check_dependencies(self):
         # TODO: Move this to master class
-        model_lower_blanket = XMLBIFReader(f'../inference/model.xml').get_model()
         model_higher_blanket = XMLBIFReader(f'{self.file_name}').get_model()
+        model_lower_blanket = XMLBIFReader(f'../inference/Processor_model.xml').get_model()
 
         # TODO: Limit two two devices, one from each side
         promising_combinations = []

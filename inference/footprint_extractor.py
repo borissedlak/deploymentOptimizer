@@ -1,7 +1,5 @@
 import os
 
-import pandas as pd
-import pymongo
 from pgmpy.readwrite import XMLBIFReader
 
 from detector import utils
@@ -18,15 +16,20 @@ sample_file = "samples.csv"
 
 # footprint = Service-Host Deployment implications as MB
 def extract_footprint(service, host):
-    mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
+    # mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
+    # list_of_collections = mongo_client.list_collection_names()
 
-    list_of_collections = mongo_client.list_collection_names()
+    # if utils.get_mb_name(service, host) in list_of_collections:
+    #     raw_samples = pd.DataFrame(list(mongo_client[utils.get_mb_name(service, host)].find()))
+    #     samples = utils.prepare_samples(raw_samples)
+    #     return utils.train_to_MB(samples)
 
     # Case 1: Exact match evaluated empirically
-    if utils.get_mb_name(service, host) in list_of_collections:
-        raw_samples = pd.DataFrame(list(mongo_client[utils.get_mb_name(service, host)].find()))
-        samples = utils.prepare_samples(raw_samples)
-        return utils.train_to_MB(samples)
+    model_xml_files = utils.find_nested_files_with_suffix('../', f'{service}_model.xml')
+    if len(model_xml_files) > 0:
+        service_mb = XMLBIFReader(model_xml_files[0]).get_model()
+        if utils.check_device_present_in_mb(service_mb, host):
+            return service_mb
 
     # Case 2.1: Comparable service evaluated at the target device type [Metadata]
     # Idea: Should also check the online footprints, not only locally from the dummies

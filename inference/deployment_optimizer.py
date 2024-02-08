@@ -1,11 +1,12 @@
 import os
+import sys
 
 import pandas as pd
 import pymongo
 from pgmpy.inference import VariableElimination
-from pgmpy.readwrite import XMLBIFReader
 
 from detector import utils
+from inference import footprint_extractor
 
 MONGO_HOST = os.environ.get('MONGO_HOST')
 if MONGO_HOST:
@@ -31,23 +32,23 @@ def load_processor_blanket():
 
 
 # TODO: This needs some sort of abstraction here so that I can evaluate multiple services
-def infer(device):
-    model = XMLBIFReader(f'Processor_model.xml').get_model()
-    samples = pd.read_csv(sample_file)
+def infer_slo_fulfillment(model, device, slos, constraints=None):
+    if constraints is None:
+        constraints = {}
+    evidence = constraints | {'device_type': device}
+    ve = VariableElimination(model)
+    result = ve.query(variables=slos, evidence=evidence)
 
-    median_fps = get_median_demand(samples)
-
-    inference = VariableElimination(model)
-    evidence = {'device_type': device, 'fps': f'{median_fps}'}
-    return utils.get_true(inference.query(variables=["in_time"], evidence=evidence))
+    return result
 
 
-def rate_devices_for_internal():
+# Idea: Should also do all ratings for one service at one, but this requires the impacts in one model as well
+def rate_devices_for_processor(model):
     device_list = ['Orin', 'PC']
     internal_slo = []
 
     for device in device_list:
-        slo_fulfillment = infer(device)
+        slo_fulfillment = infer_slo_fulfillment(model, device, )
         internal_slo.append((device, slo_fulfillment))
 
     sorted_tuples = sorted(internal_slo, key=lambda x: x[1], reverse=True)
@@ -68,6 +69,31 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 
 
 if __name__ == "__main__":
-    load_processor_blanket()
-    print("Service P", rate_devices_for_internal())
+    # 1) Provider
+    # Skipped!
+
+    # 2) Processor
+    # load_processor_blanket()
+    Processor_SLOs = ["in_time"]
+    constraints_from_upper_blankets = {'pixel': '720', 'fps': '25'}
+    Processor_Orin = footprint_extractor.extract_footprint("Processor", "Orin")
+    print(utils.get_true(infer_slo_fulfillment(Processor_Orin, "Orin", Processor_SLOs, constraints=constraints_from_upper_blankets)))
+
+    sys.exit()
+    # 3) Consumers
+    Consumer_A_SLOs = ["latency_slo", "size_slo"]
+    Consumer_A_Orin = footprint_extractor.extract_footprint("Consumer_A", "Orin")
+    print(utils.get_true(infer_slo_fulfillment(Consumer_A_Orin, "Orin", Consumer_A_SLOs)))
+
+    Consumer_A_PC = footprint_extractor.extract_footprint("Consumer_A", "PC")
+    print(utils.get_true(infer_slo_fulfillment(Consumer_A_PC, "PC", Consumer_A_SLOs)))
+
+    Consumer_A_Nano = footprint_extractor.extract_footprint("Consumer_A", "Xavier")
+    print(utils.get_true(infer_slo_fulfillment(Consumer_A_Nano, "Orin", Consumer_A_SLOs)))
+
+    Consumer_B_SLOs = ["latency_slo", "rate_slo"]
+    Consumer_B_Orin = footprint_extractor.extract_footprint("Consumer_B", "Orin")
+    print(utils.get_true(infer_slo_fulfillment(Consumer_B_Orin, "Orin", Consumer_B_SLOs)))
+
+    # print("Service P", rate_devices_for_internal())
     # rate_devices_for_interaction()

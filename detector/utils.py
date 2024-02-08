@@ -1,4 +1,5 @@
 import copy
+import fnmatch
 import os
 import time
 from itertools import combinations
@@ -353,6 +354,16 @@ def find_files_with_prefix(directory, prefix, suffix):
     return file_list
 
 
+def find_nested_files_with_suffix(root_dir, suffix):
+    matching_files = []
+
+    for root, dirs, files in os.walk(root_dir):
+        for filename in fnmatch.filter(files, f"*{suffix}"):
+            matching_files.append(os.path.join(root, filename))
+
+    return matching_files
+
+
 def check_similar_services_same_host(host):
     d = "../consumer/"
     similar_services_at_same_host = []
@@ -377,7 +388,7 @@ def check_same_services_similar_host(service, host, any_host=False):
 
     device_criteria = (classification['cpu'] <= current_device_cpu)
     if any_host:
-        device_criteria = (classification['cpu'] >= current_device_cpu)
+        device_criteria = True
 
     similar_devices = classification[device_criteria &
                                      (classification['device_name'] != host)]
@@ -441,3 +452,8 @@ def penalize_device_mb(mb: BayesianNetwork, offset):
     original_cpd.__setattr__('state_names', new_states)
     mb.add_cpds(original_cpd)
     return mb
+
+
+def check_device_present_in_mb(model, device):
+    devices_contained = model.get_cpds('device_type').__getattribute__('state_names')['device_type']
+    return device in devices_contained
