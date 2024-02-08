@@ -60,14 +60,16 @@ def extract_footprint(service, host):
 
 if __name__ == "__main__":
     # Case 1
-    extract_footprint("Processor", "Laptop")
-    extract_footprint("Consumer_A", "Laptop")  # Case 1 implementation incomplete, but return value matches still
+    # extract_footprint("Processor", "Laptop")
+    # extract_footprint("Consumer_A", "Laptop")  # Case 1 implementation incomplete, but return value matches still
 
     # Case 2.1
-    extract_footprint("Consumer_C", "Laptop")
+    # extract_footprint("Consumer_C", "Laptop")
 
     # Case 3.1
-    extract_footprint("Consumer_A", "Xavier")
+    # extract_footprint("Consumer_A", "Xavier")
+    # extract_footprint("Processor", "Xavier")
 
     # Case 4
-    extract_footprint("Consumer_B", "Nano")
+    # extract_footprint("Consumer_B", "Nano")
+    extract_footprint("Processor", "Nano")

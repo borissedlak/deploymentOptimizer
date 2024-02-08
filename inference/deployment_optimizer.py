@@ -17,7 +17,7 @@ else:
 sample_file = "samples.csv"
 
 
-def load():
+def load_processor_blanket():
     # Connect to MongoDB
     mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
@@ -26,12 +26,13 @@ def load():
     pc = pd.DataFrame(list(mongo_client['Processor-PC'].find()))
     merged_list = pd.concat([laptop, pc, orin])
 
-    utils.prepare_samples(merged_list, export_path=sample_file)
+    samples = utils.prepare_samples(merged_list, export_path=sample_file)
+    utils.train_to_MB(samples, export_file=f'Processor_model.xml')
 
 
 # TODO: This needs some sort of abstraction here so that I can evaluate multiple services
 def infer(device):
-    model = XMLBIFReader(f'model.xml').get_model()
+    model = XMLBIFReader(f'Processor_model.xml').get_model()
     samples = pd.read_csv(sample_file)
 
     median_fps = get_median_demand(samples)
@@ -67,7 +68,6 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 
 
 if __name__ == "__main__":
-    load()
-    utils.train_to_MB(None, samples_path=sample_file)
+    load_processor_blanket()
     print("Service P", rate_devices_for_internal())
     # rate_devices_for_interaction()

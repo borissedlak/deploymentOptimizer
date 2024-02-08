@@ -127,7 +127,6 @@ class Consumer:
         current_blanket.add_cpds(cpd_device_type, cpd_cpu)
         utils.export_model_to_path(current_blanket, self.file_name)
 
-    # TODO: Move to master class?
     def evaluate_slo_fulfillment(self):
         samples = pd.read_csv("samples.csv")
 

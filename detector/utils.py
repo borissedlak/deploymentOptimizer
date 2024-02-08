@@ -386,6 +386,9 @@ def check_same_services_similar_host(service, host, any_host=False):
 
     # Idea: This should take the highest from the available
     potential_matches = find_files_with_prefix(d, service, ".xml")
+    if not potential_matches:
+        d = "../inference/"
+        potential_matches = find_files_with_prefix(d, service, ".xml")
     for pm in potential_matches:
         model = XMLBIFReader(d + pm).get_model()
 
@@ -427,7 +430,7 @@ def check_edges_with_service(potential_host_mb: BayesianNetwork):
 
 
 # Idea: This should penalize the service variables that are dependent on the hardware blanket
-# Idea: Should also change the device name state towards the desired host
+# Idea: Should also change the device name state towards the desired host, but can circumvent that later
 def penalize_device_mb(mb: BayesianNetwork, offset):
     original_cpd = mb.get_cpds('cpu')
     original_states = original_cpd.__getattribute__('state_names')
