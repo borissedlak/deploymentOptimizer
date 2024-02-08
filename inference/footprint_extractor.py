@@ -2,6 +2,7 @@ import os
 
 import pandas as pd
 import pymongo
+from pgmpy.models import BayesianNetwork
 from pgmpy.readwrite import XMLBIFReader
 
 from detector import utils
@@ -43,7 +44,7 @@ def extract_footprint(service, host):
 
     # Case 2.2: Comparable service evaluated at the target device type [Footprint]
 
-    # Case 3.1: Same service evaluated at a comparable device type --> Case 1
+    # Case 3.1: Same service evaluated at a comparable (=same or weaker) device type --> Case 1
     comparable_devices = utils.check_same_services_similar_host(service, host)
     if len(comparable_devices) > 0:
         return comparable_devices[0]
@@ -51,6 +52,9 @@ def extract_footprint(service, host):
     # Case 3.2: Comparable service evaluated at a comparable device type --> Case 2.1
 
     # Case 4: No comparable service for the device type existing
+    closest_devices = utils.check_same_services_similar_host(service, host, any_host=True)
+    # Idea: Interpolation according to the known devices, but requires at least two
+    closest_device: BayesianNetwork = closest_devices[0]
 
     raise RuntimeError("Should not happen :(")
 
@@ -67,4 +71,4 @@ if __name__ == "__main__":
     # extract_footprint("Consumer_A", "Xavier")
 
     # Case 4
-    extract_footprint("Consumer_C", "Nano")
+    extract_footprint("Consumer_B", "Nano")

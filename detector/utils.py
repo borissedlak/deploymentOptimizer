@@ -370,16 +370,21 @@ def check_similar_services_same_host(host):
     return similar_services_at_same_host
 
 
-def check_same_services_similar_host(service, host):
+def check_same_services_similar_host(service, host, any_host=False):
     classification = pd.read_csv("../inference/device_classification.csv")
     current_device = classification[classification['device_name'] == host].to_dict(orient='list')
     current_device_cpu = current_device['cpu'][0]
 
-    similar_devices = classification[(classification['cpu'] >= current_device_cpu) &
+    device_criteria = (classification['cpu'] <= current_device_cpu)
+    if any_host:
+        device_criteria = (classification['cpu'] >= current_device_cpu)
+
+    similar_devices = classification[device_criteria &
                                      (classification['device_name'] != host)]
     model_list = []
     d = "../consumer/"
 
+    # Idea: This should take the highest from the available
     potential_matches = find_files_with_prefix(d, service, ".xml")
     for pm in potential_matches:
         model = XMLBIFReader(d + pm).get_model()
@@ -388,7 +393,8 @@ def check_same_services_similar_host(service, host):
             continue
 
         for index, row in similar_devices.iterrows():
-            same_service_at_similar_host = row['device_name'] in model.get_cpds('device_type').__getattribute__('state_names')['device_type']
+            same_service_at_similar_host = row['device_name'] in \
+                                           model.get_cpds('device_type').__getattribute__('state_names')['device_type']
             if same_service_at_similar_host:
                 model_list.append(model)
     return model_list
@@ -418,3 +424,7 @@ def check_edges_with_service(potential_host_mb: BayesianNetwork):
             return False
 
     return True
+
+
+def penalize_device_mb(mb: BayesianNetwork):
+    pass

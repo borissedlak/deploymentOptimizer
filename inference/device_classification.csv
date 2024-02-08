@@ -1,6 +1,6 @@
 device_name,cpu,gpu
-Orin,2,2
+Nano,1,1
 Xavier,2,1
+Orin,2,2
 Laptop,3,0
 PC,4,3
-Nano,1,1

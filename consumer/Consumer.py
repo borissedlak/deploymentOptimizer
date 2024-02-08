@@ -94,23 +94,35 @@ class Consumer:
                 print(f"Low JS ({hb_v} --> {lb_v}): ", similarity, ", flagging as confounded")
 
     # TODO: Add the other hardware variables as cpds
-    def add_footprint_MB(self):
+    def add_footprint_MB(self, no_laptop=False):
         current_blanket = XMLBIFReader(f'{self.file_name}').get_model()
         current_blanket.add_node("cpu")
         current_blanket.add_node("device_type")
 
         current_blanket.add_edge("device_type", "cpu")
 
-        cpd_device_type = TabularCPD(variable='device_type', variable_card=3, values=[[0.33], [0.33], [0.33]],
-                                     state_names={'device_type': ['Orin', 'Laptop', 'PC']})
-        cpd_cpu = TabularCPD(variable='cpu', variable_card=3,
-                             values=[[0.0, 0.0, 1.0],
-                                     [0.0, 1.0, 0.0],
-                                     [1.0, 0.0, 0.0]],
-                             evidence=['device_type'],
-                             evidence_card=[3],
-                             state_names={'cpu': ['15', '20', '25'],
-                                          'device_type': ['Orin', 'Laptop', 'PC']})
+        if no_laptop:
+            cpd_device_type = TabularCPD(variable='device_type', variable_card=2, values=[[0.33], [0.33]],
+                                         state_names={'device_type': ['Orin', 'PC']})
+            cpd_cpu = TabularCPD(variable='cpu', variable_card=3,
+                                 values=[[0.0, 1.0],
+                                         [0.0, 0.0],
+                                         [1.0, 0.0]],
+                                 evidence=['device_type'],
+                                 evidence_card=[2],
+                                 state_names={'cpu': ['15', '20', '25'],
+                                              'device_type': ['Orin', 'PC']})
+        else:
+            cpd_device_type = TabularCPD(variable='device_type', variable_card=3, values=[[0.33], [0.33], [0.33]],
+                                         state_names={'device_type': ['Orin', 'Laptop', 'PC']})
+            cpd_cpu = TabularCPD(variable='cpu', variable_card=3,
+                                 values=[[0.0, 0.0, 1.0],
+                                         [0.0, 1.0, 0.0],
+                                         [1.0, 0.0, 0.0]],
+                                 evidence=['device_type'],
+                                 evidence_card=[3],
+                                 state_names={'cpu': ['15', '20', '25'],
+                                              'device_type': ['Orin', 'Laptop', 'PC']})
 
         current_blanket.add_cpds(cpd_device_type, cpd_cpu)
         utils.export_model_to_path(current_blanket, self.file_name)
