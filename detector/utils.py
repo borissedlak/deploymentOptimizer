@@ -426,5 +426,15 @@ def check_edges_with_service(potential_host_mb: BayesianNetwork):
     return True
 
 
-def penalize_device_mb(mb: BayesianNetwork):
-    pass
+# Idea: This should penalize the service variables that are dependent on the hardware blanket
+# Idea: Should also change the device name state towards the desired host
+def penalize_device_mb(mb: BayesianNetwork, offset):
+    original_cpd = mb.get_cpds('cpu')
+    original_states = original_cpd.__getattribute__('state_names')
+    modified_cpu_values = [(1 + offset) * int(num) for num in original_states['cpu']]
+
+    new_states = original_states
+    new_states['cpu'] = modified_cpu_values
+    original_cpd.__setattr__('state_names', new_states)
+    mb.add_cpds(original_cpd)
+    return mb
