@@ -79,7 +79,7 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
                 intersection_name = utils.get_mb_name(service_blanket["target"], device_blanket["target"])
                 merged_metrics = utils.merge_single_dicts(service_blanket["metrics"], device_blanket["metrics"])
-                # device_metric_reporter.report_metrics(intersection_name, merged_metrics)
+                device_metric_reporter.report_metrics(intersection_name, merged_metrics)
 
                 if simulate_fps:
                     if processing_time < available_time_frame:

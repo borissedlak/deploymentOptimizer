@@ -55,7 +55,7 @@ class DeviceMetricReporter:
             else:
                 frame_gpu_translation = {15: 30, 20: 40, 25: 65, 30: 75, 35: 80}
                 gpu = frame_gpu_translation[source_fps]
-                # Initializing jtop takes way too long
+                # Limitation: Initializing jtop takes way too long
                 # from jtop.jtop import jtop
                 # with jtop() as jetson:
                 #     jetson_dict = jetson.stats
