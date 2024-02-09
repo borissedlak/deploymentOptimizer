@@ -67,6 +67,10 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 
 
 if __name__ == "__main__":
+
+    # TODO: Extract utilization for each setup (incl. energy consumption)
+    # TODO: Rank deployment options
+
     # 1) Provider
     # Skipped!
 
@@ -80,30 +84,21 @@ if __name__ == "__main__":
         print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs,
                                                    constraints=constraints_from_upper_blankets)))
 
-    # TODO: Extract utilization for each setup (incl. energy consumption)
-    # TODO: Rank deployment options
-
     print('------------------------------------------')
 
     # 3) Consumers
     Consumer_A_SLOs = ["latency_slo", "size_slo"]
     # Idea: Extract device list for all? Or one loop for all? I can even supply the service name, upper constraints etc
-    for device in ['PC', 'Orin', 'Laptop']:
-        Consumer_A = footprint_extractor.extract_footprint("Consumer_A", device)
-        print(utils.get_true(infer_slo_fulfillment(Consumer_A, device, Consumer_A_SLOs)))
-
-    Consumer_A = footprint_extractor.extract_footprint("Consumer_A", 'Xavier')
-    print(utils.get_true(infer_slo_fulfillment(Consumer_A, 'Orin', Consumer_A_SLOs)))
+    for device in ['PC', 'Orin', 'Laptop', ('Xavier', 'Orin')]:
+        Consumer_A = footprint_extractor.extract_footprint("Consumer_A", device[0] if isinstance(device, tuple) else device)
+        print(utils.get_true(infer_slo_fulfillment(Consumer_A, device[1] if isinstance(device, tuple) else device, Consumer_A_SLOs)))
 
     print('------------------------------------------')
 
     Consumer_B_SLOs = ["latency_slo", "rate_slo"]
-    for device in ['PC', 'Orin', 'Laptop']:
-        Consumer_B = footprint_extractor.extract_footprint("Consumer_B", device)
-        print(utils.get_true(infer_slo_fulfillment(Consumer_B, device, Consumer_B_SLOs)))
-
-    Consumer_B = footprint_extractor.extract_footprint("Consumer_B", 'Nano')
-    print(utils.get_true(infer_slo_fulfillment(Consumer_B, 'Orin', Consumer_B_SLOs)))
+    for device in ['PC', 'Orin', 'Laptop', ('Nano', 'Orin')]:
+        Consumer_B = footprint_extractor.extract_footprint("Consumer_B", device[0] if isinstance(device, tuple) else device)
+        print(utils.get_true(infer_slo_fulfillment(Consumer_B, device[1] if isinstance(device, tuple) else device, Consumer_B_SLOs)))
 
     print('------------------------------------------')
 
