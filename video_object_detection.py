@@ -12,7 +12,7 @@ from detector.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 # PC CPU --> 64 FPS
 # PC GPU --> XX FPS
 # Laptop CPU --> 15 / 24 FPS
-# Orin GPU --> 35 FPS
+# Orin GPU --> 42 FPS
 # Xavier GPU --> 34 FPS
 # Xavier CPU --> 4 FPS
 
@@ -79,7 +79,7 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
                 intersection_name = utils.get_mb_name(service_blanket["target"], device_blanket["target"])
                 merged_metrics = utils.merge_single_dicts(service_blanket["metrics"], device_blanket["metrics"])
-                device_metric_reporter.report_metrics(intersection_name, merged_metrics)
+                # device_metric_reporter.report_metrics(intersection_name, merged_metrics)
 
                 if simulate_fps:
                     if processing_time < available_time_frame:
