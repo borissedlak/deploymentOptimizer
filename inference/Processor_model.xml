@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <BIF VERSION="0.3">
   <NETWORK>
-    <NAME>UNTITLED</NAME>
+    <NAME>Processor</NAME>
     <VARIABLE TYPE="nature">
       <NAME>consumption</NAME>
       <OUTCOME>6</OUTCOME>

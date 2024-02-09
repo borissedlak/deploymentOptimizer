@@ -8,24 +8,19 @@ from scipy.stats import wasserstein_distance
 
 from detector import utils
 
-# TODO: Refactor
-local_device = 'Xavier'
-latency_thresh = 45
-
 
 class Consumer:
     def __init__(self, name, slos):
         self.service_name = name
         self.file_name = name + "_model.xml"
-        self.wd_thresh = 0.01
+        self.wd_thresh = 0.1
         self.js_thresh = 0.9
         self.slos = slos
 
     def create_service_MB(self):
         raw_samples = pd.read_csv("samples.csv")
-        # TODO: Does it mather which device its from?
-        # Idea: Add this filtering mechanism below for the variable elimination
-        # raw_samples = raw_samples[raw_samples['device_type'] == 'Orin']
+        # Idea: Does it mather which device its from?
+        raw_samples = raw_samples[raw_samples['device_type'] == 'PC']  # TODO: Run Orin new and comment out
 
         data = {}
         for (var, rel, val) in self.slos:
@@ -45,27 +40,27 @@ class Consumer:
                 data.update({'rate_slo': raw_samples['fps'] > val})
 
         higher_blanket_data = pd.DataFrame(data=data)
-        utils.train_to_MB(higher_blanket_data, export_file=self.file_name)
+        utils.train_to_MB(higher_blanket_data, self.service_name, export_file=self.file_name)
 
     def check_dependencies(self):
-        # TODO: Move this to master class
         model_higher_blanket = XMLBIFReader(f'{self.file_name}').get_model()
         model_lower_blanket = XMLBIFReader(f'../inference/Processor_model.xml').get_model()
 
-        # TODO: Limit two two devices, one from each side
         promising_combinations = []
         for lower_blanket_variable_name in model_lower_blanket.nodes:
-            if lower_blanket_variable_name in ['in_time', 'device_type', 'consumption', 'cpu']:
+            if lower_blanket_variable_name in ['in_time', 'device_type', 'consumption', 'cpu', 'gpu']:
                 continue
 
             # 1 Check which variables could potentially match
             for higher_blanket_variable_name in model_higher_blanket.nodes:
+                if higher_blanket_variable_name.endswith('_slo'):
+                    continue
 
                 # Write: About this marginalization
                 p = VariableElimination(model_higher_blanket).query(variables=[higher_blanket_variable_name]).values
                 q = VariableElimination(model_lower_blanket).query(variables=[lower_blanket_variable_name]).values
 
-                # Idea: Compare (all) combination of MB [device_type = x] between the models. Some should match well
+                # Idea: Compare (all) combination of MB [device_type = x] between the models. Some device should match
                 # Idea: OR do this repeatedly for multiple combinations and compare the results
                 wd = wasserstein_distance(p, q)
 
@@ -96,7 +91,6 @@ class Consumer:
             if similarity < self.js_thresh:
                 print(f"Low JS ({hb_v} --> {lb_v}): ", similarity, ", flagging as confounded")
 
-    # TODO: Add the other hardware variables as cpds
     def add_footprint_MB(self, no_laptop=False):
         current_blanket = XMLBIFReader(f'{self.file_name}').get_model()
         current_blanket.add_node("cpu")
@@ -160,6 +154,10 @@ class Consumer:
         utils.export_model_to_path(current_blanket, self.file_name)
 
     def evaluate_slo_fulfillment(self):
+
+        local_device = 'Xavier'
+        latency_thresh = 45
+
         samples = pd.read_csv("samples.csv")
 
         del samples['in_time']

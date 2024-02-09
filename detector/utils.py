@@ -321,7 +321,7 @@ def prepare_samples(samples, remove_device_metrics=False, export_path=None):
     return samples
 
 
-def train_to_MB(samples, export_file=None, samples_path=None):
+def train_to_MB(samples, service_name, export_file=None, samples_path=None):
     if samples_path is not None:
         samples = pd.read_csv(samples_path)
 
@@ -334,6 +334,7 @@ def train_to_MB(samples, export_file=None, samples_path=None):
 
     export_BN_to_graph(dag, vis_ls=['circo'], save=False, name="raw_model", show=True)
     model = BayesianNetwork(ebunch=dag)
+    model.name = service_name
     model.fit(data=samples, estimator=MaximumLikelihoodEstimator)
 
     if export_file is not None:
@@ -393,15 +394,17 @@ def check_same_services_similar_host(service, host, any_host=False):
     similar_devices = classification[device_criteria &
                                      (classification['device_name'] != host)]
     model_list = []
-    d = "../consumer/"
+    # d = "../consumer/"
 
     # Idea: This should take the highest from the available
-    potential_matches = find_files_with_prefix(d, service, ".xml")
-    if not potential_matches:
-        d = "../inference/"
-        potential_matches = find_files_with_prefix(d, service, ".xml")
+    # TODO: Refactor one command, wait if works
+    potential_matches = find_nested_files_with_suffix('../', f'{service}_model.xml')
+    # potential_matches = find_files_with_prefix(d, service, ".xml")
+    # if not potential_matches:
+    #     d = "../inference/"
+    #     potential_matches = find_files_with_prefix(d, service, ".xml")
     for pm in potential_matches:
-        model = XMLBIFReader(d + pm).get_model()
+        model = XMLBIFReader(pm).get_model()
 
         if not model.has_node('device_type'):
             continue
@@ -424,7 +427,7 @@ def plug_in_service_variables(service_mb: BayesianNetwork, potential_host_mb: Ba
 
 
 def check_edges_with_service(potential_host_mb: BayesianNetwork):
-    hardware_variables = ['cpu', 'device_type']  # TODO: 'memory', 'consumption',
+    hardware_variables = ['cpu', 'device_type', 'memory', 'consumption']
     all_combinations = list(combinations(hardware_variables, 2))
 
     for (u, v) in all_combinations:

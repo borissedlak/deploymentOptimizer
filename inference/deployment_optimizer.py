@@ -19,7 +19,6 @@ sample_file = "samples.csv"
 
 
 def load_processor_blanket():
-    # Connect to MongoDB
     mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
     laptop = pd.DataFrame(list(mongo_client['Processor-Laptop'].find()))
@@ -28,7 +27,7 @@ def load_processor_blanket():
     merged_list = pd.concat([laptop, pc, orin])
 
     samples = utils.prepare_samples(merged_list, export_path=sample_file)
-    utils.train_to_MB(samples, export_file=f'Processor_model.xml')
+    utils.train_to_MB(samples, 'Processor', export_file=f'Processor_model.xml')
 
 
 # TODO: This needs some sort of abstraction here so that I can evaluate multiple services
@@ -77,7 +76,8 @@ if __name__ == "__main__":
     Processor_SLOs = ["in_time"]
     constraints_from_upper_blankets = {'pixel': '720', 'fps': '25'}
     Processor_Orin = footprint_extractor.extract_footprint("Processor", "Orin")
-    print(utils.get_true(infer_slo_fulfillment(Processor_Orin, "Orin", Processor_SLOs, constraints=constraints_from_upper_blankets)))
+    print(utils.get_true(infer_slo_fulfillment(Processor_Orin, "Orin", Processor_SLOs,
+                                               constraints=constraints_from_upper_blankets)))
 
     sys.exit()
     # 3) Consumers

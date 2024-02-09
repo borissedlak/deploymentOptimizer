@@ -33,9 +33,8 @@ def extract_footprint(service, host):
 
     # Case 2.1: Comparable service evaluated at the target device type [Metadata]
     # Idea: Should also check the online footprints, not only locally from the dummies
-    # Idea: For this it would need a metadata clustering in some representation, e.g., text
-    similar_services = utils.check_similar_services_same_host(host)
-    service_mb = XMLBIFReader(f'../consumer/Consumer_C_model.xml').get_model()
+    similar_services = utils.check_similar_services_same_host(host)  # Limitation: Only works with Consumer
+    service_mb = XMLBIFReader(model_xml_files[0]).get_model()  # Limitation: Should never be empty
     if len(similar_services) > 0:
         for potential_host_mb in similar_services:
 
@@ -55,7 +54,7 @@ def extract_footprint(service, host):
 
     # Case 4: No comparable service for the device type existing
     closest_devices = utils.check_same_services_similar_host(service, host, any_host=True)
-    # Idea: Interpolation according to the known devices, but requires at least two
+    # Write: Interpolation according to the known devices, but requires at least two
     return utils.penalize_device_mb(closest_devices[0], 1)
 
     # raise RuntimeError("Should not happen :(")
@@ -70,9 +69,9 @@ if __name__ == "__main__":
     # extract_footprint("Consumer_C", "Laptop")
 
     # Case 3.1
-    # extract_footprint("Consumer_A", "Xavier")
-    # extract_footprint("Processor", "Xavier")
+    extract_footprint("Consumer_A", "Xavier")
+    extract_footprint("Processor", "Xavier")
 
     # Case 4
-    # extract_footprint("Consumer_B", "Nano")
+    extract_footprint("Consumer_B", "Nano")
     extract_footprint("Processor", "Nano")
