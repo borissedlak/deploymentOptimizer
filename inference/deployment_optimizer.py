@@ -47,7 +47,7 @@ def rate_devices_for_processor(model):
     internal_slo = []
 
     for device in device_list:
-        slo_fulfillment = infer_slo_fulfillment(model, device, )
+        slo_fulfillment = infer_slo_fulfillment(model, device)
         internal_slo.append((device, slo_fulfillment))
 
     sorted_tuples = sorted(internal_slo, key=lambda x: x[1], reverse=True)
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     # 2) Processor
     # load_processor_blanket()
     Processor_SLOs = ["in_time"]
-    constraints_from_upper_blankets = {'pixel': '1080', 'fps': '25', 'gpu': 'None'}
+    constraints_from_upper_blankets = {'pixel': '1080', 'fps': '25'}
     # Processor = footprint_extractor.extract_footprint("Processor", "Orin")
     # print(utils.get_true(infer_slo_fulfillment(Processor, "Orin", Processor_SLOs,
     #                                            constraints=constraints_from_upper_blankets)))
