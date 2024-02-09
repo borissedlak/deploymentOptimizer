@@ -2,11 +2,11 @@ import os
 import threading
 from datetime import datetime
 
+import GPUtil
 import psutil
 import pymongo
 
 from consumption.ConsRegression import ConsRegression
-from detector import utils
 
 # This might actually run as a detached thread, but I think it facilitates the linking of entries
 # class Reporter:
@@ -47,10 +47,11 @@ class DeviceMetricReporter:
         mem = (mem_buffer.total - mem_buffer.available) / mem_buffer.total * 100
         cpu = psutil.cpu_percent()
         cons = self.consumption_regression.predict(cpu, self.gpu_available)
+        gpu = int(GPUtil.getGPUs()[0].load * 100)
 
         return {"target": self.target,
                 "metrics": {"device_type": self.target, "cpu": cpu, "memory": mem, "consumption": cons,
-                            "timestamp": datetime.now()}}
+                            "timestamp": datetime.now(), "gpu": gpu}}
 
     # @utils.print_execution_time
     def report_metrics(self, target, record):

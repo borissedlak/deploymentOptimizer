@@ -73,7 +73,7 @@ if __name__ == "__main__":
     # Skipped!
 
     # 2) Processor
-    # load_processor_blanket()
+    load_processor_blanket()
     Processor_SLOs = ["in_time"]
     constraints_from_upper_blankets = {'pixel': '720', 'fps': '25'}
     Processor_Orin = footprint_extractor.extract_footprint("Processor", "Orin")
