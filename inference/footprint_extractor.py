@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # extract_footprint("Consumer_C", "Laptop")
 
     # Case 3.1
-    extract_footprint("Consumer_A", "Xavier")
+    # extract_footprint("Consumer_A", "Xavier")
     extract_footprint("Processor", "Xavier")
 
     # Case 4
