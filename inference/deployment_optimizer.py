@@ -1,5 +1,4 @@
 import os
-import sys
 
 import pandas as pd
 import pymongo
@@ -74,34 +73,39 @@ if __name__ == "__main__":
     # 2) Processor
     # load_processor_blanket()
     Processor_SLOs = ["in_time"]
-    constraints_from_upper_blankets = {'pixel': '1080', 'fps': '25'}
-    # Processor = footprint_extractor.extract_footprint("Processor", "Orin")
-    # print(utils.get_true(infer_slo_fulfillment(Processor, "Orin", Processor_SLOs,
-    #                                            constraints=constraints_from_upper_blankets)))
+    constraints_from_upper_blankets = {'pixel': '480', 'fps': '25'}
 
-    # TODO: Error here
+    for device in ['PC', 'Orin', 'Laptop']:
+        Processor = footprint_extractor.extract_footprint("Processor", device)
+        print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs,
+                                                   constraints=constraints_from_upper_blankets)))
+
     # TODO: Extract utilization for each setup (incl. energy consumption)
     # TODO: Rank deployment options
 
-    Processor = footprint_extractor.extract_footprint("Processor", "Laptop")
-    print(utils.get_true(infer_slo_fulfillment(Processor, "Laptop", Processor_SLOs,
-                                               constraints=constraints_from_upper_blankets)))
+    print('------------------------------------------')
 
-    sys.exit()
     # 3) Consumers
     Consumer_A_SLOs = ["latency_slo", "size_slo"]
-    Consumer_A_Orin = footprint_extractor.extract_footprint("Consumer_A", "Orin")
-    print(utils.get_true(infer_slo_fulfillment(Consumer_A_Orin, "Orin", Consumer_A_SLOs)))
+    # Idea: Extract device list for all? Or one loop for all? I can even supply the service name, upper constraints etc
+    for device in ['PC', 'Orin', 'Laptop']:
+        Consumer_A = footprint_extractor.extract_footprint("Consumer_A", device)
+        print(utils.get_true(infer_slo_fulfillment(Consumer_A, device, Consumer_A_SLOs)))
 
-    Consumer_A_PC = footprint_extractor.extract_footprint("Consumer_A", "PC")
-    print(utils.get_true(infer_slo_fulfillment(Consumer_A_PC, "PC", Consumer_A_SLOs)))
+    Consumer_A = footprint_extractor.extract_footprint("Consumer_A", 'Xavier')
+    print(utils.get_true(infer_slo_fulfillment(Consumer_A, 'Orin', Consumer_A_SLOs)))
 
-    Consumer_A_Nano = footprint_extractor.extract_footprint("Consumer_A", "Xavier")
-    print(utils.get_true(infer_slo_fulfillment(Consumer_A_Nano, "Orin", Consumer_A_SLOs)))
+    print('------------------------------------------')
 
     Consumer_B_SLOs = ["latency_slo", "rate_slo"]
-    Consumer_B_Orin = footprint_extractor.extract_footprint("Consumer_B", "Orin")
-    print(utils.get_true(infer_slo_fulfillment(Consumer_B_Orin, "Orin", Consumer_B_SLOs)))
+    for device in ['PC', 'Orin', 'Laptop']:
+        Consumer_B = footprint_extractor.extract_footprint("Consumer_B", device)
+        print(utils.get_true(infer_slo_fulfillment(Consumer_B, device, Consumer_B_SLOs)))
+
+    Consumer_B = footprint_extractor.extract_footprint("Consumer_B", 'Nano')
+    print(utils.get_true(infer_slo_fulfillment(Consumer_B, 'Orin', Consumer_B_SLOs)))
+
+    print('------------------------------------------')
 
     # print("Service P", rate_devices_for_internal())
     # rate_devices_for_interaction()

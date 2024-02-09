@@ -394,15 +394,9 @@ def check_same_services_similar_host(service, host, any_host=False):
     similar_devices = classification[device_criteria &
                                      (classification['device_name'] != host)]
     model_list = []
-    # d = "../consumer/"
 
     # Idea: This should take the highest from the available
-    # TODO: Refactor one command, wait if works
     potential_matches = find_nested_files_with_suffix('../', f'{service}_model.xml')
-    # potential_matches = find_files_with_prefix(d, service, ".xml")
-    # if not potential_matches:
-    #     d = "../inference/"
-    #     potential_matches = find_files_with_prefix(d, service, ".xml")
     for pm in potential_matches:
         model = XMLBIFReader(pm).get_model()
 

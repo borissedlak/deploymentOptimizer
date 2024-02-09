@@ -48,6 +48,7 @@ def extract_footprint(service, host):
     # Case 3.1: Same service evaluated at a comparable (=same or weaker) device type --> Case 1
     comparable_devices = utils.check_same_services_similar_host(service, host)
     if len(comparable_devices) > 0:
+        # Idea: Must rename state to target device
         return comparable_devices[0]
 
     # Case 3.2: Comparable service evaluated at a comparable device type --> Case 2.1
@@ -55,6 +56,7 @@ def extract_footprint(service, host):
     # Case 4: No comparable service for the device type existing
     closest_devices = utils.check_same_services_similar_host(service, host, any_host=True)
     # Write: Interpolation according to the known devices, but requires at least two
+    # Idea: Must rename state to target device
     return utils.penalize_device_mb(closest_devices[0], 1)
 
     # raise RuntimeError("Should not happen :(")
@@ -62,14 +64,14 @@ def extract_footprint(service, host):
 
 if __name__ == "__main__":
     # Case 1
-    # extract_footprint("Processor", "Laptop")
-    # extract_footprint("Consumer_A", "Laptop")  # Case 1 implementation incomplete, but return value matches still
+    extract_footprint("Processor", "Laptop")
+    extract_footprint("Consumer_A", "Laptop")  # Case 1 implementation incomplete, but return value matches still
 
     # Case 2.1
-    # extract_footprint("Consumer_C", "Laptop")
+    extract_footprint("Consumer_C", "Laptop")
 
     # Case 3.1
-    # extract_footprint("Consumer_A", "Xavier")
+    extract_footprint("Consumer_A", "Xavier")
     extract_footprint("Processor", "Xavier")
 
     # Case 4
