@@ -74,10 +74,10 @@ if __name__ == "__main__":
     # 2) Processor
     # load_processor_blanket()
     Processor_SLOs = ["in_time"]
-    constraints_from_upper_blankets = {'pixel': '720', 'fps': '35'}
-    Processor = footprint_extractor.extract_footprint("Processor", "Orin")
-    print(utils.get_true(infer_slo_fulfillment(Processor, "Orin", Processor_SLOs,
-                                               constraints=constraints_from_upper_blankets)))
+    constraints_from_upper_blankets = {'pixel': '1080', 'fps': '25', 'gpu': 'None'}
+    # Processor = footprint_extractor.extract_footprint("Processor", "Orin")
+    # print(utils.get_true(infer_slo_fulfillment(Processor, "Orin", Processor_SLOs,
+    #                                            constraints=constraints_from_upper_blankets)))
 
     # TODO: Error here
     # TODO: Extract utilization for each setup (incl. energy consumption)

@@ -48,7 +48,7 @@ class DeviceMetricReporter:
         cpu = psutil.cpu_percent()
         cons = self.consumption_regression.predict(cpu, self.gpu_available)
 
-        gpu = None
+        gpu = 0
         if self.gpu_available:
             if len(GPUtil.getGPUs()) > 0:
                 gpu = int(GPUtil.getGPUs()[0].load * 100)

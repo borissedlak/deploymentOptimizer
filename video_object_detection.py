@@ -9,9 +9,9 @@ from detector.ServiceMetricReporter import ServiceMetricReporter
 from detector.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 
 # Benchmark for road race with 'video.mp4'
-# PC CPU --> 64 FPS
-# PC GPU --> XX FPS
-# Laptop CPU --> 15 / 24 FPS
+# PC CPU --> XX FPS
+# PC GPU --> 45 FPS
+# Laptop CPU --> 28 FPS
 # Orin GPU --> 42 FPS
 # Xavier GPU --> 34 FPS
 # Xavier CPU --> 4 FPS
@@ -24,8 +24,6 @@ device_metric_reporter = DeviceMetricReporter(detector.gpu_available())
 provider_metric_reporter = ServiceMetricReporter("Processor")
 
 
-# cap = cv2.VideoCapture("data/video.mp4")
-
 # cv2.namedWindow("Detected Objects", cv2.WINDOW_AUTOSIZE)
 
 
@@ -36,19 +34,16 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
             print(f"Now processing: {source_pixel} p, {source_fps} FPS, Round {x + 1}")
             available_time_frame = (1000 / source_fps)
             cap = cv2.VideoCapture("data/video_cut.mp4")
-            # cap = cv2.VideoCapture(video_path + source_res + "_" + str(source_fps) + ".mp4")
             if not cap.isOpened():
                 print("Error opening video ...")
                 return
 
             while cap.isOpened():
-
                 # Press key q to stop
                 if cv2.waitKey(1) == ord('q'):
                     break
 
                 try:
-                    # Prepare the frame
                     ret, original_frame = cap.read()
                     if not ret:
                         break
