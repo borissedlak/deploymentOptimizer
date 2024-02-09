@@ -53,11 +53,12 @@ class DeviceMetricReporter:
             if len(GPUtil.getGPUs()) > 0:
                 gpu = int(GPUtil.getGPUs()[0].load * 100)
             else:
-                from jtop import jtop
-                with jtop() as jetson:
-                    jetson_dict = jetson.stats
-                    gpu = jetson_dict['GPU']
-                    print(gpu)
+                pass
+                # from jtop.jtop import jtop
+                # with jtop() as jetson:
+                #     jetson_dict = jetson.stats
+                #     gpu = jetson_dict['GPU']
+                #     print(gpu)
 
         return {"target": self.target,
                 "metrics": {"device_type": self.target, "cpu": cpu, "memory": mem, "consumption": cons,
