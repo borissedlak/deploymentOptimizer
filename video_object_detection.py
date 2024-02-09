@@ -75,7 +75,7 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
                 pixel = combined_img.shape[0]
 
                 service_blanket = provider_metric_reporter.create_metrics(processing_time, source_fps, pixel)
-                device_blanket = device_metric_reporter.create_metrics()
+                device_blanket = device_metric_reporter.create_metrics(source_fps)
 
                 intersection_name = utils.get_mb_name(service_blanket["target"], device_blanket["target"])
                 merged_metrics = utils.merge_single_dicts(service_blanket["metrics"], device_blanket["metrics"])

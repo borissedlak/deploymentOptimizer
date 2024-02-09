@@ -41,7 +41,7 @@ class DeviceMetricReporter:
         #     self.mongoClient.drop_collection(target)
         #     print(f"Dropping collection {target}")
 
-    def create_metrics(self):
+    def create_metrics(self, source_fps):
         # TODO: This might also include network traffic information
         mem_buffer = psutil.virtual_memory()
         mem = (mem_buffer.total - mem_buffer.available) / mem_buffer.total * 100
@@ -53,7 +53,9 @@ class DeviceMetricReporter:
             if len(GPUtil.getGPUs()) > 0:
                 gpu = int(GPUtil.getGPUs()[0].load * 100)
             else:
-                pass
+                frame_gpu_translation = {15: 30, 20: 40, 25: 65, 30: 75, 35: 80}
+                gpu = frame_gpu_translation[source_fps]
+                # Initializing jtop takes way too long
                 # from jtop.jtop import jtop
                 # with jtop() as jetson:
                 #     jetson_dict = jetson.stats
