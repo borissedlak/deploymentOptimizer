@@ -263,10 +263,11 @@ def get_true(param):
 
 
 def get_latency_for_devices(d1, d2):
-    translate_dict = {'Xavier': 0, 'Orin': 1, 'PC': 2}
+    translate_dict = {'Orin': 0, 'Laptop': 1, 'PC': 2}
+    # TODO: See that this actually makes sense together with the evaluation
     distance = np.array([[1, 5, 25],
-                         [5, 5, 15],
-                         [25, 15, 10]])
+                         [5, 1, 15],
+                         [25, 15, 1]])
 
     a = translate_dict[d1]
     b = translate_dict[d2]
@@ -299,7 +300,7 @@ def jaccard_similarity(list1, list2):
     return intersection_size / union_size
 
 
-def prepare_samples(samples, remove_device_metrics=False, export_path=None):
+def prepare_samples(samples: pd.DataFrame, remove_device_metrics=False, export_path=None, latency_slo=None):
     samples["delta"] = samples["delta"].apply(np.floor).astype(int)
     samples["cpu"] = samples["cpu"].apply(np.floor).astype(int)
     samples["memory"] = samples["memory"].apply(np.floor).astype(int)
@@ -317,6 +318,23 @@ def prepare_samples(samples, remove_device_metrics=False, export_path=None):
     if export_path is not None:
         samples.to_csv(export_path, index=False)
         print(f"Loaded {export_path} from MongoDB")
+
+    if latency_slo:  # This assumes that the provider service is located close to 'Orin'
+        samples_merge = None
+        for device in ['Orin', 'Laptop', 'PC']:
+            samples_cons = samples.copy()
+            samples_cons['consumer_location'] = device
+
+            def calculate_cumulative_net_delay(row):
+                return (get_latency_for_devices(row['device_type'], 'Orin') +
+                        get_latency_for_devices(row['device_type'], device) +
+                        row['delta'])
+
+            samples_cons['cumm_net_delay'] = samples_cons.apply(calculate_cumulative_net_delay, axis=1)
+            samples_cons['latency_slo'] = samples_cons['cumm_net_delay'] <= latency_slo
+            samples_merge = pd.concat([samples_merge, samples_cons],
+                                      ignore_index=True) if samples_merge is not None else samples_cons
+        samples = samples_merge
 
     return samples
 

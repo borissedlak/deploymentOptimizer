@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pandas as pd
 import pymongo
@@ -17,7 +18,7 @@ else:
 sample_file = "samples.csv"
 
 
-def load_processor_blanket():
+def load_processor_blanket(latency_slo=None):
     mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
 
     laptop = pd.DataFrame(list(mongo_client['Processor-Laptop'].find()))
@@ -25,15 +26,15 @@ def load_processor_blanket():
     pc = pd.DataFrame(list(mongo_client['Processor-PC'].find()))
     merged_list = pd.concat([laptop, pc, orin])
 
-    samples = utils.prepare_samples(merged_list, export_path=sample_file)
+    samples = utils.prepare_samples(merged_list, export_path=sample_file, latency_slo=latency_slo)
     utils.train_to_MB(samples, 'Processor', export_file=f'Processor_model.xml')
 
 
 # TODO: This needs some sort of abstraction here so that I can evaluate multiple services
-def infer_slo_fulfillment(model, device, slos, constraints=None):
+def infer_slo_fulfillment(model, device_type, slos, constraints=None):
     if constraints is None:
         constraints = {}
-    evidence = constraints | {'device_type': device}
+    evidence = constraints | {'device_type': device_type}
     ve = VariableElimination(model)
     result = ve.query(variables=slos, evidence=evidence)
 
@@ -75,14 +76,19 @@ if __name__ == "__main__":
     # Skipped!
 
     # 2) Processor
-    # load_processor_blanket()
+    # load_processor_blanket(latency_slo=50)  # Takes most restrictive from the consumer SLOs
     Processor_SLOs = ["in_time"]
-    constraints_from_upper_blankets = {'pixel': '480', 'fps': '25'}
+    constraints_from_upper_blankets = {'pixel': '480', 'fps': '25'} | {'consumer_location': 'PC'}
 
     for device in ['PC', 'Orin', 'Laptop']:
+        print('\n', device)
         Processor = footprint_extractor.extract_footprint("Processor", device)
         print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs,
                                                    constraints=constraints_from_upper_blankets)))
+        print(utils.get_true(infer_slo_fulfillment(Processor, device, ['latency_slo'],
+                                                   constraints=constraints_from_upper_blankets)))
+
+    sys.exit()
 
     print('------------------------------------------')
 
@@ -90,15 +96,19 @@ if __name__ == "__main__":
     Consumer_A_SLOs = ["latency_slo", "size_slo"]
     # Idea: Extract device list for all? Or one loop for all? I can even supply the service name, upper constraints etc
     for device in ['PC', 'Orin', 'Laptop', ('Xavier', 'Orin')]:
-        Consumer_A = footprint_extractor.extract_footprint("Consumer_A", device[0] if isinstance(device, tuple) else device)
-        print(utils.get_true(infer_slo_fulfillment(Consumer_A, device[1] if isinstance(device, tuple) else device, Consumer_A_SLOs)))
+        Consumer_A = footprint_extractor.extract_footprint("Consumer_A",
+                                                           device[0] if isinstance(device, tuple) else device)
+        print(utils.get_true(
+            infer_slo_fulfillment(Consumer_A, device[1] if isinstance(device, tuple) else device, Consumer_A_SLOs)))
 
     print('------------------------------------------')
 
     Consumer_B_SLOs = ["latency_slo", "rate_slo"]
     for device in ['PC', 'Orin', 'Laptop', ('Nano', 'Orin')]:
-        Consumer_B = footprint_extractor.extract_footprint("Consumer_B", device[0] if isinstance(device, tuple) else device)
-        print(utils.get_true(infer_slo_fulfillment(Consumer_B, device[1] if isinstance(device, tuple) else device, Consumer_B_SLOs)))
+        Consumer_B = footprint_extractor.extract_footprint("Consumer_B",
+                                                           device[0] if isinstance(device, tuple) else device)
+        print(utils.get_true(
+            infer_slo_fulfillment(Consumer_B, device[1] if isinstance(device, tuple) else device, Consumer_B_SLOs)))
 
     print('------------------------------------------')
 
