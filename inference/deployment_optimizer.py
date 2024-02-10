@@ -76,9 +76,9 @@ if __name__ == "__main__":
     # Skipped!
 
     # 2) Processor
-    # load_processor_blanket(latency_slo=50)  # Takes most restrictive from the consumer SLOs
+    # load_processor_blanket(latency_slo=15)  # Takes most restrictive from the consumer SLOs
     Processor_SLOs = ["in_time"]
-    constraints_from_upper_blankets = {'pixel': '480', 'fps': '25'} | {'consumer_location': 'PC'}
+    constraints_from_upper_blankets = {'pixel': '480', 'fps': '25'} #| {'consumer_location': 'Orin'}
 
     for device in ['PC', 'Orin', 'Laptop']:
         print('\n', device)

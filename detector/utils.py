@@ -254,12 +254,14 @@ def get_true(param):
         else:
             return param.values[1]
     elif len(param.variables) == 1:
-        if param.values.shape == (2, 1):
+        if param.values.shape == (2,):
             return param.values[1]
-        elif param.__getattribute__("state_names")[param.variables[0]][0] == True:
+        elif param.__getattribute__("state_names")[param.variables[0]][0] == 'True':
             return param.values[0]
+        elif param.__getattribute__("state_names")[param.variables[0]][0] == 'False':
+            return 0
         else:
-            return param.values[1]
+            raise RuntimeError("dont know anymore")
 
 
 def get_latency_for_devices(d1, d2):
