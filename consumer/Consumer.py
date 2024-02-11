@@ -19,8 +19,7 @@ class Consumer:
 
     def create_service_MB(self):
         raw_samples = pd.read_csv("samples.csv")
-        # Idea: Does it mather which device its from?
-        raw_samples = raw_samples[raw_samples['device_type'] == 'PC']  # TODO: Run Orin new and comment out
+        # raw_samples = raw_samples[raw_samples['device_type'] == 'PC']
 
         data = {}
         for (var, rel, val) in self.slos:

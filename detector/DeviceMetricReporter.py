@@ -42,7 +42,6 @@ class DeviceMetricReporter:
         #     print(f"Dropping collection {target}")
 
     def create_metrics(self, source_fps):
-        # TODO: This might also include network traffic information
         mem_buffer = psutil.virtual_memory()
         mem = (mem_buffer.total - mem_buffer.available) / mem_buffer.total * 100
         cpu = psutil.cpu_percent()

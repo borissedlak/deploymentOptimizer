@@ -1,6 +1,6 @@
+import cv2
 from ultralytics import YOLO
 from ultralytics.solutions import object_counter
-import cv2
 
 model = YOLO("yolov8n.pt")
 cap = cv2.VideoCapture("data/video.mp4")
@@ -9,12 +9,6 @@ w, h, fps = (int(cap.get(x)) for x in (cv2.CAP_PROP_FRAME_WIDTH, cv2.CAP_PROP_FR
 
 # Define region points
 region_points = [(20, 400), (1080, 404), (1080, 360), (20, 360)]
-
-# Video writer
-# video_writer = cv2.VideoWriter("object_counting_output.avi",
-#                        cv2.VideoWriter_fourcc(*'mp4v'),
-#                        fps,
-#                        (w, h))
 
 # Fails for the image test here
 counter = object_counter.ObjectCounter()
@@ -35,8 +29,6 @@ while cap.isOpened():
     tracks = model.track(frame, persist=True, show=False)
 
     frame = counter.start_counting(frame, tracks)
-    # video_writer.write(im0)
 
 cap.release()
-# video_writer.release()
 cv2.destroyAllWindows()
