@@ -15,7 +15,7 @@ if __name__ == '__main__':
     consumer_B.check_dependencies()
     consumer_B.add_footprint_MB()
     #
-    consumer_C = Consumer("Consumer_C", [("latency", "<", 30)])
+    consumer_C = Consumer("Consumer_C", [("latency", "<", 35)])
     consumer_C.create_service_MB()
     consumer_C.check_dependencies()
     consumer_C.add_footprint_MB(no_laptop=True)

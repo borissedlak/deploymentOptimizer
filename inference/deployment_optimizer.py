@@ -30,7 +30,6 @@ def load_processor_blanket(latency_slo=None):
     utils.train_to_MB(samples, 'Processor', export_file=f'Processor_model.xml')
 
 
-# TODO: This needs some sort of abstraction here so that I can evaluate multiple services
 def infer_slo_fulfillment(model, device_type, slos, constraints=None):
     if constraints is None:
         constraints = {}
@@ -70,22 +69,19 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 if __name__ == "__main__":
 
     # TODO: Extract utilization for each setup (incl. energy consumption)
-    # TODO: Rank deployment options
 
     # 1) Provider
     # Skipped!
 
     # 2) Processor
-    # load_processor_blanket(latency_slo=15)  # Takes most restrictive from the consumer SLOs
-    Processor_SLOs = ["in_time"]
-    constraints_from_upper_blankets = {'pixel': '480', 'fps': '25'} #| {'consumer_location': 'Orin'}
+    # load_processor_blanket(latency_slo=50)  # Takes most restrictive from the consumer SLOs
+    Processor_SLOs = ["in_time", "latency_slo"]
+    constraints_from_upper_blankets = {'pixel': '480', 'fps': '25'} | {'consumer_location': 'Orin'}
 
     for device in ['PC', 'Orin', 'Laptop']:
         print('\n', device)
         Processor = footprint_extractor.extract_footprint("Processor", device)
         print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs,
-                                                   constraints=constraints_from_upper_blankets)))
-        print(utils.get_true(infer_slo_fulfillment(Processor, device, ['latency_slo'],
                                                    constraints=constraints_from_upper_blankets)))
 
     sys.exit()
