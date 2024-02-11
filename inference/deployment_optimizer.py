@@ -1,5 +1,4 @@
 import os
-import sys
 
 import pandas as pd
 import pymongo
@@ -41,23 +40,16 @@ def infer_slo_fulfillment(model, device_type, slos, constraints=None):
 
 
 # Idea: Should also do all ratings for one service at one, but this requires the impacts in one model as well
-def rate_devices_for_processor(model):
-    device_list = ['Orin', 'PC']
-    internal_slo = []
-
-    for device in device_list:
-        slo_fulfillment = infer_slo_fulfillment(model, device)
-        internal_slo.append((device, slo_fulfillment))
-
-    sorted_tuples = sorted(internal_slo, key=lambda x: x[1], reverse=True)
-    return sorted_tuples
-
-
-def rate_devices_for_interaction():
-    print("Service A SLO fulfillment if Service ", dummy_A.evaluate_slo_fulfillment())
-    print("Service B SLO fulfillment if Service ", dummy_B.evaluate_slo_fulfillment())
-    # dummy_A.evaluate_slo_fulfillment()
-    # dummy_A.evaluate_slo_fulfillment()
+# def rate_devices_for_processor(model):
+#     device_list = ['Orin', 'PC']
+#     internal_slo = []
+#
+#     for device in device_list:
+#         slo_fulfillment = infer_slo_fulfillment(model, device)
+#         internal_slo.append((device, slo_fulfillment))
+#
+#     sorted_tuples = sorted(internal_slo, key=lambda x: x[1], reverse=True)
+#     return sorted_tuples
 
 
 def get_median_demand(samples: pd.DataFrame) -> int:
@@ -71,7 +63,7 @@ if __name__ == "__main__":
     # TODO: Extract utilization for each setup (incl. energy consumption)
 
     # 1) Provider
-    # Skipped!
+    # Skipped! Assumed at Xavier or Orin?
 
     # 2) Processor
     # load_processor_blanket(latency_slo=50)  # Takes most restrictive from the consumer SLOs
@@ -83,8 +75,6 @@ if __name__ == "__main__":
         Processor = footprint_extractor.extract_footprint("Processor", device)
         print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs,
                                                    constraints=constraints_from_upper_blankets)))
-
-    sys.exit()
 
     print('------------------------------------------')
 

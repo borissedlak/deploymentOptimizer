@@ -8,13 +8,6 @@ import pymongo
 
 from consumption.ConsRegression import ConsRegression
 
-# This might actually run as a detached thread, but I think it facilitates the linking of entries
-# class Reporter:
-#     def create_metrics(self) -> dict[str, float]:
-#         pass
-#
-#     def report_metrics(self) -> None:
-#         pass
 DEVICE_NAME = os.environ.get('DEVICE_NAME')
 if DEVICE_NAME:
     print(f'Found ENV value for DEVICE_NAME: {DEVICE_NAME}')
@@ -36,10 +29,6 @@ class DeviceMetricReporter:
         self.consumption_regression = ConsRegression(self.target)
         self.mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
         self.gpu_available = gpu_available
-
-        # if clear_collection:
-        #     self.mongoClient.drop_collection(target)
-        #     print(f"Dropping collection {target}")
 
     def create_metrics(self, source_fps):
         mem_buffer = psutil.virtual_memory()
