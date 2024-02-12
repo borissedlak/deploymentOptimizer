@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 from networkx.drawing.nx_pydot import graphviz_layout
 from pgmpy.base import DAG
 from pgmpy.estimators import AICScore, HillClimbSearch, MaximumLikelihoodEstimator
+from pgmpy.factors.discrete import DiscreteFactor
 from pgmpy.models import BayesianNetwork
 from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
 
@@ -264,6 +265,16 @@ def get_true(param):
             raise RuntimeError("dont know anymore")
 
 
+def get_sum_up_to_x(cpd: DiscreteFactor, hw_variable, max_prob):
+    current_sum = 0
+    for index, element in enumerate(cpd.values):
+        current_sum += element
+        if current_sum >= max_prob:
+            return int(cpd.no_to_name[hw_variable][index]) + (0 if hw_variable == "gpu" else 1)
+
+    raise RuntimeError("Why?")
+
+
 def get_latency_for_devices(d1, d2):
     translate_dict = {'Orin': 0, 'Laptop': 1, 'PC': 2}
     # TODO: See that this actually makes sense together with the evaluation
@@ -310,7 +321,6 @@ def prepare_samples(samples: pd.DataFrame, remove_device_metrics=False, export_p
 
     del samples['_id']
     del samples['timestamp']
-    del samples['memory']
 
     if remove_device_metrics:
         del samples['cpu']
@@ -458,16 +468,16 @@ def check_edges_with_service(potential_host_mb: BayesianNetwork):
 
 
 # Idea: This should penalize the service variables that are dependent on the hardware blanket
-# Idea: Should also change the device name state towards the desired host, but can circumvent that later
 def penalize_device_mb(mb: BayesianNetwork, offset):
-    original_cpd = mb.get_cpds('cpu')
-    original_states = original_cpd.__getattribute__('state_names')
-    modified_cpu_values = [(1 + offset) * int(num) for num in original_states['cpu']]
+    for hw_variable in ['cpu', 'memory']:
+        original_cpd = mb.get_cpds(hw_variable)
+        original_states = original_cpd.__getattribute__('state_names')
+        modified_cpu_values = [(1 + offset) * int(num) for num in original_states[hw_variable]]
 
-    new_states = original_states
-    new_states['cpu'] = modified_cpu_values
-    original_cpd.__setattr__('state_names', new_states)
-    mb.add_cpds(original_cpd)
+        new_states = original_states
+        new_states[hw_variable] = modified_cpu_values
+        original_cpd.__setattr__('state_names', new_states)
+        mb.add_cpds(original_cpd)
     return mb
 
 

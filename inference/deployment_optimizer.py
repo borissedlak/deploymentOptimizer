@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pandas as pd
 import pymongo
@@ -15,6 +16,7 @@ else:
     print(f"Didn't find ENV value for MONGO_HOST, default to: {MONGO_HOST}")
 
 sample_file = "samples.csv"
+cpd_max_sum = 0.95
 
 
 def load_processor_blanket(latency_slo=None):
@@ -35,6 +37,17 @@ def infer_slo_fulfillment(model, device_type, slos, constraints=None):
     evidence = constraints | {'device_type': device_type}
     ve = VariableElimination(model)
     result = ve.query(variables=slos, evidence=evidence)
+
+    return result
+
+
+# Idea: Summarize from min to top and stop at e.g. 95% of utilization's cpd, to avoid peaks claiming too much space
+def infer_device_utilization(model, device_type, hw_variable, constraints=None):
+    if constraints is None:
+        constraints = {}
+    evidence = constraints | {'device_type': device_type}
+    ve = VariableElimination(model)
+    result = ve.query(variables=[hw_variable], evidence=evidence)
 
     return result
 
@@ -68,25 +81,33 @@ if __name__ == "__main__":
     # 2) Processor
     # load_processor_blanket(latency_slo=50)  # Takes most restrictive from the consumer SLOs
     Processor_SLOs = ["in_time", "latency_slo"]
-    constraints_from_upper_blankets = {'pixel': '480', 'fps': '25'} | {'consumer_location': 'Orin'}
+    lower_blanket_constraints = {'pixel': '480', 'fps': '25'}  # | {'consumer_location': 'PC'}
 
     for device in ['PC', 'Orin', 'Laptop']:
-        print('\n', device)
+        print('\n' + device)
         Processor = footprint_extractor.extract_footprint("Processor", device)
         print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs,
-                                                   constraints=constraints_from_upper_blankets)))
+                                                   constraints=lower_blanket_constraints)))
+        for metric, unit in [('cpu', '%'), ('gpu', '%'), ('memory', '%'), ('consumption', 'W')]:
+            cpd = infer_device_utilization(Processor, device, metric, constraints=lower_blanket_constraints)
+            print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
 
     print('------------------------------------------')
 
     # 3) Consumers
     Consumer_A_SLOs = ["latency_slo", "size_slo"]
     # Idea: Extract device list for all? Or one loop for all? I can even supply the service name, upper constraints etc
-    for device in ['PC', 'Orin', 'Laptop', ('Xavier', 'Orin')]:
+    for device in ['PC', 'Orin', 'Laptop', ('Xavier', 'Orin'), ('Nano', 'Orin')]:
+        print('\n' + (device[0] if isinstance(device, tuple) else device))
         Consumer_A = footprint_extractor.extract_footprint("Consumer_A",
                                                            device[0] if isinstance(device, tuple) else device)
         print(utils.get_true(
             infer_slo_fulfillment(Consumer_A, device[1] if isinstance(device, tuple) else device, Consumer_A_SLOs)))
+        for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W')]:
+            cpd = infer_device_utilization(Consumer_A, device[1] if isinstance(device, tuple) else device, metric)
+            print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
 
+    sys.exit()
     print('------------------------------------------')
 
     Consumer_B_SLOs = ["latency_slo", "rate_slo"]
