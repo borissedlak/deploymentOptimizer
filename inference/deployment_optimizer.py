@@ -73,8 +73,6 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 
 if __name__ == "__main__":
 
-    # TODO: Extract utilization for each setup (incl. energy consumption)
-
     # 1) Provider
     # Skipped! Assumed at Xavier or Orin?
 
@@ -96,7 +94,6 @@ if __name__ == "__main__":
 
     # 3) Consumers
     Consumer_A_SLOs = ["latency_slo", "size_slo"]
-    # Idea: Extract device list for all? Or one loop for all? I can even supply the service name, upper constraints etc
     for device in ['PC', 'Orin', 'Laptop', ('Xavier', 'Orin'), ('Nano', 'Orin')]:
         print('\n' + (device[0] if isinstance(device, tuple) else device))
         Consumer_A = footprint_extractor.extract_footprint("Consumer_A",
