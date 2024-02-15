@@ -45,6 +45,8 @@ def extract_footprint(service, host):
 
     # Case 2.2: Comparable service evaluated at the target device type [Footprint]
 
+    # Write: Shouldn't this be stronger device? No! If it worked on a weaker device, it will also work on the target
+    # Write: Whereas, if it worked on a stronger device, you don't know anything about the weaker one --> Case 4
     # Case 3.1: Same service evaluated at a comparable (=same or weaker) device type --> Case 1
     comparable_devices = utils.check_same_services_similar_host(service, host)
     if len(comparable_devices) > 0:

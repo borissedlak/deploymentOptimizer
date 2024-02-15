@@ -276,11 +276,13 @@ def get_sum_up_to_x(cpd: DiscreteFactor, hw_variable, max_prob):
 
 
 def get_latency_for_devices(d1, d2):
-    translate_dict = {'Orin': 0, 'Laptop': 1, 'PC': 2}
+    translate_dict = {'Nano': 0, 'Xavier': 1, 'Orin': 2, 'Laptop': 3, 'PC': 4}
     # TODO: See that this actually makes sense together with the evaluation
-    distance = np.array([[1, 5, 25],
-                         [5, 1, 15],
-                         [25, 15, 1]])
+    distance = np.array([[1, 3, 5, 10, 20],
+                         [3, 1, 2, 7, 17],
+                         [5, 2, 1, 5, 15],
+                         [10, 7, 5, 1, 10],
+                         [20, 17, 15, 10, 1]])
 
     a = translate_dict[d1]
     b = translate_dict[d2]
@@ -333,12 +335,12 @@ def prepare_samples(samples: pd.DataFrame, remove_device_metrics=False, export_p
 
     if latency_slo:  # This assumes that the provider service is located close to 'Orin'
         samples_merge = None
-        for device in ['Orin', 'Laptop', 'PC']:
+        for device in ['PC', 'Orin', 'Laptop', 'Xavier']:
             samples_cons = samples.copy()
             samples_cons['consumer_location'] = device
 
             def calculate_cumulative_net_delay(row):
-                return (get_latency_for_devices(row['device_type'], 'Orin') +
+                return (get_latency_for_devices(row['device_type'], 'Nano') +
                         get_latency_for_devices(row['device_type'], device) +
                         row['delta'])
 

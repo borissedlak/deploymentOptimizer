@@ -25,7 +25,8 @@ def load_processor_blanket(latency_slo=None):
     laptop = pd.DataFrame(list(mongo_client['Processor-Laptop'].find()))
     orin = pd.DataFrame(list(mongo_client['Processor-Orin'].find()))
     pc = pd.DataFrame(list(mongo_client['Processor-PC'].find()))
-    merged_list = pd.concat([laptop, pc, orin])
+    xavier = pd.DataFrame(list(mongo_client['Processor-Xavier'].find()))  # Or commented out to call case 3.1
+    merged_list = pd.concat([laptop, pc, orin, xavier])
 
     samples = utils.prepare_samples(merged_list, export_path=sample_file, latency_slo=latency_slo)
     utils.train_to_MB(samples, 'Processor', export_file=f'Processor_model.xml')
@@ -78,12 +79,12 @@ if __name__ == "__main__":
     # Consumes 30% CPU, 15% Memory, No GPU
 
     # 2) Processor
-    # load_processor_blanket(latency_slo=50)  # Takes most restrictive from the consumer SLOs
+    load_processor_blanket(latency_slo=50)  # Takes most restrictive from the consumer SLOs
     Processor_SLOs = ["in_time"]
     Consumer_SLOs = ["latency_slo"]
     lower_blanket_constraints = {'pixel': '480', 'fps': '25'}  # | {'consumer_location': 'PC'}
 
-    for device in ['PC', 'Orin', 'Laptop']:
+    for device in ['PC', 'Laptop', 'Orin', 'Xavier']:
         print('\n' + device)
         Processor = footprint_extractor.extract_footprint("Processor", device)
         print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs + Consumer_SLOs,
@@ -93,10 +94,10 @@ if __name__ == "__main__":
             print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
 
     print('------------------------------------------')
-
+    sys.exit()
     # 3) Consumers
     Consumer_A_SLOs = ["latency_slo", "size_slo"]
-    for device in ['PC', 'Orin', 'Laptop', ('Xavier', 'Orin'), ('Nano', 'Orin')]:
+    for device in ['PC', 'Laptop', 'Orin', ('Xavier', 'Orin'), ('Nano', 'Orin')]:
         print('\n' + (device[0] if isinstance(device, tuple) else device))
         Consumer_A = footprint_extractor.extract_footprint("Consumer_A",
                                                            device[0] if isinstance(device, tuple) else device)
