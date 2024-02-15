@@ -74,17 +74,19 @@ def get_median_demand(samples: pd.DataFrame) -> int:
 if __name__ == "__main__":
 
     # 1) Provider
-    # Skipped! Assumed at Xavier or Orin?
+    # Skipped! Assumed at Nano
+    # Consumes 30% CPU, 15% Memory, No GPU
 
     # 2) Processor
     # load_processor_blanket(latency_slo=50)  # Takes most restrictive from the consumer SLOs
-    Processor_SLOs = ["in_time", "latency_slo"]
+    Processor_SLOs = ["in_time"]
+    Consumer_SLOs = ["latency_slo"]
     lower_blanket_constraints = {'pixel': '480', 'fps': '25'}  # | {'consumer_location': 'PC'}
 
     for device in ['PC', 'Orin', 'Laptop']:
         print('\n' + device)
         Processor = footprint_extractor.extract_footprint("Processor", device)
-        print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs,
+        print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs + Consumer_SLOs,
                                                    constraints=lower_blanket_constraints)))
         for metric, unit in [('cpu', '%'), ('gpu', '%'), ('memory', '%'), ('consumption', 'W')]:
             cpd = infer_device_utilization(Processor, device, metric, constraints=lower_blanket_constraints)

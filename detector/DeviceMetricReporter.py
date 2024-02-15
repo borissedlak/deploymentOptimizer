@@ -41,7 +41,8 @@ class DeviceMetricReporter:
             if len(GPUtil.getGPUs()) > 0:
                 gpu = int(GPUtil.getGPUs()[0].load * 100)
             else:
-                frame_gpu_translation = {15: 30, 20: 40, 25: 65, 30: 75, 35: 80}
+                # frame_gpu_translation = {15: 30, 20: 40, 25: 65, 30: 75, 35: 80}  # Orin
+                frame_gpu_translation = {15: 35, 20: 50, 25: 70, 30: 80, 35: 85}  # Xavier
                 gpu = frame_gpu_translation[source_fps]
                 # Limitation: Initializing jtop takes way too long
                 # from jtop.jtop import jtop
