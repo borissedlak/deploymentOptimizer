@@ -1,3 +1,4 @@
+import csv
 import itertools
 import time
 
@@ -23,11 +24,14 @@ simulate_fps = True
 device_metric_reporter = DeviceMetricReporter(detector.gpu_available())
 provider_metric_reporter = ServiceMetricReporter("Processor")
 
-
 # cv2.namedWindow("Detected Objects", cv2.WINDOW_AUTOSIZE)
 
+csv_values = []
+csv_headers = []
 
-def process_video(video_path, video_info, show_result=False, repeat=1):
+
+def process_video(video_path, video_info, show_result=False, repeat=1, write_csv=False):
+    global csv_values, csv_headers
     for (source_pixel, source_fps) in video_info:
         for x in range(repeat):
 
@@ -74,7 +78,12 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
                 intersection_name = utils.get_mb_name(service_blanket["target"], device_blanket["target"])
                 merged_metrics = utils.merge_single_dicts(service_blanket["metrics"], device_blanket["metrics"])
-                device_metric_reporter.report_metrics(intersection_name, merged_metrics)
+
+                if write_csv:
+                    csv_headers = merged_metrics.keys()
+                    csv_values.append(merged_metrics)
+                else:
+                    device_metric_reporter.report_metrics(intersection_name, merged_metrics)
 
                 if simulate_fps:
                     if processing_time < available_time_frame:
@@ -84,7 +93,15 @@ def process_video(video_path, video_info, show_result=False, repeat=1):
 
 
 if __name__ == "__main__":
+    write_csv = True
     process_video(video_path="../video_data/",
                   video_info=list(itertools.product([1080, 720, 480], [15, 20, 25, 30, 35])),
                   show_result=False,
-                  repeat=1)
+                  write_csv=write_csv,
+                  repeat=3)
+
+    if write_csv:
+        with open("./analysis/files/PC_2_3.csv", 'w', newline='') as csv_file:
+            csv_writer = csv.DictWriter(csv_file, fieldnames=csv_headers)
+            csv_writer.writeheader()
+            csv_writer.writerows(csv_values)
