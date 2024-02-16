@@ -42,7 +42,7 @@ def infer_slo_fulfillment(model, device_type, slos, constraints=None):
     return result
 
 
-# Idea: Summarize from min to top and stop at e.g. 95% of utilization's cpd, to avoid peaks claiming too much space
+# Write: Summarize from min to top and stop at e.g. 95% of utilization's cpd, to avoid peaks claiming too much space
 def infer_device_utilization(model, device_type, hw_variable, constraints=None):
     if constraints is None:
         constraints = {}
@@ -53,71 +53,53 @@ def infer_device_utilization(model, device_type, hw_variable, constraints=None):
     return result
 
 
-# Idea: Should also do all ratings for one service at one, but this requires the impacts in one model as well
-# def rate_devices_for_processor(model):
-#     device_list = ['Orin', 'PC']
-#     internal_slo = []
-#
-#     for device in device_list:
-#         slo_fulfillment = infer_slo_fulfillment(model, device)
-#         internal_slo.append((device, slo_fulfillment))
-#
-#     sorted_tuples = sorted(internal_slo, key=lambda x: x[1], reverse=True)
-#     return sorted_tuples
-
-
-def get_median_demand(samples: pd.DataFrame) -> int:
-    # filtered = samples[samples['device_type'] == device_name]
-    median = samples['fps'].median().astype(int)
-    return median  # or 20
-
-
 if __name__ == "__main__":
+    device_list = ['PC', 'Laptop', 'Orin', 'Xavier', ('Nano', 'Xavier')]
+    Consumer_to_Worker_SLOs = ["latency_slo"]
+    service_list = ['Consumer_A', 'Consumer_B', 'Consumer_C']
+    consumer_SLOs = {'Consumer_A': ["latency_slo", "size_slo"], 'Consumer_B': ["latency_slo", "rate_slo"],
+                     'Consumer_C': ["latency_slo"]}
+
+    Consumer_to_Worker_constraints = {'pixel': '480', 'fps': '15'}  # | {'consumer_location': 'Orin'}
+    if "Consumer_A" in service_list:
+        Consumer_to_Worker_constraints['pixel'] = '720'
+        most_restrictive_consumer_latency = 1000
+    if "Consumer_B" in service_list:
+        Consumer_to_Worker_constraints['fps'] = '25'
+        most_restrictive_consumer_latency = 70
+    if "Consumer_C" in service_list:
+        most_restrictive_consumer_latency = 40
+
 
     # 1) Provider
     # Skipped! Assumed at Nano
-    # Consumes 30% CPU, 15% Memory, No GPU
+    # Utilizes 30% CPU, 15% Memory, No GPU, Consumption depending on fps
 
     # 2) Processor
-    load_processor_blanket(latency_slo=50)  # Takes most restrictive from the consumer SLOs
+    # load_processor_blanket(latency_slo=most_restrictive_consumer_latency)
     Processor_SLOs = ["in_time"]
-    Consumer_SLOs = ["latency_slo"]
-    lower_blanket_constraints = {'pixel': '480', 'fps': '25'}  # | {'consumer_location': 'PC'}
 
-    for device in ['PC', 'Laptop', 'Orin', 'Xavier']:
-        print('\n' + device)
-        Processor = footprint_extractor.extract_footprint("Processor", device)
-        print(utils.get_true(infer_slo_fulfillment(Processor, device, Processor_SLOs + Consumer_SLOs,
-                                                   constraints=lower_blanket_constraints)))
+    for device in device_list:
+        print('\n' + (device[0] if isinstance(device, tuple) else device))
+        Processor = footprint_extractor.extract_footprint("Processor", device[0] if isinstance(device, tuple) else device)
+        print(utils.get_true(infer_slo_fulfillment(Processor, device[1] if isinstance(device, tuple) else device,
+                                                   Processor_SLOs + Consumer_to_Worker_SLOs, constraints=Consumer_to_Worker_constraints)))
         for metric, unit in [('cpu', '%'), ('gpu', '%'), ('memory', '%'), ('consumption', 'W')]:
-            cpd = infer_device_utilization(Processor, device, metric, constraints=lower_blanket_constraints)
+            cpd = infer_device_utilization(Processor, device[1] if isinstance(device, tuple) else device, metric,
+                                           constraints=Consumer_to_Worker_constraints)
             print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
 
     print('------------------------------------------')
     sys.exit()
     # 3) Consumers
-    Consumer_A_SLOs = ["latency_slo", "size_slo"]
-    for device in ['PC', 'Laptop', 'Orin', ('Xavier', 'Orin'), ('Nano', 'Orin')]:
-        print('\n' + (device[0] if isinstance(device, tuple) else device))
-        Consumer_A = footprint_extractor.extract_footprint("Consumer_A",
-                                                           device[0] if isinstance(device, tuple) else device)
-        print(utils.get_true(
-            infer_slo_fulfillment(Consumer_A, device[1] if isinstance(device, tuple) else device, Consumer_A_SLOs)))
-        for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W')]:
-            cpd = infer_device_utilization(Consumer_A, device[1] if isinstance(device, tuple) else device, metric)
-            print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
 
-    sys.exit()
-    print('------------------------------------------')
+    for cons in service_list:
+        for device in device_list:
+            print('\n' + (device[0] if isinstance(device, tuple) else device))
+            Consumer = footprint_extractor.extract_footprint(cons, device[0] if isinstance(device, tuple) else device)
+            print(utils.get_true(infer_slo_fulfillment(Consumer, device[1] if isinstance(device, tuple) else device, consumer_SLOs[cons])))
+            for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W')]:
+                cpd = infer_device_utilization(Consumer, device[1] if isinstance(device, tuple) else device, metric)
+                print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
 
-    Consumer_B_SLOs = ["latency_slo", "rate_slo"]
-    for device in ['PC', 'Orin', 'Laptop', ('Nano', 'Orin')]:
-        Consumer_B = footprint_extractor.extract_footprint("Consumer_B",
-                                                           device[0] if isinstance(device, tuple) else device)
-        print(utils.get_true(
-            infer_slo_fulfillment(Consumer_B, device[1] if isinstance(device, tuple) else device, Consumer_B_SLOs)))
-
-    print('------------------------------------------')
-
-    # print("Service P", rate_devices_for_internal())
-    # rate_devices_for_interaction()
+        print('------------------------------------------')

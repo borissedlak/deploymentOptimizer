@@ -474,10 +474,10 @@ def penalize_device_mb(mb: BayesianNetwork, offset):
     for hw_variable in ['cpu', 'memory']:
         original_cpd = mb.get_cpds(hw_variable)
         original_states = original_cpd.__getattribute__('state_names')
-        modified_cpu_values = [(1 + offset) * int(num) for num in original_states[hw_variable]]
+        modified_hw_values = list(map(str, [(1 + offset) * int(num) for num in original_states[hw_variable]]))
 
         new_states = original_states
-        new_states[hw_variable] = modified_cpu_values
+        new_states[hw_variable] = modified_hw_values
         original_cpd.__setattr__('state_names', new_states)
         mb.add_cpds(original_cpd)
     return mb
