@@ -1,4 +1,5 @@
 import copy
+import csv
 import fnmatch
 import os
 import time
@@ -329,10 +330,6 @@ def prepare_samples(samples: pd.DataFrame, remove_device_metrics=False, export_p
         del samples['consumption']
         del samples['device_type']
 
-    if export_path is not None:
-        samples.to_csv(export_path, index=False)
-        print(f"Loaded {export_path} from MongoDB")
-
     if latency_slo:  # This assumes that the provider service is located close to 'Orin'
         samples_merge = None
         for device in ['PC', 'Orin', 'Laptop', 'Xavier']:
@@ -349,6 +346,10 @@ def prepare_samples(samples: pd.DataFrame, remove_device_metrics=False, export_p
             samples_merge = pd.concat([samples_merge, samples_cons],
                                       ignore_index=True) if samples_merge is not None else samples_cons
         samples = samples_merge
+
+    if export_path is not None:
+        samples.to_csv(export_path, index=False)
+        print(f"Loaded {export_path} from MongoDB")
 
     return samples
 
@@ -486,3 +487,11 @@ def penalize_device_mb(mb: BayesianNetwork, offset):
 def check_device_present_in_mb(model, device):
     devices_contained = model.get_cpds('device_type').__getattribute__('state_names')['device_type']
     return device in devices_contained
+
+
+def log_dict(service, device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency):
+    with open("../analysis/inference/assignments.csv", 'a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        # csv_writer.writerow(["service_name"] + ["host"] + list(Consumer_to_Worker_constraints.keys()) + ["min_latency"] + list(variable_dict.keys()))
+        csv_writer.writerow([service] + [device] + list(Consumer_to_Worker_constraints.values()) + [most_restrictive_consumer_latency]
+                            + list(variable_dict.values()))

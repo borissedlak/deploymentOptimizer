@@ -1,5 +1,6 @@
 import random
 
+import numpy as np
 import pandas as pd
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
@@ -25,20 +26,32 @@ class Consumer:
         for (var, rel, val) in self.slos:
             if 'size' == var:
                 size_higher_blanket = raw_samples['pixel']
-                data.update({'size': size_higher_blanket})
+                data.update({'pixel': size_higher_blanket})
                 data.update({'size_slo': raw_samples['pixel'] >= val})
             elif 'latency' == var:
+                #TODO: Does not consider positions of consumer and worker
+                raw_samples['processor_location'] = raw_samples['device_type']
+                raw_samples['device_type'] = raw_samples['consumer_location']
+                del raw_samples['consumer_location']
+
                 # Write: That I introduced this fluctuation
+                # TODO: This actually does not make sense anymore
                 latency_higher_blanket = raw_samples['delta']
                 latency_higher_blanket = [value + random.randint(1, 25) for value in latency_higher_blanket]
                 data.update({'latency': latency_higher_blanket})
-                data.update({'latency_slo': raw_samples['delta'] < val})
+                data.update({'latency_slo': raw_samples['cumm_net_delay'] <= val})
             elif 'rate' == var:
                 rate_higher_blanket = raw_samples['fps']
-                data.update({'rate': rate_higher_blanket})
-                data.update({'rate_slo': raw_samples['fps'] > val})
+                data.update({'fps': rate_higher_blanket})
+                data.update({'rate_slo': raw_samples['fps'] >= val})
+
+        data.update({'device_type': raw_samples['device_type']})
+        data.update({'cumm_net_delay': raw_samples['cumm_net_delay']})
+        data.update({'processor_location': raw_samples['processor_location']})
 
         higher_blanket_data = pd.DataFrame(data=data)
+        higher_blanket_data['pixel'] = higher_blanket_data['pixel'].astype(int).astype(str)
+        higher_blanket_data['fps'] = higher_blanket_data['fps'].astype(int).astype(str)
         utils.train_to_MB(higher_blanket_data, self.service_name, export_file=self.file_name)
 
     def check_dependencies(self):
@@ -161,32 +174,3 @@ class Consumer:
 
         current_blanket.add_cpds(cpd_device_type, cpd_cpu, cpd_memory, cpd_consumption)
         utils.export_model_to_path(current_blanket, self.file_name)
-
-    def evaluate_slo_fulfillment(self):
-
-        local_device = 'Xavier'
-        latency_thresh = 45
-
-        samples = pd.read_csv("samples.csv")
-
-        del samples['in_time']
-        del samples['consumption']
-        del samples['cpu']
-
-        device_types = samples['device_type'].unique()
-        slo_fulfillment_per_device = []
-
-        for device_type in device_types:
-            slo_valid = 0
-            filtered = samples[samples['device_type'] == device_type]
-            network_latency = utils.get_latency_for_devices(local_device, device_type)
-
-            for index, row in filtered.iterrows():
-                if row['delta'] + network_latency <= latency_thresh:
-                    slo_valid += 1
-
-            rate = slo_valid / len(filtered)
-            slo_fulfillment_per_device.append((device_type, rate))
-
-        sorted_tuples = sorted(slo_fulfillment_per_device, key=lambda x: x[1], reverse=True)
-        return sorted_tuples

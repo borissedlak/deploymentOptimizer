@@ -101,7 +101,7 @@ if __name__ == "__main__":
                   repeat=3)
 
     if write_csv:
-        with open("./analysis/files/PC_2_3.csv", 'w', newline='') as csv_file:
+        with open("analysis/performance/PC_2_3.csv", 'w', newline='') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=csv_headers)
             csv_writer.writeheader()
             csv_writer.writerows(csv_values)
