@@ -55,11 +55,11 @@ def infer_device_utilization(model, device_type, hw_variable, constraints=None):
 if __name__ == "__main__":
     device_list = ['PC', 'Laptop', 'Orin', 'Xavier', ('Nano', 'Xavier')]
     Consumer_to_Worker_SLOs = ["latency_slo"]
-    service_list = ['Consumer_A']
+    service_list = ['Consumer_A', 'Consumer_B', 'Consumer_C']
     consumer_SLOs = {'Consumer_A': ["latency_slo", "size_slo"], 'Consumer_B': ["latency_slo", "rate_slo"],
                      'Consumer_C': ["latency_slo"]}
 
-    # TODO: But I have multiple consumers, which might each be located at different positions
+    # Idea: Remember, that I must retrain if I modify the list of consumers
     Consumer_to_Worker_constraints = {'pixel': '480', 'fps': '15'}
     if "Consumer_A" in service_list:
         Consumer_to_Worker_constraints['pixel'] = '720'
@@ -70,8 +70,8 @@ if __name__ == "__main__":
     if "Consumer_C" in service_list:
         most_restrictive_consumer_latency = 40
 
-    consumer_location_fixed = {}  # | {'consumer_location': 'Orin'}
-    producer_location_fixed = {}  # | {'producer_location': 'Orin'}
+    consumer_location_fixed = {}  # | {'consumer_location': 'PC'}
+    processor_location_fixed = {}  # | {'processor_location': 'Orin'}
 
     # 1) Provider
     # Skipped! Assumed at Nano
@@ -108,10 +108,11 @@ if __name__ == "__main__":
             Consumer = footprint_extractor.extract_footprint(cons, device[0] if isinstance(device, tuple) else device)
 
             slo = utils.get_true(infer_slo_fulfillment(Consumer, device[1] if isinstance(device, tuple) else device, consumer_SLOs[cons],
-                                                       constraints=Consumer_to_Worker_constraints | producer_location_fixed))
+                                                       constraints=Consumer_to_Worker_constraints | processor_location_fixed))
             variable_dict['slo_fulfillment'] = slo
             for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W')]:
-                cpd = infer_device_utilization(Consumer, device[1] if isinstance(device, tuple) else device, metric)
+                cpd = infer_device_utilization(Consumer, device[1] if isinstance(device, tuple) else device, metric,
+                                               constraints=Consumer_to_Worker_constraints | processor_location_fixed)
                 # print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
                 variable_dict[metric] = utils.get_sum_up_to_x(cpd, metric, cpd_max_sum)
             variable_dict["gpu"] = 0
