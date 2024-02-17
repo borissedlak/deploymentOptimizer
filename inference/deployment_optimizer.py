@@ -52,8 +52,76 @@ def infer_device_utilization(model, device_type, hw_variable, constraints=None):
     return result
 
 
+# if __name__ == "__main__":
+#     device_list = ['PC', 'Laptop', 'Orin', 'Xavier', ('Nano', 'Xavier')]
+#     Consumer_to_Worker_SLOs = ["latency_slo"]
+#     service_list = ['Consumer_A', 'Consumer_B', 'Consumer_C']
+#     consumer_SLOs = {'Consumer_A': ["latency_slo", "size_slo"], 'Consumer_B': ["latency_slo", "rate_slo"],
+#                      'Consumer_C': ["latency_slo"]}
+#
+#     # Idea: Remember, that I must retrain if I modify the list of consumers
+#     Consumer_to_Worker_constraints = {'pixel': '480', 'fps': '15'}
+#     if "Consumer_A" in service_list:
+#         Consumer_to_Worker_constraints['pixel'] = '720'
+#         most_restrictive_consumer_latency = 1000
+#     if "Consumer_B" in service_list:
+#         Consumer_to_Worker_constraints['fps'] = '25'
+#         most_restrictive_consumer_latency = 70
+#     if "Consumer_C" in service_list:
+#         most_restrictive_consumer_latency = 40
+#
+#     consumer_location_fixed = {}  # | {'consumer_location': 'PC'}
+#     processor_location_fixed = {}  # | {'processor_location': 'Orin'}
+#
+#     # 1) Provider
+#     # Skipped! Assumed at Nano
+#     # Utilizes 30% CPU, 15% Memory, No GPU, Consumption depending on fps
+#
+#     # 2) Processor
+#     # load_processor_blanket(latency_slo=most_restrictive_consumer_latency)
+#     Processor_SLOs = ["in_time"]
+#
+#     for device in device_list:
+#         variable_dict = {}
+#         print('\n' + (device[0] if isinstance(device, tuple) else device))
+#         Processor = footprint_extractor.extract_footprint("Processor", device[0] if isinstance(device, tuple) else device)
+#         slo = utils.get_true(infer_slo_fulfillment(Processor, device[1] if isinstance(device, tuple) else device,
+#                                                    Processor_SLOs + Consumer_to_Worker_SLOs,
+#                                                    constraints=Consumer_to_Worker_constraints | consumer_location_fixed))
+#         variable_dict['slo_fulfillment'] = slo
+#         for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W'), ('gpu', '%')]:
+#             cpd = infer_device_utilization(Processor, device[1] if isinstance(device, tuple) else device, metric,
+#                                            constraints=Consumer_to_Worker_constraints)
+#             # print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
+#             variable_dict[metric] = utils.get_sum_up_to_x(cpd, metric, cpd_max_sum)
+#
+#         utils.log_dict("Processor", device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency)
+#
+#     print('------------------------------------------')
+#
+#     # 3) Consumers
+#
+#     for cons in service_list:
+#         variable_dict = {}
+#         for device in device_list:
+#             print('\n' + (device[0] if isinstance(device, tuple) else device))
+#             Consumer = footprint_extractor.extract_footprint(cons, device[0] if isinstance(device, tuple) else device)
+#
+#             slo = utils.get_true(infer_slo_fulfillment(Consumer, device[1] if isinstance(device, tuple) else device, consumer_SLOs[cons],
+#                                                        constraints=Consumer_to_Worker_constraints | processor_location_fixed))
+#             variable_dict['slo_fulfillment'] = slo
+#             for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W')]:
+#                 cpd = infer_device_utilization(Consumer, device[1] if isinstance(device, tuple) else device, metric,
+#                                                constraints=Consumer_to_Worker_constraints | processor_location_fixed)
+#                 # print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
+#                 variable_dict[metric] = utils.get_sum_up_to_x(cpd, metric, cpd_max_sum)
+#             variable_dict["gpu"] = 0
+#
+#             utils.log_dict(cons, device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency)
+#         print('------------------------------------------')
+
 if __name__ == "__main__":
-    device_list = ['PC', 'Laptop', 'Orin', 'Xavier', ('Nano', 'Xavier')]
+    device_list = ['Laptop', 'Orin', ('Nano', 'Xavier')]
     Consumer_to_Worker_SLOs = ["latency_slo"]
     service_list = ['Consumer_A', 'Consumer_B', 'Consumer_C']
     consumer_SLOs = {'Consumer_A': ["latency_slo", "size_slo"], 'Consumer_B': ["latency_slo", "rate_slo"],
@@ -81,41 +149,45 @@ if __name__ == "__main__":
     # load_processor_blanket(latency_slo=most_restrictive_consumer_latency)
     Processor_SLOs = ["in_time"]
 
-    for device in device_list:
-        variable_dict = {}
-        print('\n' + (device[0] if isinstance(device, tuple) else device))
-        Processor = footprint_extractor.extract_footprint("Processor", device[0] if isinstance(device, tuple) else device)
-        slo = utils.get_true(infer_slo_fulfillment(Processor, device[1] if isinstance(device, tuple) else device,
-                                                   Processor_SLOs + Consumer_to_Worker_SLOs,
-                                                   constraints=Consumer_to_Worker_constraints | consumer_location_fixed))
-        variable_dict['slo_fulfillment'] = slo
-        for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W'), ('gpu', '%')]:
-            cpd = infer_device_utilization(Processor, device[1] if isinstance(device, tuple) else device, metric,
-                                           constraints=Consumer_to_Worker_constraints)
-            # print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
-            variable_dict[metric] = utils.get_sum_up_to_x(cpd, metric, cpd_max_sum)
+    for d_outer in device_list:
+        for device in device_list:
+            variable_dict = {}
+            print('\n' + (device[0] if isinstance(device, tuple) else device))
+            Processor = footprint_extractor.extract_footprint("Processor", device[0] if isinstance(device, tuple) else device)
+            slo = utils.get_true(infer_slo_fulfillment(Processor, device[1] if isinstance(device, tuple) else device,
+                                                       Processor_SLOs + Consumer_to_Worker_SLOs,
+                                                       constraints=Consumer_to_Worker_constraints | {'consumer_location': d_outer[1] if isinstance(d_outer, tuple) else d_outer}))
+            variable_dict['slo_fulfillment'] = slo
+            for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W'), ('gpu', '%')]:
+                cpd = infer_device_utilization(Processor, device[1] if isinstance(device, tuple) else device, metric,
+                                               constraints=Consumer_to_Worker_constraints)
+                # print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
+                variable_dict[metric] = utils.get_sum_up_to_x(cpd, metric, cpd_max_sum)
+            variable_dict["fixed_location"] = d_outer
 
-        utils.log_dict("Processor", device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency)
+            utils.log_dict("Processor", device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency)
 
     print('------------------------------------------')
 
     # 3) Consumers
 
-    for cons in service_list:
-        variable_dict = {}
-        for device in device_list:
-            print('\n' + (device[0] if isinstance(device, tuple) else device))
-            Consumer = footprint_extractor.extract_footprint(cons, device[0] if isinstance(device, tuple) else device)
+    for d_outer in device_list:
+        for cons in service_list:
+            variable_dict = {}
+            for device in device_list:
+                print('\n' + (device[0] if isinstance(device, tuple) else device))
+                Consumer = footprint_extractor.extract_footprint(cons, device[0] if isinstance(device, tuple) else device)
 
-            slo = utils.get_true(infer_slo_fulfillment(Consumer, device[1] if isinstance(device, tuple) else device, consumer_SLOs[cons],
-                                                       constraints=Consumer_to_Worker_constraints | processor_location_fixed))
-            variable_dict['slo_fulfillment'] = slo
-            for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W')]:
-                cpd = infer_device_utilization(Consumer, device[1] if isinstance(device, tuple) else device, metric,
-                                               constraints=Consumer_to_Worker_constraints | processor_location_fixed)
-                # print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
-                variable_dict[metric] = utils.get_sum_up_to_x(cpd, metric, cpd_max_sum)
-            variable_dict["gpu"] = 0
+                slo = utils.get_true(infer_slo_fulfillment(Consumer, device[1] if isinstance(device, tuple) else device, consumer_SLOs[cons],
+                                                           constraints=Consumer_to_Worker_constraints | {'processor_location': d_outer[1] if isinstance(d_outer, tuple) else d_outer}))
+                variable_dict['slo_fulfillment'] = slo
+                for metric, unit in [('cpu', '%'), ('memory', '%'), ('consumption', 'W')]:
+                    cpd = infer_device_utilization(Consumer, device[1] if isinstance(device, tuple) else device, metric,
+                                                   constraints=Consumer_to_Worker_constraints | processor_location_fixed)
+                    # print(metric, utils.get_sum_up_to_x(cpd, metric, cpd_max_sum), unit)
+                    variable_dict[metric] = utils.get_sum_up_to_x(cpd, metric, cpd_max_sum)
+                variable_dict["gpu"] = 0
+                variable_dict["fixed_location"] = d_outer
 
-            utils.log_dict(cons, device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency)
+                utils.log_dict(cons, device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency)
         print('------------------------------------------')

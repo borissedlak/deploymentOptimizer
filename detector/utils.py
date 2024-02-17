@@ -490,7 +490,7 @@ def check_device_present_in_mb(model, device):
 
 
 def log_dict(service, device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency):
-    with open("../analysis/inference/assignments.csv", 'a', newline='') as csv_file:
+    with open("../analysis/inference/n_n_assignments.csv", 'a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         # csv_writer.writerow(["service_name"] + ["host"] + list(Consumer_to_Worker_constraints.keys()) + ["min_latency"] + list(variable_dict.keys()))
         csv_writer.writerow([service] + [device] + list(Consumer_to_Worker_constraints.values()) + [most_restrictive_consumer_latency]
