@@ -121,7 +121,7 @@ def infer_device_utilization(model, device_type, hw_variable, constraints=None):
 #         print('------------------------------------------')
 
 if __name__ == "__main__":
-    device_list = ['Laptop', 'Orin', ('Nano', 'Xavier')]
+    device_list = ['PC', 'Laptop', 'Orin', 'Xavier', ('Nano', 'Xavier')]
     Consumer_to_Worker_SLOs = ["latency_slo"]
     service_list = ['Consumer_A', 'Consumer_B', 'Consumer_C']
     consumer_SLOs = {'Consumer_A': ["latency_slo", "size_slo"], 'Consumer_B': ["latency_slo", "rate_slo"],
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     # Utilizes 30% CPU, 15% Memory, No GPU, Consumption depending on fps
 
     # 2) Processor
-    # load_processor_blanket(latency_slo=most_restrictive_consumer_latency)
+    load_processor_blanket(latency_slo=most_restrictive_consumer_latency)
     Processor_SLOs = ["in_time"]
 
     for d_outer in device_list:

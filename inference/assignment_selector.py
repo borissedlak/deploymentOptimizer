@@ -46,6 +46,6 @@ for i in range(0, 7):
         answer_list.append(value)
 
     answer = pd.DataFrame(answer_list)
-    # answer = answer[(answer['cpu'] < 100) & (answer['memory'] < 100)]
+    answer = answer[(answer['cpu'] < 100) & (answer['memory'] < 100)]
     pass
 
