@@ -1,8 +1,12 @@
+import csv
+
 import pandas as pd
 
 from detector import utils
 
-for i in range(0, 7):
+slo_csv_list = []
+
+for i in range(0, 8):
     # 1 Get the expectation
 
     df = pd.read_csv('../analysis/inference/n_n_assignments.csv')
@@ -24,6 +28,7 @@ for i in range(0, 7):
         memory_utilization[row_as_dict['host']] += row_as_dict['memory']
         gpu_utilization[row_as_dict['host']] += row_as_dict['gpu']
         print(service, row_as_dict['host'], "| SLO", row_as_dict['slo_fulfillment'])
+        slo_csv_list.append([service, row_as_dict['host'], row_as_dict['slo_fulfillment'], "estimated", i])
 
     for device in device_list:
         print(device, "CPU", cpu_utilization[device], "MEM", memory_utilization[device], "GPU", gpu_utilization[device])
@@ -37,6 +42,8 @@ for i in range(0, 7):
 
         if service == 'Processor':
             df = pd.read_csv(f"../analysis/performance/{row_as_dict['host']}.csv")
+            # Don't include the higher samples, e.g., fps 35, since they are more likely to violate the slos and
+            # at the same time, the system would not operate with that fps because it wants to save energy
             df = df[(df['pixel'] == pixel) & (df['fps'] == fps)]
 
             slo_valid = 0
@@ -48,18 +55,27 @@ for i in range(0, 7):
 
             rate = slo_valid / len(df)
             print(service, rate)
+
+            slo_csv_list.append([service, row_as_dict['host'], rate, "experienced", i])
         else:
             df = pd.read_csv(f"../analysis/performance/{row_as_dict['fixed_location']}.csv")
             df = df[(df['pixel'] == pixel) & (df['fps'] == fps)]
 
             slo_valid = 0
             for index, row in df.iterrows():
-                rtt = utils.get_latency_for_devices(row_as_dict['host'], 'Nano') + utils.get_latency_for_devices(
-                    row_as_dict['host'], row_as_dict['fixed_location']) + row['delta']
-                if row['delta'] <= rtt < row_as_dict['min_latency']:
+                rtt = utils.get_latency_for_devices(row_as_dict['fixed_location'], 'Nano') + utils.get_latency_for_devices(
+                    row_as_dict['fixed_location'], row_as_dict['host']) + row['delta']
+                if rtt < row_as_dict['min_latency']:
                     slo_valid += 1
 
             rate = slo_valid / len(df)
             print(service, rate)
+            slo_csv_list.append([service, row_as_dict['host'], rate, "experienced", i])
 
+    # TODO: Missing resource evaluation, which in turn requires the processing data with increased resource consumption
     print('-------------------')
+
+with open("./performance/comparison_slo.csv", 'w', newline='') as csv_file:
+    csv_writer = csv.writer(csv_file)
+    csv_writer.writerow(["service", "host", "slo", "modus", "t"])
+    csv_writer.writerows(slo_csv_list)

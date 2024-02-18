@@ -249,7 +249,7 @@ Consumer_C,Laptop,720,25,40,0.0,21,31,23,0,"('Nano', 'Xavier')",3,
 Consumer_C,Orin,720,25,40,0.0,26,46,8,0,"('Nano', 'Xavier')",3,
 Consumer_C,Xavier,720,25,40,0.0,36,46,8,0,"('Nano', 'Xavier')",3,
 Consumer_C,"('Nano', 'Xavier')",720,25,40,0.0,71,91,8,0,"('Nano', 'Xavier')",3,
-Processor,Orin,720,25,40,0.32930280067275486,35,73,7,65,Orin,4,True
+Processor,Orin,720,25,39,0.32930280067275486,35,73,7,65,Orin,4,True
 Processor,Xavier,720,25,40,0.0,61,62,8,70,Orin,4,
 Processor,"('Nano', 'Xavier')",720,25,40,0.0,121,123,8,70,Orin,4,
 Processor,Orin,720,25,40,0.3123845013727116,35,73,7,65,Xavier,4,
@@ -264,7 +264,7 @@ Consumer_A,"('Nano', 'Xavier')",720,25,40,1.0,71,91,8,0,Orin,4,
 Consumer_B,Orin,720,25,40,1.0,26,46,8,0,Orin,4,
 Consumer_B,Xavier,720,25,70,1.0,36,46,8,0,Orin,4,True
 Consumer_B,"('Nano', 'Xavier')",720,25,40,1.0,71,91,8,0,Orin,4,
-Consumer_C,Orin,720,25,40,0.3951890034364261,26,46,8,0,Orin,4,True
+Consumer_C,Orin,720,25,39,0.3951890034364261,26,46,8,0,Orin,4,True
 Consumer_C,Xavier,720,25,40,0.0,36,46,8,0,Orin,4,
 Consumer_C,"('Nano', 'Xavier')",720,25,40,0.0,71,91,8,0,Orin,4,
 Consumer_A,Orin,720,25,40,1.0,26,46,8,0,Xavier,4,
@@ -301,7 +301,7 @@ Consumer_B,Xavier,720,25,40,1.0,36,46,8,0,"('Nano', 'Xavier')",5,
 Consumer_B,"('Nano', 'Xavier')",720,25,40,1.0,71,91,8,0,"('Nano', 'Xavier')",5,
 Consumer_C,Xavier,720,25,40,0.0,36,46,8,0,"('Nano', 'Xavier')",5,
 Consumer_C,"('Nano', 'Xavier')",720,25,40,0.0,71,91,8,0,"('Nano', 'Xavier')",5,
-Processor,PC,720,25,70,0.7972508591065293,4,12,86,31,PC,6,True
+Processor,PC,720,25,70,1.0,3,12,85,31,PC,6,True
 Processor,"('Nano', 'Xavier')",720,25,40,0.0,121,123,8,70,PC,6,
 Processor,PC,720,25,40,0.0336717738374615,4,12,86,31,"('Nano', 'Xavier')",6,
 Processor,"('Nano', 'Xavier')",720,25,40,0.0,121,123,8,70,"('Nano', 'Xavier')",6,
@@ -318,7 +318,7 @@ Consumer_B,"('Nano', 'Xavier')",720,25,40,1.0,71,91,8,0,"('Nano', 'Xavier')",6,
 Consumer_C,PC,720,25,40,0.0,16,21,89,0,"('Nano', 'Xavier')",6,
 Consumer_C,"('Nano', 'Xavier')",720,25,40,0.0,71,91,8,0,"('Nano', 'Xavier')",6,
 Processor,Laptop,720,25,40,0.0,55,27,23,0,Laptop,7,
-Processor,Orin,720,25,70,0.0,35,73,7,65,Laptop,7,True
+Processor,Orin,720,25,70,0.9567379581765642,35,73,7,65,Laptop,7,True
 Processor,"('Nano', 'Xavier')",720,25,40,0.0,121,123,8,70,Laptop,7,
 Processor,Laptop,720,25,40,0.008536345131000066,55,27,23,0,Orin,7,
 Processor,Orin,720,25,40,0.32930280067275486,35,73,7,65,Orin,7,
@@ -335,7 +335,7 @@ Consumer_B,"('Nano', 'Xavier')",720,25,40,0.12027491408934708,71,91,8,0,Laptop,7
 Consumer_C,Laptop,720,25,40,0.0,21,31,23,0,Laptop,7,
 Consumer_C,Orin,720,25,40,0.0,26,46,8,0,Laptop,7,
 Consumer_C,"('Nano', 'Xavier')",720,25,40,0.0,71,91,8,0,Laptop,7,
-Consumer_A,Laptop,720,25,70,1.0,21,31,23,0,Orin,7,True
+Consumer_A,Laptop,720,25,1000,1.0,21,31,23,0,Orin,7,True
 Consumer_A,Orin,720,25,40,1.0,26,46,8,0,Orin,7,
 Consumer_A,"('Nano', 'Xavier')",720,25,40,1.0,71,91,8,0,Orin,7,
 Consumer_B,Laptop,720,25,70,1.0,21,31,23,0,Orin,7,True
@@ -453,3 +453,92 @@ Consumer_C,Laptop,720,25,40,0.0,21,31,23,0,"('Nano', 'Xavier')"
 Consumer_C,Orin,720,25,40,0.0,26,46,8,0,"('Nano', 'Xavier')"
 Consumer_C,Xavier,720,25,40,0.0,36,46,8,0,"('Nano', 'Xavier')"
 Consumer_C,"('Nano', 'Xavier')",720,25,40,0.0,71,91,8,0,"('Nano', 'Xavier')"
+Processor,Laptop,720,25,70,0.5395838208026555,55,27,23,0,Laptop
+Processor,Orin,720,25,70,0.9567379581765642,35,73,7,65,Laptop
+Processor,"('Nano', 'Xavier')",720,25,70,0.2533029094078524,62,62,8,70,Laptop
+Processor,Laptop,720,25,70,0.5393783956048696,55,27,23,0,Orin
+Processor,Orin,720,25,70,0.9570507576401281,35,73,7,65,Orin
+Processor,"('Nano', 'Xavier')",720,25,70,0.25327515838859327,62,62,8,70,Orin
+Processor,Laptop,720,25,70,0.5393222160101234,55,27,23,0,"('Nano', 'Xavier')"
+Processor,Orin,720,25,70,0.9574571991235843,35,73,7,65,"('Nano', 'Xavier')"
+Processor,"('Nano', 'Xavier')",720,25,70,0.25325657400177315,62,62,8,70,"('Nano', 'Xavier')"
+Consumer_A,Laptop,720,25,70,1.0,21,31,23,0,Laptop
+Consumer_A,Orin,720,25,70,1.0,26,46,8,0,Laptop
+Consumer_A,"('Nano', 'Xavier')",720,25,70,1.0,71,91,8,0,Laptop
+Consumer_B,Laptop,720,25,70,0.11683848797250859,21,31,23,0,Laptop
+Consumer_B,Orin,720,25,70,0.11683848797250859,26,46,8,0,Laptop
+Consumer_B,"('Nano', 'Xavier')",720,25,70,0.12027491408934708,71,91,8,0,Laptop
+Consumer_A,Laptop,720,25,70,1.0,21,31,23,0,Orin
+Consumer_A,Orin,720,25,70,1.0,26,46,8,0,Orin
+Consumer_A,"('Nano', 'Xavier')",720,25,70,1.0,71,91,8,0,Orin
+Consumer_B,Laptop,720,25,70,1.0,21,31,23,0,Orin
+Consumer_B,Orin,720,25,70,1.0,26,46,8,0,Orin
+Consumer_B,"('Nano', 'Xavier')",720,25,70,1.0,71,91,8,0,Orin
+Consumer_A,Laptop,720,25,70,1.0,21,31,23,0,"('Nano', 'Xavier')"
+Consumer_A,Orin,720,25,70,1.0,26,46,8,0,"('Nano', 'Xavier')"
+Consumer_A,"('Nano', 'Xavier')",720,25,70,1.0,71,91,8,0,"('Nano', 'Xavier')"
+Consumer_B,Laptop,720,25,70,0.986254295532646,21,31,23,0,"('Nano', 'Xavier')"
+Consumer_B,Orin,720,25,70,1.0,26,46,8,0,"('Nano', 'Xavier')"
+Consumer_B,"('Nano', 'Xavier')",720,25,70,1.0,71,91,8,0,"('Nano', 'Xavier')"
+Processor,PC,720,25,70,1.0,3,12,85,31,PC
+Processor,"('Nano', 'Xavier')",720,25,70,0.18213058419243988,62,123,23,70,PC
+Processor,PC,720,25,70,1.0,3,12,85,31,"('Nano', 'Xavier')"
+Processor,"('Nano', 'Xavier')",720,25,70,0.18213058419243988,62,123,23,70,"('Nano', 'Xavier')"
+Consumer_A,PC,720,25,70,1.0,16,21,89,0,PC
+Consumer_A,"('Nano', 'Xavier')",720,25,70,1.0,71,91,8,0,PC
+Consumer_B,PC,720,25,70,1.0,16,21,89,0,PC
+Consumer_B,"('Nano', 'Xavier')",720,25,70,1.0,71,91,8,0,PC
+Consumer_A,PC,720,25,70,1.0,16,21,89,0,"('Nano', 'Xavier')"
+Consumer_A,"('Nano', 'Xavier')",720,25,70,1.0,71,91,8,0,"('Nano', 'Xavier')"
+Consumer_B,PC,720,25,70,1.0,16,21,89,0,"('Nano', 'Xavier')"
+Consumer_B,"('Nano', 'Xavier')",720,25,70,1.0,71,91,8,0,"('Nano', 'Xavier')"
+Processor,PC,480,15,40,0.9140893470790378,4,11,86,22,PC
+Processor,Laptop,480,15,40,0.0,54,27,23,0,PC
+Processor,Orin,480,15,40,0.0,24,73,7,30,PC
+Processor,Xavier,480,15,40,0.0,51,62,8,35,PC
+Processor,"('Nano', 'Xavier')",480,15,40,0.0,101,62,8,35,PC
+Processor,PC,480,15,40,0.015499838356262797,4,11,86,22,Laptop
+Processor,Laptop,480,15,40,0.0,54,27,23,0,Laptop
+Processor,Orin,480,15,40,0.5979815486667386,24,73,7,30,Laptop
+Processor,Xavier,480,15,40,0.0,51,62,8,35,Laptop
+Processor,"('Nano', 'Xavier')",480,15,40,0.0,101,62,8,35,Laptop
+Processor,PC,480,15,40,0.021702045434342534,4,11,86,22,Orin
+Processor,Laptop,480,15,40,0.0,54,27,23,0,Orin
+Processor,Orin,480,15,40,0.715344151378151,24,73,7,30,Orin
+Processor,Xavier,480,15,40,0.011166329987599536,51,62,8,35,Orin
+Processor,"('Nano', 'Xavier')",480,15,40,0.011166329987599536,101,62,8,35,Orin
+Processor,PC,480,15,40,0.021702045434342534,4,11,86,22,Xavier
+Processor,Laptop,480,15,40,0.013767048728949223,54,27,23,0,Xavier
+Processor,Orin,480,15,40,0.7001629777733835,24,73,7,30,Xavier
+Processor,Xavier,480,15,40,0.022626397260749442,51,62,8,35,Xavier
+Processor,"('Nano', 'Xavier')",480,15,40,0.022626397260749442,101,62,8,35,Xavier
+Processor,PC,480,15,40,0.021702045434342534,4,11,86,22,"('Nano', 'Xavier')"
+Processor,Laptop,480,15,40,0.013767048728949223,54,27,23,0,"('Nano', 'Xavier')"
+Processor,Orin,480,15,40,0.7001629777733835,24,73,7,30,"('Nano', 'Xavier')"
+Processor,Xavier,480,15,40,0.022626397260749442,51,62,8,35,"('Nano', 'Xavier')"
+Processor,"('Nano', 'Xavier')",480,15,40,0.022626397260749442,101,62,8,35,"('Nano', 'Xavier')"
+Consumer_C,PC,480,15,40,0.0,16,21,89,0,PC
+Consumer_C,Laptop,480,15,40,0.9140893470790378,21,31,23,0,PC
+Consumer_C,Orin,480,15,40,0.0,26,46,8,0,PC
+Consumer_C,Xavier,480,15,40,0.0,36,46,8,0,PC
+Consumer_C,"('Nano', 'Xavier')",480,15,40,0.0,71,91,8,0,PC
+Consumer_C,PC,480,15,40,0.0,16,21,89,0,Laptop
+Consumer_C,Laptop,480,15,40,0.0,21,31,23,0,Laptop
+Consumer_C,Orin,480,15,40,0.0,26,46,8,0,Laptop
+Consumer_C,Xavier,480,15,40,0.0,36,46,8,0,Laptop
+Consumer_C,"('Nano', 'Xavier')",480,15,40,0.0,71,91,8,0,Laptop
+Consumer_C,PC,480,15,40,0.9656357388316151,16,21,89,0,Orin
+Consumer_C,Laptop,480,15,40,0.0,21,31,23,0,Orin
+Consumer_C,Orin,480,15,40,0.9862542955326461,26,46,8,0,Orin
+Consumer_C,Xavier,480,15,40,0.8247422680412371,36,46,8,0,Orin
+Consumer_C,"('Nano', 'Xavier')",480,15,40,0.8247422680412371,71,91,8,0,Orin
+Consumer_C,PC,480,15,40,0.11683848797250859,16,21,89,0,Xavier
+Consumer_C,Laptop,480,15,40,0.0,21,31,23,0,Xavier
+Consumer_C,Orin,480,15,40,0.054982817869415807,26,46,8,0,Xavier
+Consumer_C,Xavier,480,15,40,0.0,36,46,8,0,Xavier
+Consumer_C,"('Nano', 'Xavier')",480,15,40,0.0,71,91,8,0,Xavier
+Consumer_C,PC,480,15,40,0.11683848797250859,16,21,89,0,"('Nano', 'Xavier')"
+Consumer_C,Laptop,480,15,40,0.0,21,31,23,0,"('Nano', 'Xavier')"
+Consumer_C,Orin,480,15,40,0.054982817869415807,26,46,8,0,"('Nano', 'Xavier')"
+Consumer_C,Xavier,480,15,40,0.0,36,46,8,0,"('Nano', 'Xavier')"
+Consumer_C,"('Nano', 'Xavier')",480,15,40,0.0,71,91,8,0,"('Nano', 'Xavier')"

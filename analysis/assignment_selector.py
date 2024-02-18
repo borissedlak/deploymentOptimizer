@@ -1,8 +1,8 @@
 import pandas as pd
 
-df = pd.read_csv('../analysis/inference/n_n_assignments.csv')
+df = pd.read_csv('inference/n_n_assignments.csv')
 
-for i in range(0, 7):
+for i in range(0, 8):
     part = df[df['t'] == i]
     service_list = part['service_name'].unique()
     device_list = part['host'].unique()
@@ -46,6 +46,6 @@ for i in range(0, 7):
         answer_list.append(value)
 
     answer = pd.DataFrame(answer_list)
-    answer = answer[(answer['cpu'] < 100) & (answer['memory'] < 100)]
+    # answer = answer[(answer['cpu'] < 100) & (answer['memory'] < 100)]
     pass
 
