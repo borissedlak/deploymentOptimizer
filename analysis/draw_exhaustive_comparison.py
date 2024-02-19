@@ -3,7 +3,6 @@
 # Against when all on random
 # Against equally distributed
 import itertools
-import os
 import random
 
 import pandas as pd
@@ -11,14 +10,7 @@ from matplotlib import pyplot as plt
 
 from detector import utils
 
-ROOT = os.path.dirname(__file__)
 fig, ax = plt.subplots()
-bar_width = 0.14
-bar_gap = 0.0
-
-category_color_map = {r'$\mathit{Laptop}$': 'firebrick', r'$\mathit{Nano}$': 'chocolate',
-                      r'$\mathit{Xavier_{CPU}}$': 'mediumaquamarine',
-                      r'$\mathit{Xavier_{GPU}}$': 'steelblue', r'$\mathit{Orin}$': 'dimgray'}
 
 df = pd.read_csv("./performance/comparison_slo.csv")
 df_all = pd.read_csv('../analysis/inference/n_n_assignments.csv')
