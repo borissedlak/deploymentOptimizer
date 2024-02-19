@@ -54,14 +54,14 @@ for index, label, col in [(2, r'$\mathit{t_2}$', 'firebrick'), (3, r'$\mathit{t_
         print(rate, processor, consumer)
 
         plt.hlines(rate, xmin=index - 0.5, xmax=index + 0.5, color=col, linestyle='--',
-                   linewidth=1, label="alternatives" if first_entry else None)
+                   linewidth=0.8, label="alternatives" if first_entry else None)
         first_entry = False
     print("------------\n")
 
-plt.ylabel(r'SLO fulfillment $\Sigma$ $(W,C_3)$ ')
+plt.ylabel(r'% SLO fulfillment; $\mathit{W}$ + $\mathit{C_3}$')
 plt.legend(loc='upper right')
 ax.set_ylim(-0.02, 1.6)
-fig.set_size_inches(5.8, 3.6)
+fig.set_size_inches(5.8, 2.7)
 plt.xticks([2, 3, 4], [r'$\mathit{t_2}$', r'$\mathit{t_3}$', r'$\mathit{t_4}$'])
 # Show the plot
 plt.savefig("./plots/exhaustive_comparison_slo.eps", dpi=600, bbox_inches="tight", format="eps")  # default dpi is 100
