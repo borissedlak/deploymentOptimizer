@@ -72,8 +72,8 @@ ax.legend([labelled[0]] + [labelled[1]['boxes'][0]],
 
 plt.ylabel(r'SLO fulfillment; $\mathit{W}$ + $\mathit{C_3}$')
 # plt.legend(loc='upper right')
-ax.set_ylim(-0.02, 1.58)
-fig.set_size_inches(5.8, 2.5)
+ax.set_ylim(0.0, 1.58)
+fig.set_size_inches(5.8, 2.3)
 plt.xticks([2, 3, 4], [r'$\mathit{t_2}$', r'$\mathit{t_3}$', r'$\mathit{t_4}$'])
 
 plt.savefig("./plots/exhaustive_comparison_slo.eps", dpi=600, bbox_inches="tight", format="eps")  # default dpi is 100
