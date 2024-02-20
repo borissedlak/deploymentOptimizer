@@ -1,6 +1,5 @@
 import random
 
-import numpy as np
 import pandas as pd
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
@@ -29,7 +28,7 @@ class Consumer:
                 data.update({'pixel': size_higher_blanket})
                 data.update({'size_slo': raw_samples['pixel'] >= val})
             elif 'latency' == var:
-                #TODO: Does not consider positions of consumer and worker
+                # TODO: Does not consider positions of consumer and worker
                 raw_samples['processor_location'] = raw_samples['device_type']
                 raw_samples['device_type'] = raw_samples['consumer_location']
                 del raw_samples['consumer_location']
@@ -60,7 +59,9 @@ class Consumer:
 
         promising_combinations = []
         for lower_blanket_variable_name in model_lower_blanket.nodes:
-            if lower_blanket_variable_name in ['in_time', 'device_type', 'consumption', 'cpu', 'gpu']:
+            # TODO: Remove all unnecessary variables, do white listing rather
+            if (lower_blanket_variable_name in ['in_time', 'device_type', 'consumption', 'cpu', 'gpu']
+                    or lower_blanket_variable_name.endswith('_slo')):
                 continue
 
             # 1 Check which variables could potentially match
@@ -143,7 +144,8 @@ class Consumer:
                                          state_names={'consumption': ['7', '22', '88'],
                                                       'device_type': ['Orin', 'PC']})
         else:
-            cpd_device_type = TabularCPD(variable='device_type', variable_card=4, values=[[0.25], [0.25], [0.25], [0.25]],
+            cpd_device_type = TabularCPD(variable='device_type', variable_card=4,
+                                         values=[[0.25], [0.25], [0.25], [0.25]],
                                          state_names={'device_type': ['Xavier', 'Orin', 'Laptop', 'PC']})
             cpd_cpu = TabularCPD(variable='cpu', variable_card=4,
                                  values=[[0.0, 0.0, 0.0, 1.0],

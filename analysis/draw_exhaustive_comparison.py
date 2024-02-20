@@ -63,6 +63,6 @@ plt.legend(loc='upper right')
 ax.set_ylim(-0.02, 1.6)
 fig.set_size_inches(5.8, 2.7)
 plt.xticks([2, 3, 4], [r'$\mathit{t_2}$', r'$\mathit{t_3}$', r'$\mathit{t_4}$'])
-# Show the plot
+
 plt.savefig("./plots/exhaustive_comparison_slo.eps", dpi=600, bbox_inches="tight", format="eps")  # default dpi is 100
 plt.show()
