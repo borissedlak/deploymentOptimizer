@@ -58,16 +58,15 @@ class Consumer:
         model_lower_blanket = XMLBIFReader(f'../inference/Processor_model.xml').get_model()
 
         promising_combinations = []
-        for lower_blanket_variable_name in model_lower_blanket.nodes:
-            # TODO: Remove all unnecessary variables, do white listing rather
-            if (lower_blanket_variable_name in ['in_time', 'device_type', 'consumption', 'cpu', 'gpu']
-                    or lower_blanket_variable_name.endswith('_slo')):
-                continue
+        for lower_blanket_variable_name in ['pixel', 'delta', 'fps']:
+            # if (lower_blanket_variable_name in ['in_time', 'device_type', 'consumption', 'cpu', 'gpu']
+            #         or lower_blanket_variable_name.endswith('_slo')):
+            #     continue
 
             # 1 Check which variables could potentially match
-            for higher_blanket_variable_name in model_higher_blanket.nodes:
-                if higher_blanket_variable_name.endswith('_slo'):
-                    continue
+            for higher_blanket_variable_name in ['fps', 'latency', 'pixel']:
+                # if higher_blanket_variable_name.endswith('_slo'):
+                #     continue
 
                 # Write: About this marginalization
                 p = VariableElimination(model_higher_blanket).query(variables=[higher_blanket_variable_name]).values

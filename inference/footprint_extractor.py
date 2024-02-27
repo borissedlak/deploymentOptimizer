@@ -16,13 +16,6 @@ sample_file = "samples.csv"
 
 # footprint = Service-Host Deployment implications as MB
 def extract_footprint(service, host):
-    # mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
-    # list_of_collections = mongo_client.list_collection_names()
-
-    # if utils.get_mb_name(service, host) in list_of_collections:
-    #     raw_samples = pd.DataFrame(list(mongo_client[utils.get_mb_name(service, host)].find()))
-    #     samples = utils.prepare_samples(raw_samples)
-    #     return utils.train_to_MB(samples)
 
     # Case 1: Exact match evaluated empirically
     model_xml_files = utils.find_nested_files_with_suffix('../', f'{service}_model.xml')
@@ -45,8 +38,6 @@ def extract_footprint(service, host):
 
     # Case 2.2: Comparable service evaluated at the target device type [Footprint]
 
-    # Write: Shouldn't this be stronger device? No! If it worked on a weaker device, it will also work on the target
-    # Write: Whereas, if it worked on a stronger device, you don't know anything about the weaker one --> Case 4
     # Case 3.1: Same service evaluated at a comparable (=same or weaker) device type --> Case 1
     comparable_devices = utils.check_same_services_similar_host(service, host)
     if len(comparable_devices) > 0:

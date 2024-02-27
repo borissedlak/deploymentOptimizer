@@ -41,7 +41,6 @@ def infer_slo_fulfillment(model, device_type, slos, constraints=None):
     return result
 
 
-# Write: Summarize from min to top and stop at e.g. 95% of utilization's cpd, to avoid peaks claiming too much space
 def infer_device_utilization(model, device_type, hw_variable, constraints=None):
     if constraints is None:
         constraints = {}
@@ -146,7 +145,7 @@ if __name__ == "__main__":
     # Utilizes 30% CPU, 15% Memory, No GPU, Consumption depending on fps
 
     # 2) Processor
-    load_processor_blanket(latency_slo=most_restrictive_consumer_latency)
+    # load_processor_blanket(latency_slo=most_restrictive_consumer_latency)
     Processor_SLOs = ["in_time"]
 
     for d_outer in device_list:

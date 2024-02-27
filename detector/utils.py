@@ -472,7 +472,7 @@ def check_edges_with_service(potential_host_mb: BayesianNetwork):
 
 # Idea: This should penalize the service variables that are dependent on the hardware blanket
 def penalize_device_mb(mb: BayesianNetwork, offset):
-    for hw_variable in ['cpu', 'memory']:
+    for hw_variable in ['cpu', 'memory']:  # TODO: Extend with other variables
         original_cpd = mb.get_cpds(hw_variable)
         original_states = original_cpd.__getattribute__('state_names')
         modified_hw_values = list(map(str, [(1 + offset) * int(num) for num in original_states[hw_variable]]))
@@ -492,6 +492,5 @@ def check_device_present_in_mb(model, device):
 def log_dict(service, device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency):
     with open("../analysis/inference/n_n_assignments.csv", 'a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
-        # csv_writer.writerow(["service_name"] + ["host"] + list(Consumer_to_Worker_constraints.keys()) + ["min_latency"] + list(variable_dict.keys()))
         csv_writer.writerow([service] + [device] + list(Consumer_to_Worker_constraints.values()) + [most_restrictive_consumer_latency]
                             + list(variable_dict.values()))
