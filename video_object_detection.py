@@ -95,13 +95,13 @@ def process_video(video_path, video_info, show_result=False, repeat=1, write_csv
 if __name__ == "__main__":
     write_csv = True
     process_video(video_path="../video_data/",
-                  video_info=list(itertools.product([1080, 720, 480], [15, 20, 25, 30, 35])),
+                  video_info=[(720, 25), (720, 15), (480, 25), (480, 15)],
                   show_result=False,
                   write_csv=write_csv,
-                  repeat=3)
+                  repeat=60)
 
     if write_csv:
-        with open("./analysis/files/PC.csv", 'w', newline='') as csv_file:
+        with open("./analysis/files/Laptop.csv", 'w', newline='') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=csv_headers)
             csv_writer.writeheader()
             csv_writer.writerows(csv_values)
