@@ -1,5 +1,6 @@
 import csv
 import itertools
+import os
 import time
 
 import cv2
@@ -16,6 +17,14 @@ from detector.YOLOv8ObjectDetector import YOLOv8ObjectDetector
 # Orin GPU --> 42 FPS
 # Xavier GPU --> 34 FPS
 # Xavier CPU --> 4 FPS
+
+
+DEVICE_NAME = os.environ.get('DEVICE_NAME')
+if DEVICE_NAME:
+    print(f'Found ENV value for DEVICE_NAME: {DEVICE_NAME}')
+else:
+    DEVICE_NAME = "Unknown"
+    print(f"Didn't find ENV value for DEVICE_NAME, default to: {DEVICE_NAME}")
 
 model_path = "models/yolov8n.onnx"
 detector = YOLOv8ObjectDetector(model_path, conf_threshold=0.5, iou_threshold=0.5)
@@ -101,7 +110,7 @@ if __name__ == "__main__":
                   repeat=60)
 
     if write_csv:
-        with open("./analysis/files/Laptop.csv", 'w', newline='') as csv_file:
+        with open(f"./analysis/files/{DEVICE_NAME}.csv", 'w', newline='') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=csv_headers)
             csv_writer.writeheader()
             csv_writer.writerows(csv_values)
