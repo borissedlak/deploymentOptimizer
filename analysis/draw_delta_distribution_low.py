@@ -18,7 +18,7 @@ lines = []
 boxplot_position = 0
 constrained_thresh_O_X = 40 - (utils.get_latency_for_devices("Nano", "Orin") + utils.get_latency_for_devices("Orin", "Xavier"))
 # constrained_thresh_O_L = 40 - (utils.get_latency_for_devices("Nano", "Orin") + utils.get_latency_for_devices("Orin", "Laptop"))
-for index, col, thresh in [(1, 'mediumaquamarine', ("dashed", 16.23)), (6, 'green', ("dashed", 16.23))]:  # , (1, 'steelblue')
+for index, col, thresh in [(1, 'mediumaquamarine', ("dashed", 54.92)), (6, 'green', ("dashed", 54.92))]:  # , (1, 'steelblue')
     df_t = df_all[(df_all['t'] == index) & (df_all['service_name'] == "Processor") & (df_all['select'] == True)]
 
     pixel = df_t['pixel'].unique()[0]
@@ -29,7 +29,7 @@ for index, col, thresh in [(1, 'mediumaquamarine', ("dashed", 16.23)), (6, 'gree
     df_exp = pd.read_csv(f"../analysis/performance/{processor_host}.csv")
     df_exp = df_exp[(df_exp['pixel'] == pixel) & (df_exp['fps'] == fps)]
 
-    boxplot = ax.boxplot(list(df_exp['delta']), positions=[boxplot_position], patch_artist=True, widths=0.36, whis=1.35)
+    boxplot = ax.boxplot(list(df_exp['delta']), positions=[boxplot_position], patch_artist=True, widths=0.36)
     boxplot['boxes'][0].set_facecolor(col)
     boxplots.append(boxplot)
 
@@ -43,7 +43,7 @@ for index, col, thresh in [(1, 'mediumaquamarine', ("dashed", 16.23)), (6, 'gree
 ax.set_ylabel(r'$\mathit{Worker}$ processing delay (ms)')
 ax.legend([box['boxes'][0] for box in boxplots] + lines,
           [r'Worker @ $\mathit{Server}$', r'Worker @ $\mathit{Server}$', 'Virtual threshold'])
-ax.set_ylim(14.9, 16.25)
+ax.set_ylim(1, 55.5)
 fig.set_size_inches(3.2, 4.8)
 plt.xticks([0, 1], [r'$\mathit{t_1}$', r'$\mathit{t_6}$'])
 # Show the plot
