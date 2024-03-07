@@ -34,7 +34,7 @@ def extract_footprint(service, host):
             # Only when no edges between blankets
             if utils.check_edges_with_service(potential_host_mb):
                 # Just take the first, no comparison between them
-                return utils.plug_in_service_variables(service_mb, potential_host_mb)
+                return utils.MERGE(service_mb, potential_host_mb)
 
     # Case 2.2: Comparable service evaluated at the target device type [Footprint]
 
@@ -48,7 +48,7 @@ def extract_footprint(service, host):
     # Case 4: No comparable service for the device type existing
     closest_devices = utils.check_same_services_similar_host(service, host, any_host=True)
     # Write: Interpolation according to the known devices, but requires at least two
-    return utils.penalize_device_mb(closest_devices[0], 1)
+    return utils.PENAL(closest_devices[0], 1)
 
     # raise RuntimeError("Should not happen :(")
 

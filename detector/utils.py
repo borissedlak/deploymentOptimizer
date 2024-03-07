@@ -444,7 +444,7 @@ def check_same_services_similar_host(service, host, any_host=False):
     return model_list
 
 
-def plug_in_service_variables(service_mb: BayesianNetwork, potential_host_mb: BayesianNetwork):
+def MERGE(service_mb: BayesianNetwork, potential_host_mb: BayesianNetwork):
     service_mb.add_node('cpu')
     service_mb.add_node('device_type')
     service_mb.add_cpds(potential_host_mb.get_cpds('device_type'))
@@ -471,7 +471,7 @@ def check_edges_with_service(potential_host_mb: BayesianNetwork):
 
 
 # Idea: This should penalize the service variables that are dependent on the hardware blanket
-def penalize_device_mb(mb: BayesianNetwork, offset):
+def PENAL(mb: BayesianNetwork, offset):
     for hw_variable in ['cpu', 'memory']:  # TODO: Extend with other variables
         original_cpd = mb.get_cpds(hw_variable)
         original_states = original_cpd.__getattribute__('state_names')
