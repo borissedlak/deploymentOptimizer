@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -73,11 +75,13 @@ model = load_model('./model.keras')
 # model.save('model.keras')
 
 # Evaluate the model on the test set
-mse = model.evaluate(X_test, y_test)
-print('Mean Squared Error:', mse)
+# mse = model.evaluate(X_test, y_test)
+# print('Mean Squared Error:', mse)
 
 # Make predictions on the test set
+time = datetime.now()
 y_pred = model.predict(X_test)
+print(datetime.now() - time)
 
 # Plot the actual and predicted values
 plt.plot(y_test, label='Actual')
