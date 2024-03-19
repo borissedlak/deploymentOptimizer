@@ -81,7 +81,7 @@ model = load_model('./model.keras')
 device_reporter = DeviceMetricReporter(gpu_available=False)
 
 metrics_csv_list = []
-batch_sizes = [10, 25, 50, 80, 100, 125, 150, 200, 300, 400, 500, 1000]  # TODO: Can be parameterized
+batch_sizes = [10, 25, 50, 80, 100, 125, 150, 200, 300, 400, 500, 1000]
 for size in batch_sizes:
     i = 0
     while (size * (i + 1)) < len(X):  # Note I take the entire X instead of X_test just to get more data
