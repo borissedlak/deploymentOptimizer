@@ -1,4 +1,4 @@
-delta_analysis,fps,pixel,device_type,cpu,memory,consumption,gpu,in_time
+delta,fps,pixel,device_type,cpu,memory,consumption,gpu,in_time
 58,15,1080,Orin,41,71,7,30,True
 43,15,1080,Orin,42,71,7,30,True
 39,15,1080,Orin,19,71,6,30,True
