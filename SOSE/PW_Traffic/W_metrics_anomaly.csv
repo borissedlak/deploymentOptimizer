@@ -1,4 +1,4 @@
-size,delta,device_type,cpu,memory,consumption,timestamp,gpu
+batch_size,delta_anomaly,device_type,cpu,memory,consumption,timestamp,gpu
 10,140,Laptop,8,78,19,2024-03-19 17:51:21.337651,0
 10,33,Laptop,7,78,19,2024-03-19 17:51:21.371074,0
 10,34,Laptop,13,78,19,2024-03-19 17:51:21.405585,0

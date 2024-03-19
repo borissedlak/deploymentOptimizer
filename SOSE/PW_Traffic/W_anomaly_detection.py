@@ -97,9 +97,9 @@ for size in batch_sizes:
         # print(device_metrics['metrics'])
         # print(int(delta), "ms")
 
-with open("./C_metrics.csv", 'w', newline='') as csv_file:
+with open("W_metrics_anomaly.csv", 'w', newline='') as csv_file:
     csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(["size", "delta"] + list(device_metrics['metrics'].keys()))
+    csv_writer.writerow(["batch_size", "delta_anomaly"] + list(device_metrics['metrics'].keys()))
     csv_writer.writerows(metrics_csv_list)
 
 # Plot the actual and predicted values

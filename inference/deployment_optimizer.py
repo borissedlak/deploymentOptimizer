@@ -28,7 +28,7 @@ def load_processor_blanket(latency_slo=None):
     merged_list = pd.concat([laptop, pc, orin, xavier])
 
     samples = utils.prepare_samples(merged_list, export_path=sample_file, latency_slo=latency_slo)
-    utils.train_to_MB(samples, 'Processor', export_file=f'Processor_model.xml')
+    utils.train_to_BN(samples, 'Processor', export_file=f'Processor_model.xml')
 
 
 def infer_slo_fulfillment(model, device_type, slos, constraints=None):
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     # Utilizes 30% CPU, 15% Memory, No GPU, Consumption depending on fps
 
     # 2) Processor
-    # load_processor_blanket(latency_slo=most_restrictive_consumer_latency)
+    load_processor_blanket(latency_slo=most_restrictive_consumer_latency)
     Processor_SLOs = ["in_time"]
 
     for d_outer in device_list:

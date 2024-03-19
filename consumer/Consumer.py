@@ -51,7 +51,7 @@ class Consumer:
         higher_blanket_data = pd.DataFrame(data=data)
         higher_blanket_data['pixel'] = higher_blanket_data['pixel'].astype(int).astype(str)
         higher_blanket_data['fps'] = higher_blanket_data['fps'].astype(int).astype(str)
-        utils.train_to_MB(higher_blanket_data, self.service_name, export_file=self.file_name)
+        utils.train_to_BN(higher_blanket_data, self.service_name, export_file=self.file_name)
 
     def check_dependencies(self):
         model_higher_blanket = XMLBIFReader(f'{self.file_name}').get_model()
