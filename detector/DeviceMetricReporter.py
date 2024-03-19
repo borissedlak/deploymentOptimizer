@@ -52,7 +52,7 @@ class DeviceMetricReporter:
                 #     print(gpu)
 
         return {"target": self.target,
-                "metrics": {"device_type": self.target, "cpu": cpu, "memory": mem, "consumption": cons,
+                "metrics": {"device_type": self.target, "cpu": int(cpu), "memory": int(mem), "consumption": cons,
                             "timestamp": datetime.now(), "gpu": gpu}}
 
     # @utils.print_execution_time
