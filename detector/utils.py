@@ -13,7 +13,7 @@ import pgmpy
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_pydot import graphviz_layout
 from pgmpy.base import DAG
-from pgmpy.estimators import AICScore, HillClimbSearch, MaximumLikelihoodEstimator, BDeuScore
+from pgmpy.estimators import AICScore, HillClimbSearch, MaximumLikelihoodEstimator
 from pgmpy.factors.discrete import DiscreteFactor
 from pgmpy.models import BayesianNetwork
 from pgmpy.readwrite import XMLBIFWriter, XMLBIFReader
@@ -362,7 +362,7 @@ def train_to_BN(samples, service_name, export_file=None, samples_path=None):
     estimator = HillClimbSearch(data=samples)
 
     dag: pgmpy.base.DAG = estimator.estimate(
-        scoring_method=scoring_method, max_indegree=5, epsilon=10,
+        scoring_method=scoring_method, max_indegree=5, epsilon=1,
     )
 
     export_BN_to_graph(dag, vis_ls=['circo'], save=False, name="raw_model", show=True)
