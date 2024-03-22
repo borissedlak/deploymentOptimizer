@@ -8,6 +8,7 @@ from detector.utils import get_latency_for_devices
 def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_valid_states, ll_parent_node, constraints):
     print(f"{model.name}: Constraining {ll_parent_node} --> {hl_target_var}")
     ve = VariableElimination(model)
+    normalizer = ve.query(variables=[hl_target_var])
 
     value_matrix, ll_state_names = None, None
     for state in hl_valid_states:
@@ -17,13 +18,18 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_valid_stat
         if ll_state_names is None:
             ll_state_names = result.state_names[ll_parent_node]
 
+        # Write: States that only occur very infrequently do not get a lot of emphasis
+        index = normalizer.name_to_no[hl_target_var][state]
+        normalized_values = result.values * normalizer.values[index]
         if value_matrix is None:
-            value_matrix = result.values
+            value_matrix = normalized_values
         else:
-            value_matrix = value_matrix + result.values
+            value_matrix = value_matrix + normalized_values
+
+    # TODO: Must normalize to the overall occurences
 
     max_value = np.max(value_matrix)
-    acceptance_thresh = max_value * 0.75
+    acceptance_thresh = max_value * 0.50
 
     ll_valid_states = []
     for i in range(len(ll_state_names)):
@@ -37,7 +43,6 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_valid_stat
         get_target_distribution(model, ll_parent_node, ll_valid_states, par, constraints)
 
     return constraints
-
 
 
 def calculate_cumulative_net_delay(row, src, dest):

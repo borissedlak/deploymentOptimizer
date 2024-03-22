@@ -37,7 +37,7 @@ def constrain_services(app_list, hl_slos):
             for parent in m.get_parents(var):
                 hl_states = m.get_cpds(var).__getattribute__("state_names")[var]
                 if thresh == "min":
-                    hl_valid_states = [min(list(map(int, hl_states)))]
+                    hl_valid_states = [str(min(list(map(int, hl_states))))]
                 else:
                     hl_valid_states = list(filter(lambda x: int(x) <= thresh, hl_states))
 
@@ -45,7 +45,7 @@ def constrain_services(app_list, hl_slos):
                 constraints.append(constraints_per_parent)
 
 
-constrain_services([model_weather],  # model_analysis
+constrain_services([model_analysis],  # model_weather
                    [("cumm_net_delay", 100), ("consumption", "min")])
 
 # TODO: Afterward, optimize by resolving conflicts and removing slos from som intermediary nodes
