@@ -61,8 +61,6 @@ with open("W_metrics_cloud.csv", 'w', newline='') as csv_file:
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(["delta", "limit", "batch_size", "threads", "cached"] + list(device_metrics['metrics'].keys()))
 
-# Idea: possible parameters are batch size (what is it actually), caching yes/no --> freshness
-
 for (lim, bs, th, ca) in all_permutations:
     cached = None
     for _ in range(10):

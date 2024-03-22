@@ -1,4 +1,4 @@
-execution_time,timestamp,cpu_utilization,memory_usage,pixel,fps,success,distance,consumption,stream_count
+delta,timestamp,cpu_utilization,memory_usage,pixel,fps,success,distance,consumption,stream_count
 262,2023-10-09 17:18:02.549532,14.8,68.7,180,22,True,25.0,6,1
 15,2023-10-09 17:18:02.567103,22.2,68.8,180,22,True,334.0,6,1
 15,2023-10-09 17:18:02.612445,28.6,68.8,180,22,True,12.0,6,1

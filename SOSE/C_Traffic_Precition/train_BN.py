@@ -14,6 +14,7 @@ df_analysis = shuffle(pd.concat([df_analysis] * 2), random_state=35)  # To get a
 # del df_analysis['memory']
 del df_analysis['in_time']
 
+# TODO: Move BNs and train script to other folder
 
 # TODO: Do I put them all in one BN?
 # TODO: In any case, I should create a loop for the following BNs
@@ -26,11 +27,11 @@ def calculate_cumulative_net_delay(row, src, dest):
 
 
 df_analysis['cumm_net_delay'] = df_analysis.apply(calculate_cumulative_net_delay, axis=1, args=("Nano", "Laptop",))
-df_analysis['cumm_net_delay_True'] = df_analysis['cumm_net_delay'] <= 50
+# df_analysis['cumm_net_delay_True'] = df_analysis['cumm_net_delay'] <= 50
 # df_analysis['delta_True'] = df_analysis['delta'] <= 61
 # print(df_analysis)
 
-# utils.train_to_BN(df_analysis, "Traffic Prediction", export_file="./model_analysis.xml")
+utils.train_to_BN(df_analysis, "Traffic Prediction", export_file="./model_analysis.xml")
 
 #########################################################
 
@@ -80,7 +81,7 @@ print(df_cloud)
 
 # df = pd.merge(df_anomaly, df_analysis, left_index=True, right_index=True)  # Only joins to the max of one list
 
-utils.train_to_BN(df_cloud, "Traffic Prediction", export_file="./model_cloud.xml")
+# utils.train_to_BN(df_cloud, "Traffic Prediction", export_file="./model_cloud.xml")
 
 #########################################################
 
