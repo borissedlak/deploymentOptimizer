@@ -1,7 +1,7 @@
 from pgmpy.inference import VariableElimination
 from pgmpy.readwrite import XMLBIFReader
 
-from detector import utils
+from SOSE.C_Traffic_Precition.tools import get_target_distribution
 
 # model = XMLBIFReader("./model_anomaly.xml").get_model()
 # ve = VariableElimination(model)
@@ -10,6 +10,9 @@ from detector import utils
 #
 # result = ve.query(variables=['batch_size'], evidence={'cumm_net_delay_True': 'True'})
 # print(result)
+
+
+########################################
 
 
 ########################################
@@ -30,32 +33,20 @@ low_level_slos = {}
 
 ve = VariableElimination(model_analysis)
 
+high_level_thresh = 50
+high_level_var = "cumm_net_delay"
+
+# high_level_thresh = 40
+# high_level_var = "delta"
+
+constraints = []
+
 # Start with the high-level SLO
-for parent in model_analysis.get_parents("cumm_net_delay"):
-    high_level_states_raw = model_analysis.get_cpds("cumm_net_delay").__getattribute__("state_names")["cumm_net_delay"]
-    high_level_states = [int(x) for x in high_level_states_raw]
-    valid_states = list(filter(lambda x: x <= 50, high_level_states))
+for parent in model_analysis.get_parents(high_level_var):
+    hl_states = model_analysis.get_cpds(high_level_var).__getattribute__("state_names")[high_level_var]
+    hl_valid_states = list(filter(lambda x: int(x) <= high_level_thresh, hl_states))
 
-    for state in valid_states:
-        result = ve.query(variables=[parent], evidence={'cumm_net_delay': str(state)})
-        print(result)
+    constraints_per_parent = get_target_distribution(model_analysis, high_level_var, hl_valid_states, parent, [])
+    constraints.append(constraints_per_parent)
 
-    # result = ve.query(variables=['delta'], evidence={'cumm_net_delay': 'True'})
-
-# result = ve.query(variables=['cumm_net_delay_True'], evidence={'delta': '61'})  # 61 + 9 = 70...
-# print(result)
-
-# result = ve.query(variables=['pixel'], evidence={'cumm_net_delay_True': 'True'})
-# print(result)
-
-# result = ve.query(variables=['cpu'], evidence={'pixel': '1080', 'fps': '35'})
-# print(result)
-# result = ve.query(variables=['cpu'], evidence={'pixel': '480', 'fps': '15'})
-# print(result)
-# result = ve.query(variables=['cpu'], evidence={'consumption': '6'})
-# print(result)
-# result = ve.query(variables=['cpu'], evidence={'consumption': '7'})
-# print(result)
-
-# result = ve.query(variables=['cpu'], evidence={'pixel': '1080', 'fps': '35'})
-# print(result)
+pass

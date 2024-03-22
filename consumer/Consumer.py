@@ -85,8 +85,8 @@ class Consumer:
 
         # 2 Check if they match in terms of values, if not, it's confounded by a constant factor
         for (hb_v, lb_v) in promising_combinations:
-            p = VariableElimination(model_higher_blanket).query(variables=[hb_v]).state_names[hb_v]
-            q = VariableElimination(model_lower_blanket).query(variables=[lb_v]).state_names[lb_v]
+            p = VariableElimination(model_higher_blanket).query(variables=[hb_v]).low_state_names[hb_v]
+            q = VariableElimination(model_lower_blanket).query(variables=[lb_v]).low_state_names[lb_v]
 
             # # vrite: Must normalize length of distributions
             # if len(p) is not len(q):
