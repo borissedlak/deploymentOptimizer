@@ -354,16 +354,17 @@ def prepare_samples(samples: pd.DataFrame, remove_device_metrics=False, export_p
     return samples
 
 
-def train_to_BN(samples, service_name, export_file=None, samples_path=None):
+def train_to_BN(samples, service_name, export_file=None, samples_path=None, dag=None):
     if samples_path is not None:
         samples = pd.read_csv(samples_path)
 
-    scoring_method = AICScore(data=samples)  # BDeuScore | AICScore
-    estimator = HillClimbSearch(data=samples)
+    if dag is None:
+        scoring_method = AICScore(data=samples)  # BDeuScore | AICScore
+        estimator = HillClimbSearch(data=samples)
 
-    dag: pgmpy.base.DAG = estimator.estimate(
-        scoring_method=scoring_method, max_indegree=5, epsilon=1,
-    )
+        dag: pgmpy.base.DAG = estimator.estimate(
+            scoring_method=scoring_method, max_indegree=5, epsilon=1,
+        )
 
     export_BN_to_graph(dag, vis_ls=['circo'], save=False, name="raw_model", show=True)
     model = BayesianNetwork(ebunch=dag)
@@ -492,5 +493,6 @@ def check_device_present_in_mb(model, device):
 def log_dict(service, device, variable_dict, Consumer_to_Worker_constraints, most_restrictive_consumer_latency):
     with open("../analysis/inference/n_n_assignments.csv", 'a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow([service] + [device] + list(Consumer_to_Worker_constraints.values()) + [most_restrictive_consumer_latency]
-                            + list(variable_dict.values()))
+        csv_writer.writerow(
+            [service] + [device] + list(Consumer_to_Worker_constraints.values()) + [most_restrictive_consumer_latency]
+            + list(variable_dict.values()))
