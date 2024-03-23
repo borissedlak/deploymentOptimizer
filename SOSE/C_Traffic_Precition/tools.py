@@ -1,3 +1,5 @@
+from collections import Counter
+
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 
@@ -27,6 +29,7 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
 
     # Filter out states that with a probability of < 60% (compared to best state) produce desired outcomes
     max_value = max(acceptance_matrix)
+    # TODO: Here I might require something more sophisticated than just 60%
     acceptance_thresh = max_value * 0.70
 
     ll_valid_states = []
@@ -47,3 +50,20 @@ def calculate_cumulative_net_delay(row, src, dest):
     return (get_latency_for_devices(src, row['device_type'], ) +
             get_latency_for_devices(row['device_type'], dest) +
             row['delta'])
+
+
+def identify_conflicts(tuples_list):
+    grouped_dict = {}
+    for tup in tuples_list:
+        first_two = tup[:2]
+        if first_two in grouped_dict:
+            grouped_dict[first_two].append(tup[2])
+        else:
+            grouped_dict[first_two] = [tup[2]]
+
+    result = []
+    for key, value in grouped_dict.items():
+        if len(value) > 1:
+            result.append((key, value))
+
+    return result
