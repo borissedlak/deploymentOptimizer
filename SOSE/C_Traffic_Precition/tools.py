@@ -1,5 +1,6 @@
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
+from sklearn.utils import shuffle
 
 from detector.utils import get_latency_for_devices
 
@@ -50,6 +51,18 @@ def calculate_cumulative_net_delay(row, src, dest):
             row['delta'])
 
 
+def filter_training_data(df):
+    shuffled_set = shuffle(df, random_state=35)
+    boundary = int(len(shuffled_set) * 0.85)
+    return df.iloc[:boundary]
+
+
+def filter_test_data(df):
+    shuffled_set = shuffle(df, random_state=35)
+    boundary = int(len(shuffled_set) * 0.85)
+    return df.iloc[boundary:]
+
+
 def verify_slo_duplicates(tuples_list):
     grouped_dict = {}
     for tup in tuples_list:
@@ -67,17 +80,38 @@ def verify_slo_duplicates(tuples_list):
     return result
 
 
+def filter_non_conflicting(tuples_list):
+    counts = {}
+    result = []
+    for tup in tuples_list:
+        key = (tup[0], tup[1])
+        if key not in counts:
+            counts[key] = 1
+        else:
+            counts[key] += 1
+
+    for tup in tuples_list:
+        key = (tup[0], tup[1])
+        if counts[key] == 1:
+            result.append(tup)
+
+    return result
+
+
 def find_compromise(conflict_dict):
+    resolved_slos = []
     for (ID, values) in conflict_dict:
 
         # All values are equal (might be even one theoretically)
         if all(x == values[0] for x in values):
             print(ID, "easy, direct match", values[0])
+            resolved_slos.append((ID[0], ID[1], values[0]))
             continue
 
         intersection = set.intersection(*map(set, values))
         if len(intersection) != 0:
             print(ID, "still good, some intersection", intersection)
+            resolved_slos.append((ID[0], ID[1], list(intersection)))
         else:
             print(ID, "not good, sets disjoint, we have a conflict")
 
@@ -85,3 +119,5 @@ def find_compromise(conflict_dict):
             #  1: analyze all possible states and take the values that are between the disjoint sets
             #  2: same as (1) + both disjoint sets
             #  3: just merge the sets, regardless of missing intersections
+
+    return resolved_slos
