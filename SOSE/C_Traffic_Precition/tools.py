@@ -1,8 +1,37 @@
+import csv
+
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 from sklearn.utils import shuffle
 
 from detector.utils import get_latency_for_devices
+
+
+def constrain_services_variables(app_list, hl_slos):
+    constraints = []
+
+    for m in app_list:
+        for (var, thresh) in hl_slos:
+            if not m.has_node(var):
+                continue  # some hl slo might not fit for some app
+
+            hl_states = m.get_cpds(var).__getattribute__("state_names")[var]
+            if thresh == "min":
+                # TODO: I should not cast to int, what if its a float behind...
+                hl_valid_states = [str(min(list(map(int, hl_states))))]
+            elif thresh == "max":
+                hl_valid_states = [str(max(list(map(int, hl_states))))]
+            else:
+                hl_valid_states = list(filter(lambda x: int(x) <= thresh, hl_states))
+
+            constraints.append((m.name, var, hl_valid_states))  # add hl SLO
+
+            # Traverse parents and constrain them
+            for parent in m.get_parents(var):
+                constraints_per_parent = get_target_distribution(m, var, hl_valid_states, parent, [])
+                constraints.extend(constraints_per_parent)
+
+    return constraints
 
 
 def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_states, ll_parent_node, constraints):
@@ -110,7 +139,7 @@ def find_compromise(conflict_dict):
 
         intersection = set.intersection(*map(set, values))
         if len(intersection) != 0:
-            print(ID, "still good, some intersection", intersection)
+            print(ID, "still good, some intersection", list(intersection))
             resolved_slos.append((ID[0], ID[1], list(intersection)))
         else:
             print(ID, "not good, sets disjoint, we have a conflict")
@@ -121,3 +150,11 @@ def find_compromise(conflict_dict):
             #  3: just merge the sets, regardless of missing intersections
 
     return resolved_slos
+
+
+def export_slos_csv(slos_list):
+    with open("ll_slos.csv", 'a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(["service", "variable", "states"])
+        for row in slos_list:
+            csv_writer.writerow(row)
