@@ -50,7 +50,7 @@ def calculate_cumulative_net_delay(row, src, dest):
             row['delta'])
 
 
-def verify_slos_duplicates(tuples_list):
+def verify_slo_duplicates(tuples_list):
     grouped_dict = {}
     for tup in tuples_list:
         first_two = tup[:2]
@@ -80,3 +80,8 @@ def find_compromise(conflict_dict):
             print(ID, "still good, some intersection", intersection)
         else:
             print(ID, "not good, sets disjoint, we have a conflict")
+
+            # TODO: some options to resolve the conflict
+            #  1: analyze all possible states and take the values that are between the disjoint sets
+            #  2: same as (1) + both disjoint sets
+            #  3: just merge the sets, regardless of missing intersections

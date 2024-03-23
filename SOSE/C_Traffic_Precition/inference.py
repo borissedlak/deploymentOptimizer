@@ -1,7 +1,7 @@
 from pgmpy.inference import VariableElimination
 from pgmpy.readwrite import XMLBIFReader
 
-from SOSE.C_Traffic_Precition.tools import get_target_distribution, verify_slos_duplicates, find_compromise
+from SOSE.C_Traffic_Precition.tools import get_target_distribution, verify_slo_duplicates, find_compromise
 
 ########################################
 
@@ -23,6 +23,9 @@ def constrain_services_variables(app_list, hl_slos):
 
     for m in app_list:
         for (var, thresh) in hl_slos:
+            if not m.has_node(var):
+                continue  # some hl slo might not fit for some app
+
             hl_states = m.get_cpds(var).__getattribute__("state_names")[var]
             if thresh == "min":
                 # TODO: I should not cast to int, what if its a float behind...
@@ -43,14 +46,16 @@ def constrain_services_variables(app_list, hl_slos):
 
 
 # 1: get all ll SLOs
-ll_slos = constrain_services_variables([model_analysis, model_weather],
-                                       [("cumm_net_delay", 45), ("consumption", "min")])
+# ll_slos = constrain_services_variables([model_analysis, model_weather],
+#                                        [("cumm_net_delay", 45), ("consumption", "min")])
+ll_slos = constrain_services_variables([model_analysis, model_weather, model_anomaly, model_cloud],
+                                       [("cumm_net_delay", 50), ("consumption", "min")])
 
 # 2: remove slos from intermediary nodes
 # Does not occur in test cases, hence omitted for now
 
 # 3: identify conflicts
-potential_conflicts = verify_slos_duplicates(ll_slos)
+potential_conflicts = verify_slo_duplicates(ll_slos)
 print(potential_conflicts)
 
 # 4: resolve conflicts --> afterward the parental nodes must be inferred again --> but they are always leaves so far...
@@ -59,8 +64,9 @@ find_compromise(potential_conflicts)
 # 5: summary with params
 
 pass
-# TODO: Show Victor
-# constrain_services([model_analysis],
-#                    [("consumption", "min")])
-# constrain_services([model_analysis],
-#                    [("consumption", "max")])
+
+# TODO: Prepare some show cases
+#  consumption min/max
+#  delay 100, pixel max
+#  delay 45, pixel max
+#  delay 45, pixel max, consumption min
