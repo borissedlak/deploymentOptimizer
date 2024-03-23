@@ -1,40 +1,38 @@
-import numpy as np
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 
 from detector.utils import get_latency_for_devices
 
 
-def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_valid_states, ll_parent_node, constraints):
+def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_states, ll_parent_node, constraints):
     print(f"{model.name}: Constraining {ll_parent_node} --> {hl_target_var}")
     ve = VariableElimination(model)
-    normalizer = ve.query(variables=[hl_target_var])
 
-    value_matrix, ll_state_names = None, None
-    for state in hl_valid_states:
-        result = ve.query(variables=[ll_parent_node], evidence={hl_target_var: str(state)})
-        # print(result)
+    # Write: The desired logic is as follows: I should for each ll_state ask whats the probability of resulting
+    # Write: in the desired hl states. And in case its unlikely (< 0.6 * max) then its not advisable
 
-        if ll_state_names is None:
-            ll_state_names = result.state_names[ll_parent_node]
+    ll_states = model.get_cpds(ll_parent_node).__getattribute__("state_names")[ll_parent_node]
+    acceptance_matrix = []
 
-        # Write: States that only occur very infrequently do not get a lot of emphasis
-        index = normalizer.name_to_no[hl_target_var][state]
-        normalized_values = result.values * normalizer.values[index]
-        if value_matrix is None:
-            value_matrix = normalized_values
-        else:
-            value_matrix = value_matrix + normalized_values
+    for ll_state in ll_states:
+        result = ve.query(variables=[hl_target_var], evidence={ll_parent_node: str(ll_state)})
 
-    # TODO: Must normalize to the overall occurences
+        chance_desired = 0  # Get chance for each ll state to be in desired range
+        for index in range(len(result.values)):
+            # Check if state is among the desired ones
+            if result.state_names[hl_target_var][index] in hl_desired_states:
+                chance_desired += result.values[index]
 
-    max_value = np.max(value_matrix)
-    acceptance_thresh = max_value * 0.50
+        acceptance_matrix.append(chance_desired)
+
+    # Filter out states that with a probability of < 60% (compared to best state) produce desired outcomes
+    max_value = max(acceptance_matrix)
+    acceptance_thresh = max_value * 0.60
 
     ll_valid_states = []
-    for i in range(len(ll_state_names)):
-        if value_matrix[i] >= acceptance_thresh:
-            ll_valid_states.append(ll_state_names[i])
+    for i in range(len(ll_states)):
+        if acceptance_matrix[i] >= acceptance_thresh:
+            ll_valid_states.append(ll_states[i])
 
     print(f"{ll_parent_node} should only take {ll_valid_states}\n")
     constraints.append((model.name, ll_parent_node, ll_valid_states))

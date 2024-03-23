@@ -31,8 +31,8 @@ ve = VariableElimination(model_analysis)
 def constrain_services(app_list, hl_slos):
     constraints = []
 
-    for (var, thresh) in hl_slos:
-        for m in app_list:
+    for m in app_list:
+        for (var, thresh) in hl_slos:
             # Start with the high-level SLO
             for parent in m.get_parents(var):
                 hl_states = m.get_cpds(var).__getattribute__("state_names")[var]
@@ -45,7 +45,7 @@ def constrain_services(app_list, hl_slos):
                 constraints.append(constraints_per_parent)
 
 
-constrain_services([model_analysis],  # model_weather
-                   [("cumm_net_delay", 100), ("consumption", "min")])
+constrain_services([model_analysis, model_weather],  # model_weather
+                   [("cumm_net_delay", 43), ("consumption", "min")])
 
-# TODO: Afterward, optimize by resolving conflicts and removing slos from som intermediary nodes
+# TODO: Afterward, optimize by resolving conflicts and removing slos from some intermediary nodes
