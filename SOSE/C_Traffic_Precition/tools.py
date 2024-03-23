@@ -27,7 +27,7 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
 
     # Filter out states that with a probability of < 60% (compared to best state) produce desired outcomes
     max_value = max(acceptance_matrix)
-    acceptance_thresh = max_value * 0.60
+    acceptance_thresh = max_value * 0.70
 
     ll_valid_states = []
     for i in range(len(ll_states)):

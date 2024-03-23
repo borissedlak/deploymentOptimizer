@@ -16,19 +16,10 @@ model_weather = XMLBIFReader("../Global/model_weather.xml").get_model()
 # utils.export_BN_to_graph(model_cloud)
 # utils.export_BN_to_graph(model_weather)
 
-low_level_slos = {}
-
 ve = VariableElimination(model_analysis)
 
 
-# high_level_thresh = 50
-# high_level_var = "cumm_net_delay"
-
-# high_level_thresh = 40
-# high_level_var = "delta"
-
-
-def constrain_services(app_list, hl_slos):
+def constrain_services_variables(app_list, hl_slos):
     constraints = []
 
     for m in app_list:
@@ -37,15 +28,24 @@ def constrain_services(app_list, hl_slos):
             for parent in m.get_parents(var):
                 hl_states = m.get_cpds(var).__getattribute__("state_names")[var]
                 if thresh == "min":
+                    # TODO: I should not cast to int, what if its a float behind...
                     hl_valid_states = [str(min(list(map(int, hl_states))))]
+                elif thresh == "max":
+                    hl_valid_states = [str(max(list(map(int, hl_states))))]
                 else:
                     hl_valid_states = list(filter(lambda x: int(x) <= thresh, hl_states))
 
                 constraints_per_parent = get_target_distribution(m, var, hl_valid_states, parent, [])
                 constraints.append(constraints_per_parent)
 
+    return constraints
 
-constrain_services([model_analysis, model_weather],  # model_weather
-                   [("cumm_net_delay", 43), ("consumption", "min")])
 
-# TODO: Afterward, optimize by resolving conflicts and removing slos from some intermediary nodes
+constrain_services_variables([model_analysis, model_weather],
+                             [("cumm_net_delay", 45), ("consumption", "min")])
+# constrain_services([model_analysis],
+#                    [("consumption", "min")])
+# constrain_services([model_analysis],
+#                    [("consumption", "max")])
+
+# TODO: Afterward, optimize by resolving conflicts and removing slos from some intermediary nodes, also identify params

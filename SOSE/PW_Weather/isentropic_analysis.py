@@ -35,6 +35,8 @@ from detector.DeviceMetricReporter import DeviceMetricReporter
 # for 18 UTC 04 April 1987 from the National Centers for Environmental Information will be
 # used.
 
+# Write: must cite their paper!
+
 # test_data = get_test_data('narr_example.nc', True)
 data = xr.open_dataset(get_test_data('narr_example.nc', False))
 
