@@ -1,7 +1,7 @@
 from pgmpy.inference import VariableElimination
 from pgmpy.readwrite import XMLBIFReader
 
-from SOSE.C_Traffic_Precition.tools import get_target_distribution, identify_conflicts
+from SOSE.C_Traffic_Precition.tools import get_target_distribution, verify_slos_duplicates, find_compromise
 
 ########################################
 
@@ -50,10 +50,11 @@ ll_slos = constrain_services_variables([model_analysis, model_weather],
 # Does not occur in test cases, hence omitted for now
 
 # 3: identify conflicts
-conflicting_ll_slos = identify_conflicts(ll_slos)
-print(conflicting_ll_slos)
+potential_conflicts = verify_slos_duplicates(ll_slos)
+print(potential_conflicts)
 
 # 4: resolve conflicts --> afterward the parental nodes must be inferred again --> but they are always leaves so far...
+find_compromise(potential_conflicts)
 
 # 5: summary with params
 

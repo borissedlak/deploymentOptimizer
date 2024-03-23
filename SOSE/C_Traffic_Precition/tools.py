@@ -1,5 +1,3 @@
-from collections import Counter
-
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 
@@ -29,7 +27,7 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
 
     # Filter out states that with a probability of < 60% (compared to best state) produce desired outcomes
     max_value = max(acceptance_matrix)
-    # TODO: Here I might require something more sophisticated than just 60%
+    # TODO: Here I might require something more sophisticated than just some %
     acceptance_thresh = max_value * 0.70
 
     ll_valid_states = []
@@ -52,7 +50,7 @@ def calculate_cumulative_net_delay(row, src, dest):
             row['delta'])
 
 
-def identify_conflicts(tuples_list):
+def verify_slos_duplicates(tuples_list):
     grouped_dict = {}
     for tup in tuples_list:
         first_two = tup[:2]
@@ -67,3 +65,18 @@ def identify_conflicts(tuples_list):
             result.append((key, value))
 
     return result
+
+
+def find_compromise(conflict_dict):
+    for (ID, values) in conflict_dict:
+
+        # All values are equal (might be even one theoretically)
+        if all(x == values[0] for x in values):
+            print(ID, "easy, direct match", values[0])
+            continue
+
+        intersection = set.intersection(*map(set, values))
+        if len(intersection) != 0:
+            print(ID, "still good, some intersection", intersection)
+        else:
+            print(ID, "not good, sets disjoint, we have a conflict")
