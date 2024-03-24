@@ -34,13 +34,16 @@ def evaluate_all_services(only_set_params=False):
         if len(cond_df) == 0:
             print_in_red("No samples with desired characteristics found")
 
-        # Idea: I think I should only set the parameters, although ensuring the ll_slo through them is the responsibility
+        # Write: I think I should only set parameters, although ensuring the ll_slo through them is the responsibility
         #  of the elasticity strategies locally. But the difference between them is a super important metrics because it
         #  allows to estimate how well the target outcome can be influenced by the parameters that are set
 
         for index, row in hl_slos.iterrows():
+            # SLO fulfillment if the system is configured with the inferred ll SLOs
             fulfilled = cond_df[cond_df[row[1]].isin(row[2])]
             print(row[0], row[1], len(fulfilled) / len(cond_df))
+
+            # SLO fulfillment for the system under an arbitrary (i.e., random) configuration
             fulfilled_rand = test_df[test_df[row[1]].isin(row[2])]
             print(row[0], row[1], len(fulfilled_rand) / len(test_df))
 
