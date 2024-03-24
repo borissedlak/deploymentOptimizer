@@ -1,4 +1,5 @@
 import ast
+import warnings
 
 import pandas as pd
 
@@ -20,11 +21,15 @@ slo_df['states'] = slo_df['states'].apply(convert_to_int_or_bool)  # TODO: This 
 for service in service_list:
     test_data_file = find_nested_files_with_suffix('../', f'W_metrics_{service}.csv')[0]
     test_df = filter_test_data(pd.read_csv(test_data_file))
-    ll_slos = slo_df[(slo_df['service'] == service) & ~(slo_df['hl'])]#.iloc[:2]
+    ll_slos = slo_df[(slo_df['service'] == service) & ~(slo_df['hl'])]  # .iloc[:2]
     hl_slos = slo_df[(slo_df['service'] == service) & (slo_df['hl'])]
 
     tuples_list = list(ll_slos.itertuples(index=False))
-    conditioned_df = test_df[eval(" & ".join(["(test_df['{0}'].isin({1}))".format(col, cond)
-                                              for _, col, cond, _ in tuples_list]))]
+    cond_df = test_df[eval(" & ".join(["(test_df['{0}'].isin({1}))".format(col, cond)
+                                       for _, col, cond, _ in tuples_list]))]
+    if len(cond_df) == 0:
+        warnings.warn("No samples with desired characteristics found")
 
-    print(conditioned_df)
+    for index, row in hl_slos.iterrows():
+        fulfilled = cond_df[cond_df[row[1]].isin(row[2])]
+        print(len(fulfilled) / len(test_df))

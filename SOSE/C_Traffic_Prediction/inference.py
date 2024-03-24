@@ -21,7 +21,7 @@ ve = VariableElimination(model_analysis)
 # Write 1: get all ll SLOs
 
 ll_slos = constrain_services_variables([model_analysis, model_weather, model_anomaly, model_cloud],
-                                       [("cumm_net_delay", 50), ("consumption", "min")])
+                                       [("consumption", "min")])
 
 # Write 2: remove slos from intermediary nodes
 # Does not occur in test cases, hence omitted for now
@@ -29,7 +29,7 @@ ll_slos = constrain_services_variables([model_analysis, model_weather, model_ano
 # Write 3: identify conflicts
 non_conflicting_slos = filter_non_conflicting(ll_slos)
 potential_conflicts = verify_slo_duplicates(ll_slos)
-print(potential_conflicts)
+# print(potential_conflicts)
 
 # Write 4: resolve conflicts --> afterward parental nodes must be inferred again --> but they are all leaves so far...
 resolved_slos = find_compromise(potential_conflicts)
