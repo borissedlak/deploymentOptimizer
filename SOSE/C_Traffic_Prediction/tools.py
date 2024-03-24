@@ -4,7 +4,7 @@ from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 from sklearn.utils import shuffle
 
-from detector.utils import get_latency_for_devices
+from detector.utils import get_latency_for_devices, print_in_red
 
 
 def constrain_services_variables(app_list, hl_slos):
@@ -24,7 +24,8 @@ def constrain_services_variables(app_list, hl_slos):
             else:
                 hl_valid_states = list(filter(lambda x: int(x) <= thresh, hl_states))
 
-            constraints.append((m.name, var, hl_valid_states, True))  # add hl SLO
+            is_root = len(m.get_parents(var)) == 0  # Usually this is never a root, but you never know
+            constraints.append((m.name, var, hl_valid_states, True, is_root))  # add hl SLO
 
             # Traverse parents and constrain them
             for parent in m.get_parents(var):
@@ -66,7 +67,10 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
             ll_valid_states.append(ll_states[i])
 
     print(f"{ll_parent_node} should only take {ll_valid_states}\n")
-    constraints.append((model.name, ll_parent_node, ll_valid_states, False))
+
+    # TODO: Check if node has parents, if not, were at a parametrizable root
+    is_root = len(model.get_parents(ll_parent_node)) == 0
+    constraints.append((model.name, ll_parent_node, ll_valid_states, False, is_root))
 
     for par in model.get_parents(ll_parent_node):
         get_target_distribution(model, ll_parent_node, ll_valid_states, par, constraints)
@@ -134,15 +138,16 @@ def find_compromise(conflict_dict):
         # All values are equal (might be even one theoretically)
         if all(x == values[0] for x in values):
             print(ID, "easy, direct match", values[0])
-            resolved_slos.append((ID[0], ID[1], values[0], False))
+            # Write: Is this natural due to the conditional independence of the configurable params?
+            resolved_slos.append((ID[0], ID[1], values[0], False, True))  # TODO: Is it a rule that they are roots?
             continue
 
         intersection = set.intersection(*map(set, values))
         if len(intersection) != 0:
             print(ID, "still good, some intersection", list(intersection))
-            resolved_slos.append((ID[0], ID[1], list(intersection), False))
+            resolved_slos.append((ID[0], ID[1], list(intersection), False, True))
         else:
-            print(ID, "not good, sets disjoint, we have a conflict")
+            print_in_red(f"{ID}, not good, sets disjoint, we have a conflict")
 
             # TODO: some options to resolve the conflict
             #  1: analyze all possible states and take the values that are between the disjoint sets
@@ -155,7 +160,7 @@ def find_compromise(conflict_dict):
 def export_slos_csv(slos_list):
     with open("ll_slos.csv", 'w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow(["service", "variable", "states", "hl"])
+        csv_writer.writerow(["service", "variable", "states", "hl", "root"])
         for row in slos_list:
             csv_writer.writerow(row)
 

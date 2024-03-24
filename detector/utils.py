@@ -496,3 +496,7 @@ def log_dict(service, device, variable_dict, Consumer_to_Worker_constraints, mos
         csv_writer.writerow(
             [service] + [device] + list(Consumer_to_Worker_constraints.values()) + [most_restrictive_consumer_latency]
             + list(variable_dict.values()))
+
+
+def print_in_red(text):
+    print("\x1b[31m" + text + "\x1b[0m")

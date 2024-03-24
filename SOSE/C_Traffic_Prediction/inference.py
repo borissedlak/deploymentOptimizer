@@ -21,7 +21,7 @@ ve = VariableElimination(model_analysis)
 # Write 1: get all ll SLOs
 
 ll_slos = constrain_services_variables([model_analysis, model_weather, model_anomaly, model_cloud],
-                                       [("cumm_net_delay", 40), ("consumption", 'min')])
+                                       [("cumm_net_delay", 100), ("consumption", 'min'), ("pixel", 'max')])
 
 # Write 2: remove slos from intermediary nodes
 # Does not occur in test cases, hence omitted for now

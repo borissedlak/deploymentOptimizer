@@ -1,10 +1,9 @@
 import ast
-import warnings
 
 import pandas as pd
 
 from SOSE.C_Traffic_Prediction.tools import filter_test_data, convert_to_int_or_bool
-from detector.utils import find_nested_files_with_suffix
+from detector.utils import find_nested_files_with_suffix, print_in_red
 
 # TODO
 #  * configure the system with the desired states ==> filter test set
@@ -28,10 +27,12 @@ for service in service_list:
     cond_df = test_df[eval(" & ".join(["(test_df['{0}'].isin({1}))".format(col, cond)
                                        for _, col, cond, _ in tuples_list]))]
     if len(cond_df) == 0:
-        warnings.warn("No samples with desired characteristics found")
+        print_in_red("No samples with desired characteristics found")
 
     # Idea: I think I should only set the parameters, although ensuring the ll_slo through them is the responsibility
-    #  of the elasticity strategies locally.
+    #  of the elasticity strategies locally. But the difference between them is a super important metrics because it
+    #  allows to estimate how well the target outcome can be influenced by the parameters that are set
+
     for index, row in hl_slos.iterrows():
         fulfilled = cond_df[cond_df[row[1]].isin(row[2])]
         print(row[0], row[1], len(fulfilled) / len(cond_df))
