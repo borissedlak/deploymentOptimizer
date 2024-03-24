@@ -24,7 +24,7 @@ def constrain_services_variables(app_list, hl_slos):
             else:
                 hl_valid_states = list(filter(lambda x: int(x) <= thresh, hl_states))
 
-            constraints.append((m.name, var, hl_valid_states))  # add hl SLO
+            constraints.append((m.name, var, hl_valid_states, True))  # add hl SLO
 
             # Traverse parents and constrain them
             for parent in m.get_parents(var):
@@ -66,7 +66,7 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
             ll_valid_states.append(ll_states[i])
 
     print(f"{ll_parent_node} should only take {ll_valid_states}\n")
-    constraints.append((model.name, ll_parent_node, ll_valid_states))
+    constraints.append((model.name, ll_parent_node, ll_valid_states, False))
 
     for par in model.get_parents(ll_parent_node):
         get_target_distribution(model, ll_parent_node, ll_valid_states, par, constraints)
@@ -83,13 +83,13 @@ def calculate_cumulative_net_delay(row, src, dest):
 def filter_training_data(df):
     shuffled_set = shuffle(df, random_state=35)
     boundary = int(len(shuffled_set) * 0.85)
-    return df.iloc[:boundary]
+    return shuffled_set.iloc[:boundary]
 
 
 def filter_test_data(df):
     shuffled_set = shuffle(df, random_state=35)
     boundary = int(len(shuffled_set) * 0.85)
-    return df.iloc[boundary:]
+    return shuffled_set.iloc[boundary:]
 
 
 def verify_slo_duplicates(tuples_list):
@@ -134,13 +134,13 @@ def find_compromise(conflict_dict):
         # All values are equal (might be even one theoretically)
         if all(x == values[0] for x in values):
             print(ID, "easy, direct match", values[0])
-            resolved_slos.append((ID[0], ID[1], values[0]))
+            resolved_slos.append((ID[0], ID[1], values[0], False))
             continue
 
         intersection = set.intersection(*map(set, values))
         if len(intersection) != 0:
             print(ID, "still good, some intersection", list(intersection))
-            resolved_slos.append((ID[0], ID[1], list(intersection)))
+            resolved_slos.append((ID[0], ID[1], list(intersection), False))
         else:
             print(ID, "not good, sets disjoint, we have a conflict")
 
@@ -153,8 +153,22 @@ def find_compromise(conflict_dict):
 
 
 def export_slos_csv(slos_list):
-    with open("ll_slos.csv", 'a', newline='') as csv_file:
+    with open("ll_slos.csv", 'w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow(["service", "variable", "states"])
+        csv_writer.writerow(["service", "variable", "states", "hl"])
         for row in slos_list:
             csv_writer.writerow(row)
+
+
+def convert_to_int_or_bool(lst):
+    converted_list = []
+    for elem in lst:
+        if elem.isdigit():
+            converted_list.append(int(elem))
+        elif elem.lower() == 'true':
+            converted_list.append(True)
+        elif elem.lower() == 'false':
+            converted_list.append(False)
+        else:
+            converted_list.append(elem)
+    return converted_list
