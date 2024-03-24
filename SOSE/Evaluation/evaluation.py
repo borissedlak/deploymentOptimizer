@@ -30,6 +30,10 @@ for service in service_list:
     if len(cond_df) == 0:
         warnings.warn("No samples with desired characteristics found")
 
+    # Idea: I think I should only set the parameters, although ensuring the ll_slo through them is the responsibility
+    #  of the elasticity strategies locally.
     for index, row in hl_slos.iterrows():
         fulfilled = cond_df[cond_df[row[1]].isin(row[2])]
-        print(len(fulfilled) / len(test_df))
+        print(row[0], row[1], len(fulfilled) / len(cond_df))
+        fulfilled_rand = test_df[test_df[row[1]].isin(row[2])]
+        print(row[0], row[1], len(fulfilled_rand) / len(test_df))
