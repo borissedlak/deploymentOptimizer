@@ -15,4 +15,4 @@ else:
 mongo_client = pymongo.MongoClient(MONGO_HOST)["metrics"]
 orin = pd.DataFrame(list(mongo_client['Processor-Orin'].find()))
 
-samples = utils.prepare_samples(orin, export_path="W_metrics_analysis.csv")
+samples = utils.prepare_samples(orin, export_path="W_metrics_Analysis.csv")

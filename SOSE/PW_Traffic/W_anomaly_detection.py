@@ -97,7 +97,7 @@ for size in batch_sizes:
         # print(device_metrics['metrics'])
         # print(int(delta), "ms")
 
-with open("W_metrics_anomaly.csv", 'w', newline='') as csv_file:
+with open("W_metrics_Anomaly.csv", 'w', newline='') as csv_file:
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(["batch_size", "delta_anomaly"] + list(device_metrics['metrics'].keys()))
     csv_writer.writerows(metrics_csv_list)

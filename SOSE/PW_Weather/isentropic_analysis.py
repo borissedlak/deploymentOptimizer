@@ -141,7 +141,7 @@ device_reporter = DeviceMetricReporter(gpu_available=False)
 device_metrics = device_reporter.create_metrics(source_fps=None)
 all_permutations = list(itertools.product(isent_list, data_size_list, fig_size_list))
 
-with open("W_metrics_weather.csv", 'w', newline='') as csv_file:
+with open("W_metrics_Weather.csv", 'w', newline='') as csv_file:
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(["delta", "isentropic", "data_size", "fig_size"] + list(device_metrics['metrics'].keys()))
 
@@ -156,7 +156,7 @@ for (i, d, f) in all_permutations:
 
             # metrics_csv_list.append([i, d, f])
 
-            with open("W_metrics_weather.csv", 'a', newline='') as csv_file:
+            with open("W_metrics_Weather.csv", 'a', newline='') as csv_file:
                 csv_writer = csv.writer(csv_file)
                 csv_writer.writerow([delta, i, d, f] + list(device_metrics['metrics'].values()))
 

@@ -1,7 +1,7 @@
 from pgmpy.inference import VariableElimination
 from pgmpy.readwrite import XMLBIFReader
 
-from SOSE.C_Traffic_Precition.tools import verify_slo_duplicates, find_compromise, \
+from SOSE.C_Traffic_Prediction.tools import verify_slo_duplicates, find_compromise, \
     filter_non_conflicting, constrain_services_variables, export_slos_csv
 
 ########################################

@@ -57,7 +57,7 @@ device_reporter = DeviceMetricReporter(gpu_available=False)
 device_metrics = device_reporter.create_metrics(source_fps=None)
 all_permutations = list(itertools.product(limit_list, batch_size_list, thread_list, cache_list))
 
-with open("W_metrics_cloud.csv", 'w', newline='') as csv_file:
+with open("W_metrics_CloudDB.csv", 'w', newline='') as csv_file:
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(["delta", "limit", "batch_size", "threads", "cached"] + list(device_metrics['metrics'].keys()))
 
@@ -73,7 +73,7 @@ for (lim, bs, th, ca) in all_permutations:
         delta = int((time.time() - start_time) * 1000)
         device_metrics = device_reporter.create_metrics(source_fps=None)
 
-        with open("W_metrics_cloud.csv", 'a', newline='') as csv_file:
+        with open("W_metrics_CloudDB.csv", 'a', newline='') as csv_file:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerow([delta, lim, bs, th, ca] + list(device_metrics['metrics'].values()))
 
