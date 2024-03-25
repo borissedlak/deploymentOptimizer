@@ -10,11 +10,11 @@ df_analysis = filter_training_data(pd.read_csv('../PW_Street_Analysis/W_metrics_
 del df_analysis['in_time']
 
 dag = DAG()
-dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "device_type", "consumption",
-                    "viewer_satisfaction"])
+dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "consumption",
+                    "viewer_satisfaction", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption"), ("pixel", "cpu"), ("fps", "cpu"),
                     ("fps", "memory"), ("pixel", "delta"), ("gpu", "delta"), ("fps", "gpu"),
-                    ("pixel", "viewer_satisfaction")])
+                    ("pixel", "viewer_satisfaction"), ("consumption", "energy")])
 
 utils.train_to_BN(df_analysis, "Analysis", export_file="model_analysis.xml", dag=dag)
 
@@ -24,9 +24,9 @@ df_anomaly = filter_training_data(pd.read_csv('../PW_Traffic/W_metrics_Anomaly.c
 del df_anomaly['timestamp']
 
 dag = DAG()
-dag.add_nodes_from(["memory", "delta", "cumm_net_delay", "device_type", "gpu", "cpu", "batch_size", "consumption"])
+dag.add_nodes_from(["memory", "delta", "cumm_net_delay", "gpu", "cpu", "batch_size", "consumption", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("batch_size", "delta"), ("batch_size", "cpu"),
-                    ("cpu", "consumption"), ("batch_size", "memory"), ])
+                    ("cpu", "consumption"), ("batch_size", "memory"), ("consumption", "energy")])
 
 utils.train_to_BN(df_anomaly, "Anomaly", export_file="model_anomaly.xml", dag=dag)
 
@@ -36,11 +36,11 @@ df_weather = filter_training_data(pd.read_csv('../PW_Weather/W_metrics_Weather.c
 del df_weather['timestamp']
 
 dag = DAG()
-dag.add_nodes_from(["memory", "delta", "cumm_net_delay", "isentropic", "device_type", "gpu", "cpu", "fig_size",
-                    "data_size", "consumption", "viewer_satisfaction"])
+dag.add_nodes_from(["memory", "delta", "cumm_net_delay", "isentropic", "gpu", "cpu", "fig_size",
+                    "data_size", "consumption", "viewer_satisfaction", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("fig_size", "delta"), ("isentropic", "delta"), ("data_size", "delta"),
                     ("cpu", "consumption"), ("isentropic", "cpu"), ("data_size", "cpu"), ("delta", "memory"),
-                    ("fig_size", "viewer_satisfaction")])
+                    ("fig_size", "viewer_satisfaction"), ("consumption", "energy")])
 
 utils.train_to_BN(df_weather, "Weather", export_file="model_weather.xml", dag=dag)
 
@@ -50,10 +50,10 @@ df_cloud = filter_training_data(pd.read_csv('../PW_Cloud_DB/W_metrics_CloudDB.cs
 del df_cloud['timestamp']
 
 dag = DAG()
-dag.add_nodes_from(["threads", "limit", "cumm_net_delay", "device_type", "gpu", "cpu", "batch_size", "consumption",
-                    "cached", "memory", "delta"])
+dag.add_nodes_from(["threads", "limit", "cumm_net_delay", "gpu", "cpu", "batch_size", "consumption",
+                    "cached", "memory", "delta", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("batch_size", "delta"), ("cached", "cpu"), ("cpu", "consumption"),
-                    ("threads", "delta"), ("limit", "delta"), ("cached", "delta")])
+                    ("threads", "delta"), ("limit", "delta"), ("cached", "delta"), ("consumption", "energy")])
 
 utils.train_to_BN(df_cloud, "CloudDB", export_file="model_cloud.xml", dag=dag)
 
