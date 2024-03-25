@@ -23,6 +23,6 @@ CloudDB,cpu,['0'],False,False
 Analysis,fps,"['15', '20', '25', '30', '35']",False,True
 Analysis,pixel,['480'],False,True
 Weather,data_size,"['5', '10', '20', '30']",False,True
-Weather,isentropic,"['200', '50', '1', '10', '100']",False,True
+Weather,isentropic,"['1', '200', '50', '10', '100']",False,True
 Anomaly,batch_size,['10'],False,True
 CloudDB,cached,['True'],False,True

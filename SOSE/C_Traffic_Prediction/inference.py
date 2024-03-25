@@ -3,6 +3,7 @@ from pgmpy.readwrite import XMLBIFReader
 
 from SOSE.C_Traffic_Prediction.tools import verify_slo_duplicates, find_compromise, \
     filter_non_conflicting, constrain_services_variables, export_slos_csv
+from detector import utils
 
 ########################################
 
@@ -31,6 +32,7 @@ non_conflicting_slos = filter_non_conflicting(ll_slos)
 potential_conflicts = verify_slo_duplicates(ll_slos)
 print(potential_conflicts)
 
+# TODO: Some manual resolution for one use case that can be evaluated
 # Write 4: resolve conflicts --> afterward parental nodes must be inferred again --> but they are all leaves so far...
 resolved_slos = find_compromise(potential_conflicts)
 
