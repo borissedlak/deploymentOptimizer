@@ -153,6 +153,13 @@
       <OUTCOME>1080</OUTCOME>
       <PROPERTY>weight = None</PROPERTY>
     </VARIABLE>
+    <VARIABLE TYPE="nature">
+      <NAME>viewer_satisfaction</NAME>
+      <OUTCOME>480</OUTCOME>
+      <OUTCOME>720</OUTCOME>
+      <OUTCOME>1080</OUTCOME>
+      <PROPERTY>weight = None</PROPERTY>
+    </VARIABLE>
     <DEFINITION>
       <FOR>consumption</FOR>
       <GIVEN>cpu</GIVEN>
@@ -196,6 +203,11 @@
     <DEFINITION>
       <FOR>pixel</FOR>
       <TABLE>0.3332434618495551 0.33243461849555134 0.3343219196548935 </TABLE>
+    </DEFINITION>
+    <DEFINITION>
+      <FOR>viewer_satisfaction</FOR>
+      <GIVEN>pixel</GIVEN>
+      <TABLE>1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0 </TABLE>
     </DEFINITION>
   </NETWORK>
 </BIF>

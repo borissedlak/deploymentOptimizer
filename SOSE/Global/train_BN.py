@@ -10,9 +10,11 @@ df_analysis = filter_training_data(pd.read_csv('../PW_Street_Analysis/W_metrics_
 del df_analysis['in_time']
 
 dag = DAG()
-dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "device_type", "consumption"])
+dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "device_type", "consumption",
+                    "viewer_satisfaction"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption"), ("pixel", "cpu"), ("fps", "cpu"),
-                    ("fps", "memory"), ("pixel", "delta"), ("gpu", "delta"), ("fps", "gpu")])
+                    ("fps", "memory"), ("pixel", "delta"), ("gpu", "delta"), ("fps", "gpu"),
+                    ("pixel", "viewer_satisfaction")])
 
 utils.train_to_BN(df_analysis, "Analysis", export_file="model_analysis.xml", dag=dag)
 
@@ -35,9 +37,10 @@ del df_weather['timestamp']
 
 dag = DAG()
 dag.add_nodes_from(["memory", "delta", "cumm_net_delay", "isentropic", "device_type", "gpu", "cpu", "fig_size",
-                    "data_size", "consumption"])
+                    "data_size", "consumption", "viewer_satisfaction"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("fig_size", "delta"), ("isentropic", "delta"), ("data_size", "delta"),
-                    ("cpu", "consumption"), ("isentropic", "cpu"), ("data_size", "cpu"), ("delta", "memory")])
+                    ("cpu", "consumption"), ("isentropic", "cpu"), ("data_size", "cpu"), ("delta", "memory"),
+                    ("fig_size", "viewer_satisfaction")])
 
 utils.train_to_BN(df_weather, "Weather", export_file="model_weather.xml", dag=dag)
 
