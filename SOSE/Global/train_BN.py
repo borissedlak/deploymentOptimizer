@@ -1,5 +1,3 @@
-import sys
-
 import pandas as pd
 from pgmpy.base import DAG
 
@@ -12,11 +10,11 @@ df_analysis = filter_training_data(pd.read_csv('../PW_Street_Analysis/W_metrics_
 del df_analysis['in_time']
 
 dag = DAG()
-dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "consumption",
+dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "consumption_all",
                     "viewer_satisfaction", "energy"])
-dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption"), ("pixel", "cpu"), ("fps", "cpu"),
+dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption_all"), ("pixel", "cpu"), ("fps", "cpu"),
                     ("fps", "memory"), ("pixel", "delta"), ("gpu", "delta"), ("fps", "gpu"),
-                    ("pixel", "viewer_satisfaction"), ("consumption", "energy")])
+                    ("pixel", "viewer_satisfaction"), ("consumption_all", "energy"), ("gpu", "consumption_all")])
 
 utils.train_to_BN(df_analysis, "Analysis", export_file="model_analysis.xml", dag=dag)
 
@@ -25,11 +23,12 @@ utils.train_to_BN(df_analysis, "Analysis", export_file="model_analysis.xml", dag
 df_privacy = filter_training_data(pd.read_csv('../W_Privacy_Transform/W_metrics_Privacy_merge.csv'))
 
 dag = DAG()
-dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "consumption",
+dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "consumption_all",
                     "viewer_satisfaction", "energy", "delta_privacy"])
-dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption"), ("pixel", "cpu"), ("fps", "cpu"),
+dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption_all"), ("pixel", "cpu"), ("fps", "cpu"),
                     ("fps", "memory"), ("pixel", "delta"), ("gpu", "delta"), ("fps", "gpu"),
-                    ("pixel", "viewer_satisfaction"), ("consumption", "energy"), ("delta_privacy", "cumm_net_delay")])
+                    ("pixel", "viewer_satisfaction"), ("consumption_all", "energy"), ("delta_privacy", "cumm_net_delay"),
+                    ("gpu", "consumption_all")])
 
 utils.train_to_BN(df_privacy, "Privacy", export_file="model_privacy.xml", dag=dag)
 
@@ -41,7 +40,8 @@ del df_anomaly['timestamp']
 dag = DAG()
 dag.add_nodes_from(["memory", "delta", "cumm_net_delay", "gpu", "cpu", "batch_size", "consumption", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("batch_size", "delta"), ("batch_size", "cpu"),
-                    ("cpu", "consumption"), ("batch_size", "memory"), ("consumption", "energy")])
+                    ("cpu", "consumption"), ("batch_size", "memory"), ("consumption", "energy"),
+                    ("gpu", "consumption")])
 
 utils.train_to_BN(df_anomaly, "Anomaly", export_file="model_anomaly.xml", dag=dag)
 
@@ -55,7 +55,7 @@ dag.add_nodes_from(["memory", "delta", "cumm_net_delay", "isentropic", "gpu", "c
                     "data_size", "consumption", "viewer_satisfaction", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("fig_size", "delta"), ("isentropic", "delta"), ("data_size", "delta"),
                     ("cpu", "consumption"), ("isentropic", "cpu"), ("data_size", "cpu"), ("delta", "memory"),
-                    ("fig_size", "viewer_satisfaction"), ("consumption", "energy")])
+                    ("fig_size", "viewer_satisfaction"), ("consumption", "energy"), ("gpu", "consumption")])
 
 utils.train_to_BN(df_weather, "Weather", export_file="model_weather.xml", dag=dag)
 
@@ -68,7 +68,8 @@ dag = DAG()
 dag.add_nodes_from(["threads", "limit", "cumm_net_delay", "gpu", "cpu", "batch_size", "consumption",
                     "cached", "memory", "delta", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("batch_size", "delta"), ("cached", "cpu"), ("cpu", "consumption"),
-                    ("threads", "delta"), ("limit", "delta"), ("cached", "delta"), ("consumption", "energy")])
+                    ("threads", "delta"), ("limit", "delta"), ("cached", "delta"), ("consumption", "energy"),
+                    ("gpu", "consumption")])
 
 utils.train_to_BN(df_cloud, "CloudDB", export_file="model_cloud.xml", dag=dag)
 
