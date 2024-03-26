@@ -26,6 +26,7 @@ ll_slos = constrain_services_variables([model_analysis, model_weather, model_ano
 
 # Write 2: remove slos from intermediary nodes
 # Does not occur in test cases, hence omitted for now
+# TODO: Now it does! Consider consumption for Analysis, or delta for the anomaly detection
 
 # Write 3: identify conflicts
 non_conflicting_slos = filter_non_conflicting(ll_slos)

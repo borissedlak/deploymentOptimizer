@@ -104,10 +104,10 @@ def process_video(video_path, video_info, show_result=False, repeat=1, write_csv
 if __name__ == "__main__":
     write_csv = True
     process_video(video_path="../video_data/",
-                  video_info=[(720, 25), (720, 15), (480, 25), (480, 15)],
+                  video_info=itertools.product([480, 720, 1080], [15, 20, 25, 30, 35]),
                   show_result=False,
                   write_csv=write_csv,
-                  repeat=60)
+                  repeat=30)
 
     if write_csv:
         with open(f"./analysis/performance/{DEVICE_NAME}.csv", 'w', newline='') as csv_file:
