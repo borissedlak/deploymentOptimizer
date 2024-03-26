@@ -1,19 +1,32 @@
-import pandas as pd
+import sys
 
-from SOSE.C_Traffic_Prediction.tools import calculate_cumulative_net_delay
+import pandas as pd
+from sklearn.utils import shuffle
+
+from SOSE.C_Traffic_Prediction.tools import calculate_cumulative_net_delay, append_privacy_values
 
 # Just a detail, but its idempotent, means can be repeated arbitrary many times, the result is the same
 
-df_privacy = pd.read_csv('../W_Privacy_Transform/W_metrics_Privacy.csv')
-# df_privacy['cumm_net_delay'] = df_privacy.apply(calculate_cumulative_net_delay, axis=1, args=("PC", "Laptop",))
-df_privacy['energy'] = df_privacy['consumption']
-df_privacy.to_csv('../W_Privacy_Transform/W_metrics_Privacy.csv', index=False)
-
-df_analysis = pd.read_csv('../PW_Street_Analysis/W_metrics_Analysis.csv')
+df_analysis = shuffle(pd.read_csv('../PW_Street_Analysis/W_metrics_Analysis.csv'), random_state=35)
 df_analysis['cumm_net_delay'] = df_analysis.apply(calculate_cumulative_net_delay, axis=1, args=("Nano", "Laptop",))
 df_analysis['viewer_satisfaction'] = df_analysis['pixel']
 df_analysis['energy'] = df_analysis['consumption']
 df_analysis.to_csv('../PW_Street_Analysis/W_metrics_Analysis.csv', index=False)
+
+df_privacy = shuffle(pd.read_csv('../W_Privacy_Transform/W_metrics_Privacy.csv'), random_state=35)
+del df_privacy['cpu']
+del df_privacy['gpu']
+del df_privacy['memory']
+del df_privacy['device_type']
+del df_privacy['consumption']
+del df_privacy['timestamp']
+# df_merge = df_privacy.join(df_analysis, lsuffix='_df1', rsuffix='_df2', how='inner')
+# df_merge = pd.merge(df_analysis, df_privacy, on=['fps', 'pixel'], how="left")
+# df_privacy = pd.concat([df_analysis, df_privacy])
+df_analysis['delta_privacy'] = df_analysis.apply(append_privacy_values, axis=1, args=(df_privacy,))
+df_analysis['cumm_net_delay'] = df_analysis.apply(calculate_cumulative_net_delay, axis=1, args=("Nano", "PC",))
+df_analysis['cumm_net_delay'] = df_analysis['cumm_net_delay'] + df_analysis['delta_privacy']
+df_analysis.to_csv('../W_Privacy_Transform/W_metrics_Privacy_merge.csv', index=False)
 
 df_anomaly = pd.read_csv('../PW_Traffic/W_metrics_Anomaly.csv')
 df_anomaly['cumm_net_delay'] = df_anomaly.apply(calculate_cumulative_net_delay, axis=1, args=("Xavier", "Laptop",))

@@ -63,7 +63,7 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
 
     ll_valid_states = []
     for i in range(len(ll_states)):
-        if acceptance_matrix[i] >= acceptance_thresh:
+        if acceptance_matrix[i] >= acceptance_thresh and acceptance_thresh > 0:
             ll_valid_states.append(ll_states[i])
 
     print(f"{ll_parent_node} should only take {ll_valid_states}\n")
@@ -82,6 +82,12 @@ def calculate_cumulative_net_delay(row, src, dest):
     return (get_latency_for_devices(src, row['device_type'], ) +
             get_latency_for_devices(row['device_type'], dest) +
             row['delta'])
+
+
+def append_privacy_values(row, df_privacy):
+    df_filter = shuffle(df_privacy[(df_privacy['fps'] == row['fps']) & (df_privacy['pixel'] == row['pixel'])])
+    # TODO: for each row add a random value from df which fulfills the same fps and pixel
+    return df_filter.iloc[0]['delta_privacy']
 
 
 def filter_training_data(df):

@@ -8,6 +8,7 @@ from detector import utils
 ########################################
 
 model_analysis = XMLBIFReader("../Global/model_analysis.xml").get_model()
+model_privacy = XMLBIFReader("../Global/model_privacy.xml").get_model()
 model_anomaly = XMLBIFReader("../Global/model_anomaly.xml").get_model()
 model_cloud = XMLBIFReader("../Global/model_cloud.xml").get_model()
 model_weather = XMLBIFReader("../Global/model_weather.xml").get_model()
@@ -21,8 +22,8 @@ ve = VariableElimination(model_analysis)
 
 # Write 1: get all ll SLOs
 
-ll_slos = constrain_services_variables([model_analysis, model_weather, model_anomaly, model_cloud],
-                                       [("cumm_net_delay", 45), ("consumption", 'min')]) #, ("viewer_satisfaction", 'max')])
+ll_slos = constrain_services_variables([model_analysis, model_weather, model_anomaly, model_cloud, model_privacy],
+                                       [("cumm_net_delay", 45), ("energy", 'min')]) #, ("viewer_satisfaction", 'max')])
 
 # Write 2: remove slos from intermediary nodes
 # Does not occur in test cases, hence omitted for now

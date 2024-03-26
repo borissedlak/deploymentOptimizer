@@ -1,3 +1,5 @@
+import sys
+
 import pandas as pd
 from pgmpy.base import DAG
 
@@ -17,6 +19,19 @@ dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption"), ("pixel
                     ("pixel", "viewer_satisfaction"), ("consumption", "energy")])
 
 utils.train_to_BN(df_analysis, "Analysis", export_file="model_analysis.xml", dag=dag)
+
+#########################################################
+
+df_privacy = filter_training_data(pd.read_csv('../W_Privacy_Transform/W_metrics_Privacy_merge.csv'))
+
+dag = DAG()
+dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "consumption",
+                    "viewer_satisfaction", "energy", "delta_privacy"])
+dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption"), ("pixel", "cpu"), ("fps", "cpu"),
+                    ("fps", "memory"), ("pixel", "delta"), ("gpu", "delta"), ("fps", "gpu"),
+                    ("pixel", "viewer_satisfaction"), ("consumption", "energy"), ("delta_privacy", "cumm_net_delay")])
+
+utils.train_to_BN(df_privacy, "Privacy", export_file="model_privacy.xml", dag=dag)
 
 #########################################################
 
