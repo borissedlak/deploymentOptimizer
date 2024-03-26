@@ -107,7 +107,7 @@ if __name__ == "__main__":
                   video_info=itertools.product([480, 720, 1080], [15, 20, 25, 30, 35]),
                   show_result=False,
                   write_csv=write_csv,
-                  repeat=30)
+                  repeat=5)
 
     if write_csv:
         with open(f"./analysis/performance/{DEVICE_NAME}.csv", 'w', newline='') as csv_file:
