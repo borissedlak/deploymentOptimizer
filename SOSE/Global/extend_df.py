@@ -7,7 +7,8 @@ from SOSE.C_Traffic_Prediction.tools import calculate_cumulative_net_delay, appe
 
 df_analysis = shuffle(pd.read_csv('../PW_Street_Analysis/W_metrics_Analysis.csv'), random_state=35)
 df_analysis['cumm_net_delay'] = df_analysis.apply(calculate_cumulative_net_delay, axis=1, args=("Nano", "Laptop",))
-df_analysis['viewer_satisfaction'] = df_analysis['pixel']
+df_analysis['viewer_satisfaction'] = (df_analysis['pixel']) / 150 + (df_analysis['fps']) / 5
+df_analysis['viewer_satisfaction'] = df_analysis['viewer_satisfaction'].astype(int)
 # DeviceMetricCollector only considers the cpu load, this balances this out
 df_analysis['consumption_all'] = df_analysis['energy'] + (df_analysis['gpu'] / 15)
 df_analysis['consumption_all'] = df_analysis['consumption_all'].astype(int)

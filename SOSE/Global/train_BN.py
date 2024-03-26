@@ -28,7 +28,7 @@ dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", 
 dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption_all"), ("pixel", "cpu"), ("fps", "cpu"),
                     ("fps", "memory"), ("pixel", "delta"), ("gpu", "delta"), ("fps", "gpu"),
                     ("pixel", "viewer_satisfaction"), ("consumption_all", "energy"), ("delta_privacy", "cumm_net_delay"),
-                    ("gpu", "consumption_all")])
+                    ("gpu", "consumption_all"), ("fps", "viewer_satisfaction")])
 
 utils.train_to_BN(df_privacy, "Privacy", export_file="model_privacy.xml", dag=dag)
 
@@ -40,8 +40,7 @@ del df_anomaly['timestamp']
 dag = DAG()
 dag.add_nodes_from(["memory", "delta", "cumm_net_delay", "gpu", "cpu", "batch_size", "consumption", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("batch_size", "delta"), ("batch_size", "cpu"),
-                    ("cpu", "consumption"), ("batch_size", "memory"), ("consumption", "energy"),
-                    ("gpu", "consumption")])
+                    ("cpu", "consumption"), ("batch_size", "memory"), ("consumption", "energy")])
 
 utils.train_to_BN(df_anomaly, "Anomaly", export_file="model_anomaly.xml", dag=dag)
 
@@ -55,7 +54,7 @@ dag.add_nodes_from(["memory", "delta", "cumm_net_delay", "isentropic", "gpu", "c
                     "data_size", "consumption", "viewer_satisfaction", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("fig_size", "delta"), ("isentropic", "delta"), ("data_size", "delta"),
                     ("cpu", "consumption"), ("isentropic", "cpu"), ("data_size", "cpu"), ("delta", "memory"),
-                    ("fig_size", "viewer_satisfaction"), ("consumption", "energy"), ("gpu", "consumption")])
+                    ("fig_size", "viewer_satisfaction"), ("consumption", "energy")])
 
 utils.train_to_BN(df_weather, "Weather", export_file="model_weather.xml", dag=dag)
 
@@ -68,8 +67,7 @@ dag = DAG()
 dag.add_nodes_from(["threads", "limit", "cumm_net_delay", "gpu", "cpu", "batch_size", "consumption",
                     "cached", "memory", "delta", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("batch_size", "delta"), ("cached", "cpu"), ("cpu", "consumption"),
-                    ("threads", "delta"), ("limit", "delta"), ("cached", "delta"), ("consumption", "energy"),
-                    ("gpu", "consumption")])
+                    ("threads", "delta"), ("limit", "delta"), ("cached", "delta"), ("consumption", "energy")])
 
 utils.train_to_BN(df_cloud, "CloudDB", export_file="model_cloud.xml", dag=dag)
 
