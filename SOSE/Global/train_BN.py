@@ -20,7 +20,7 @@ utils.train_to_BN(df_analysis, "Analysis", export_file="model_analysis.xml", dag
 
 #########################################################
 
-df_privacy = filter_training_data(pd.read_csv('../W_Privacy_Transform/W_metrics_Privacy_merge.csv'))
+df_privacy = filter_training_data(pd.read_csv('../W_Privacy_Transform/W_metrics_Privacy.csv'))
 
 dag = DAG()
 dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", "gpu", "consumption_all",

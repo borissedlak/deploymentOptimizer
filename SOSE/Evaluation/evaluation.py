@@ -5,12 +5,6 @@ import pandas as pd
 from SOSE.C_Traffic_Prediction.tools import filter_test_data, convert_to_int_or_bool
 from detector.utils import find_nested_files_with_suffix, print_in_red
 
-# TODO
-#  * configure the system with the desired states ==> filter test set
-#  * calculate the slo fulfillment rate with the desired config
-#  * calculate for alternative configurations
-#  * compare results
-
 # Group by application
 slo_df = pd.read_csv('../C_Traffic_Prediction/ll_slos.csv')
 service_list = slo_df['service'].unique()

@@ -1,9 +1,9 @@
 service,variable,states,hl,root
 Analysis,cumm_net_delay,"['38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '68']",True,False
 Analysis,delta,"['28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '58']",False,False
-Analysis,energy,['10'],True,False
-Analysis,consumption_all,['10'],False,False
-Analysis,cpu,"['10', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21']",False,False
+Analysis,energy,['12'],True,False
+Analysis,consumption_all,['12'],False,False
+Analysis,cpu,"['12', '13', '14', '15', '16', '17', '18', '19', '20', '21']",False,False
 Weather,cumm_net_delay,"['22', '23', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '76', '77', '79', '80', '82', '83', '84', '89', '92', '95', '96', '97', '98', '99', '100']",True,False
 Weather,delta,"['14', '15', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '68', '69', '71', '72', '74', '75', '76', '81', '84', '87', '88', '89', '90', '91', '92']",False,False
 Weather,fig_size,"['1', '10', '20', '50', '80']",False,True
@@ -23,18 +23,18 @@ CloudDB,threads,"['1', '5', '10', '20']",False,True
 CloudDB,energy,['69'],True,False
 CloudDB,consumption,['69'],False,False
 CloudDB,cpu,['0'],False,False
-Privacy,cumm_net_delay,"['76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']",True,False
-Privacy,delta,"['28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38']",False,False
-Privacy,delta_privacy,"['28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39']",False,True
-Privacy,energy,['10'],True,False
-Privacy,consumption_all,['10'],False,False
-Privacy,cpu,"['10', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21']",False,False
+Privacy,cumm_net_delay,"['77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100']",True,False
+Privacy,delta,"['28', '29', '30', '31', '32', '33', '34', '35', '36', '37']",False,False
+Privacy,delta_privacy,"['28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38']",False,True
+Privacy,energy,['12'],True,False
+Privacy,consumption_all,['12'],False,False
+Privacy,cpu,"['12', '13', '14', '15', '16', '17', '18', '19', '20', '21']",False,False
 Analysis,gpu,"['40', '30']",False,True
 Analysis,fps,['15'],False,True
 Analysis,pixel,"['480', '1080']",False,True
 Weather,data_size,"['5', '10', '20', '30']",False,True
-Weather,isentropic,"['200', '100', '10', '1', '50']",False,True
-Anomaly,batch_size,"['200', '100', '80', '150', '10', '125', '50', '25']",False,True
+Weather,isentropic,"['10', '1', '200', '50', '100']",False,True
+Anomaly,batch_size,"['10', '25', '125', '200', '50', '80', '150', '100']",False,True
 CloudDB,cached,['True'],False,True
 Privacy,gpu,"['40', '30']",False,True
 Privacy,fps,['15'],False,True
