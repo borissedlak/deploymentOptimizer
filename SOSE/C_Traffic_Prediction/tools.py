@@ -1,10 +1,12 @@
+import ast
 import csv
 
+import pandas as pd
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 from sklearn.utils import shuffle
 
-from detector.utils import get_latency_for_devices, print_in_red
+from detector.utils import get_latency_for_devices, print_in_red, find_nested_files_with_suffix
 
 
 def constrain_services_variables(app_list, hl_slos):
@@ -163,8 +165,8 @@ def find_compromise(conflict_dict):
     return resolved_slos
 
 
-def export_slos_csv(slos_list):
-    with open("ll_slos.csv", 'w', newline='') as csv_file:
+def export_slos_csv(slos_list, service_name=""):
+    with open(f"{service_name}_ll_slos.csv", 'w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(["service", "variable", "states", "hl", "root"])
         for row in slos_list:
@@ -183,3 +185,37 @@ def convert_to_int_or_bool(lst):
         else:
             converted_list.append(elem)
     return converted_list
+
+
+def evaluate_all_services(slo_df, only_set_params=False):
+    service_list = slo_df['service'].unique()
+    slo_df['states'] = slo_df['states'].apply(ast.literal_eval)
+    slo_df['states'] = slo_df['states'].apply(convert_to_int_or_bool)  # TODO: This is dangerous when floats come
+
+    for service in service_list:
+        test_data_file = find_nested_files_with_suffix('../', f'W_metrics_{service}.csv')[0]
+        test_df = filter_test_data(pd.read_csv(test_data_file))
+        ll_slos = slo_df[(slo_df['service'] == service) & ~(slo_df['hl'])]  # .iloc[:2]
+        hl_slos = slo_df[(slo_df['service'] == service) & (slo_df['hl'])]
+
+        if only_set_params:
+            ll_slos = ll_slos[ll_slos['root']]
+
+        tuples_list = list(ll_slos.itertuples(index=False))
+        cond_df = test_df[eval(" & ".join(["(test_df['{0}'].isin({1}))".format(col, cond)
+                                           for _, col, cond, _, _ in tuples_list]))]
+        if len(cond_df) == 0:
+            print_in_red("No samples with desired characteristics found")
+
+        # Write: I think I should only set parameters, although ensuring the ll_slo through them is the responsibility
+        #  of the elasticity strategies locally. But the difference between them is a super important metrics because it
+        #  allows to estimate how well the target outcome can be influenced by the parameters that are set
+
+        for index, row in hl_slos.iterrows():
+            # SLO fulfillment if the system is configured with the inferred ll SLOs
+            fulfilled = cond_df[cond_df[row[1]].isin(row[2])]
+            print(row[0], row[1], len(fulfilled) / len(cond_df))
+
+            # SLO fulfillment for the system under an arbitrary (i.e., random) configuration
+            fulfilled_rand = test_df[test_df[row[1]].isin(row[2])]
+            print(row[0], row[1], len(fulfilled_rand) / len(test_df))

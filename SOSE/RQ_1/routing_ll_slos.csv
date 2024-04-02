@@ -1,0 +1,17 @@
+service,variable,states,hl,root
+Analysis,cumm_net_delay,"['38', '39', '40', '41', '42', '43', '44', '45']",True,False
+Analysis,delta,"['28', '29', '30', '31', '32', '33', '34', '35']",False,False
+Analysis,energy,['16'],True,False
+Analysis,consumption_all,['16'],False,False
+Analysis,cpu,"['10', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21']",False,False
+Weather,cumm_net_delay,"['22', '23', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45']",True,False
+Weather,delta,"['14', '15', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37']",False,False
+Weather,fig_size,"['1', '10', '20', '50']",False,True
+Weather,energy,['19'],True,False
+Weather,consumption,['19'],False,False
+Weather,cpu,"['5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17']",False,False
+Analysis,gpu,"['30', '40']",False,True
+Analysis,fps,['15'],False,True
+Analysis,pixel,['480'],False,True
+Weather,data_size,"['5', '10', '20', '30']",False,True
+Weather,isentropic,"['10', '200', '100', '1', '50']",False,True
