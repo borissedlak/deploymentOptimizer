@@ -218,4 +218,4 @@ def evaluate_all_services(slo_df, only_set_params=False):
 
             # SLO fulfillment for the system under an arbitrary (i.e., random) configuration
             fulfilled_rand = test_df[test_df[row[1]].isin(row[2])]
-            print(row[0], row[1], len(fulfilled_rand) / len(test_df))
+            # print(row[0], row[1], len(fulfilled_rand) / len(test_df))
