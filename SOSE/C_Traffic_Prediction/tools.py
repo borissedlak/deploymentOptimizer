@@ -10,7 +10,7 @@ from sklearn.utils import shuffle
 from detector.utils import get_latency_for_devices, print_in_red, find_nested_files_with_suffix
 
 
-def constrain_services_variables(app_list, hl_slos):
+def constrain_services_variables(app_list, hl_slos, lamb=None):
     constraints = []
 
     for m in app_list:
@@ -32,13 +32,20 @@ def constrain_services_variables(app_list, hl_slos):
 
             # Traverse parents and constrain them
             for parent in m.get_parents(var):
-                constraints_per_parent = get_target_distribution(m, var, hl_valid_states, parent, [])
+                constraints_per_parent = get_target_distribution(m, var, hl_valid_states, parent, [], lamb)
                 constraints.extend(constraints_per_parent)
 
     return constraints
 
 
-def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_states, ll_parent_node, constraints):
+def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_states, ll_parent_node, constraints,
+                            lamb):
+    if lamb is not None:
+        log_matrix = True
+    else:
+        lamb = 0.70
+        log_matrix = False
+
     print(f"{model.name}: Constraining {ll_parent_node} --> {hl_target_var}")
     ve = VariableElimination(model)
 
@@ -61,23 +68,23 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
 
     # Filter out states that with a probability of < 60% (compared to best state) produce desired outcomes
     max_value = max(acceptance_matrix)
-    # TODO: Here I might require something more sophisticated than just some %
-    acceptance_thresh = max_value * 0.70
+    acceptance_thresh = max_value * lamb
 
-    # TODO: Actually, all the probabilities to fulfill the ll SLOs are contained here below ...
     ll_valid_states = []
     for i in range(len(ll_states)):
-        if acceptance_matrix[i] >= acceptance_thresh and acceptance_thresh > 0:
+        if acceptance_matrix[i] >= acceptance_thresh > 0:
             ll_valid_states.append(ll_states[i])
+    if log_matrix:
+        add_to_precision_file(model.name, ll_parent_node, lamb, acceptance_thresh, acceptance_matrix)
 
     print(f"{ll_parent_node} should only take {ll_valid_states}\n")
 
-    # TODO: Check if node has parents, if not, were at a parametrizable root
+    # TODO: Check if node has parents, if not, were at a parameterizable root
     is_root = len(model.get_parents(ll_parent_node)) == 0
     constraints.append((model.name, ll_parent_node, ll_valid_states, False, is_root))
 
     for par in model.get_parents(ll_parent_node):
-        get_target_distribution(model, ll_parent_node, ll_valid_states, par, constraints)
+        get_target_distribution(model, ll_parent_node, ll_valid_states, par, constraints, lamb)
 
     return constraints
 
@@ -149,7 +156,8 @@ def find_compromise(conflict_dict):
         if all(x == values[0] for x in values):
             print(ID, "easy, direct match", values[0])
             # Write: Is this natural due to the conditional independence of the configurable params?
-            resolved_slos.append((ID[0], ID[1], values[0], False, True))  # TODO: Is it a rule that they are roots?
+            #  Turns out it's not, because gpu had a conflict while not being a param, so the assumption proved wrong
+            resolved_slos.append((ID[0], ID[1], values[0], False, True))
             continue
 
         intersection = set.intersection(*map(set, values))
@@ -208,6 +216,7 @@ def evaluate_all_services(slo_df, only_set_params=False):
                                            for _, col, cond, _, _ in tuples_list]))]
         if len(cond_df) == 0:
             print_in_red("No samples with desired characteristics found")
+            continue
 
         # Write: I think I should only set parameters, although ensuring the ll_slo through them is the responsibility
         #  of the elasticity strategies locally. But the difference between them is a super important metrics because it
@@ -221,6 +230,7 @@ def evaluate_all_services(slo_df, only_set_params=False):
             # SLO fulfillment for the system under an arbitrary (i.e., random) configuration
             fulfilled_rand = test_df[test_df[row[1]].isin(row[2])]
             # print(row[0], row[1], len(fulfilled_rand) / len(test_df))
+
 
 def evaluate_all_permutations(slo_df):
     service_list = slo_df['service'].unique()
@@ -242,16 +252,20 @@ def evaluate_all_permutations(slo_df):
             if len(filtered_df) <= 0:
                 continue
 
-            # print(service, perm, len(filtered_df))
-            # another_function(filtered_df)
-
-            ll_slos = slo_df[(slo_df['service'] == service) & ~(slo_df['hl'])]  # .iloc[:2]
-            parameters = ll_slos[ll_slos['root']]
-            tuples_list = list(parameters.itertuples(index=False))
-
             hl_slos = slo_df[(slo_df['service'] == service) & (slo_df['hl'])]
 
             for index, row in hl_slos.iterrows():
-                # SLO fulfillment if the system is configured with the inferred ll SLOs
                 fulfilled = filtered_df[filtered_df[row[1]].isin(row[2])]
                 print(perm, row[0], row[1], len(fulfilled) / len(filtered_df))
+
+
+def clear_precision_file():
+    with open(f"precision_inference.csv", 'w', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(["service", "ll_node", "lambda", "thresh", "matrix"])
+
+
+def add_to_precision_file(service_name, ll_node, lamb, thresh, matrix):
+    with open(f"precision_inference.csv", 'a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow([service_name, ll_node, lamb, thresh, matrix])

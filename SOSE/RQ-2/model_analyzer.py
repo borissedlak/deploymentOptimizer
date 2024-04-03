@@ -1,13 +1,8 @@
-from pgmpy.readwrite import XMLBIFReader
+import ast
 
-from detector import utils
+import pandas as pd
 
-model_analysis = XMLBIFReader("../Global/model_analysis.xml").get_model()
+precision_df = pd.read_csv('./precision_inference.csv')
+precision_df['matrix'] = precision_df['matrix'].apply(ast.literal_eval)
 
-utils.export_BN_to_graph(model_analysis)
-
-# Idea: Given that I want the lowest energy consumption and I set this through fps and pixel, the precision of the model is also measured
-#  through the low-level SLO fulfillment, i.e., do the parameters move the low-level SLOs into the desired range.
-#
-
-pass
+print(precision_df)
