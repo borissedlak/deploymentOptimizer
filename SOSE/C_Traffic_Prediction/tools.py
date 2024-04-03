@@ -40,7 +40,7 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
     ve = VariableElimination(model)
 
     # Write: The desired logic is as follows: I should for each ll_state ask whats the probability of resulting
-    # Write: in the desired hl states. And in case its unlikely (< 0.6 * max) then its not advisable
+    # Write: in the desired hl states. And in case its unlikely (< 0.7 * max) then its not advisable
 
     ll_states = model.get_cpds(ll_parent_node).__getattribute__("state_names")[ll_parent_node]
     acceptance_matrix = []
@@ -61,6 +61,7 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
     # TODO: Here I might require something more sophisticated than just some %
     acceptance_thresh = max_value * 0.70
 
+    # TODO: Actually, all the probabilities to fulfill the ll SLOs are contained here below ...
     ll_valid_states = []
     for i in range(len(ll_states)):
         if acceptance_matrix[i] >= acceptance_thresh and acceptance_thresh > 0:
