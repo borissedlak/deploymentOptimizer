@@ -75,7 +75,7 @@ def get_target_distribution(model: BayesianNetwork, hl_target_var, hl_desired_st
         if acceptance_matrix[i] >= acceptance_thresh > 0:
             ll_valid_states.append(ll_states[i])
     if log_matrix:
-        add_to_precision_file(model.name, ll_parent_node, lamb, acceptance_thresh, acceptance_matrix)
+        add_to_precision_file(model.name, ll_parent_node, lamb, acceptance_thresh, ll_valid_states, acceptance_matrix)
 
     print(f"{ll_parent_node} should only take {ll_valid_states}\n")
 
@@ -197,11 +197,12 @@ def convert_to_int_or_bool(lst):
     return converted_list
 
 
-def evaluate_all_services(slo_df, only_set_params=False):
+def evaluate_all_services(slo_df, only_set_params=False, ll=False):
     service_list = slo_df['service'].unique()
     slo_df['states'] = slo_df['states'].apply(ast.literal_eval)
     slo_df['states'] = slo_df['states'].apply(convert_to_int_or_bool)  # TODO: This is dangerous when floats come
 
+    hl_slo_fulfillment = []
     for service in service_list:
         test_data_file = find_nested_files_with_suffix('../', f'W_metrics_{service}.csv')[0]
         test_df = filter_test_data(pd.read_csv(test_data_file))
@@ -222,14 +223,22 @@ def evaluate_all_services(slo_df, only_set_params=False):
         #  of the elasticity strategies locally. But the difference between them is a super important metrics because it
         #  allows to estimate how well the target outcome can be influenced by the parameters that are set
 
-        for index, row in hl_slos.iterrows():
+        if ll:
+            eval_slos = slo_df[(slo_df['service'] == service) & ~(slo_df['hl'])]
+        else:
+            eval_slos = hl_slos
+
+        for index, row in eval_slos.iterrows():
             # SLO fulfillment if the system is configured with the inferred ll SLOs
             fulfilled = cond_df[cond_df[row[1]].isin(row[2])]
-            print(row[0], row[1], len(fulfilled) / len(cond_df))
+            percent = len(fulfilled) / len(cond_df)
+            print(row[0], row[1], percent)
+            hl_slo_fulfillment.append(percent)
 
             # SLO fulfillment for the system under an arbitrary (i.e., random) configuration
             fulfilled_rand = test_df[test_df[row[1]].isin(row[2])]
             # print(row[0], row[1], len(fulfilled_rand) / len(test_df))
+    return hl_slo_fulfillment
 
 
 def evaluate_all_permutations(slo_df):
@@ -262,10 +271,20 @@ def evaluate_all_permutations(slo_df):
 def clear_precision_file():
     with open(f"precision_inference.csv", 'w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow(["service", "ll_node", "lambda", "thresh", "matrix"])
+        csv_writer.writerow(["service", "ll_node", "lambda", "thresh", "ll_valid", "matrix"])
+
+    with open(f"precision_fulfillment.csv", 'w', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(["lambda", "hl_fulfill", "ll_fulfill"])
 
 
-def add_to_precision_file(service_name, ll_node, lamb, thresh, matrix):
+def add_to_precision_file(service_name, ll_node, lamb, thresh, ll_valid, matrix):
     with open(f"precision_inference.csv", 'a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow([service_name, ll_node, lamb, thresh, matrix])
+        csv_writer.writerow([service_name, ll_node, lamb, thresh, ll_valid, matrix])
+
+
+def add_to_fulfillment_file(lamb, hl, ll):
+    with open(f"precision_fulfillment.csv", 'a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow([lamb, hl, ll])
