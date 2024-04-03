@@ -1,5 +1,6 @@
 import ast
 import csv
+from itertools import product
 
 import pandas as pd
 from pgmpy.inference import VariableElimination
@@ -220,3 +221,37 @@ def evaluate_all_services(slo_df, only_set_params=False):
             # SLO fulfillment for the system under an arbitrary (i.e., random) configuration
             fulfilled_rand = test_df[test_df[row[1]].isin(row[2])]
             # print(row[0], row[1], len(fulfilled_rand) / len(test_df))
+
+def evaluate_all_permutations(slo_df):
+    service_list = slo_df['service'].unique()
+    for service in service_list:
+        params_vars = slo_df[(slo_df['service'] == service) & (slo_df['root'])].iloc[:, 1].tolist()
+
+        test_data_file = find_nested_files_with_suffix('../', f'W_metrics_{service}.csv')[0]
+        test_df = filter_test_data(pd.read_csv(test_data_file))
+
+        unique_values = [test_df[col].unique() for col in params_vars]
+        permutations = product(*unique_values)
+
+        for perm in permutations:
+            filter_condition = test_df[params_vars[0]] == perm[0]
+            for i in range(1, len(params_vars)):
+                filter_condition &= test_df[params_vars[i]] == perm[i]
+
+            filtered_df = test_df[filter_condition]
+            if len(filtered_df) <= 0:
+                continue
+
+            # print(service, perm, len(filtered_df))
+            # another_function(filtered_df)
+
+            ll_slos = slo_df[(slo_df['service'] == service) & ~(slo_df['hl'])]  # .iloc[:2]
+            parameters = ll_slos[ll_slos['root']]
+            tuples_list = list(parameters.itertuples(index=False))
+
+            hl_slos = slo_df[(slo_df['service'] == service) & (slo_df['hl'])]
+
+            for index, row in hl_slos.iterrows():
+                # SLO fulfillment if the system is configured with the inferred ll SLOs
+                fulfilled = filtered_df[filtered_df[row[1]].isin(row[2])]
+                print(perm, row[0], row[1], len(fulfilled) / len(filtered_df))
