@@ -14,7 +14,8 @@ dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", 
                     "viewer_satisfaction", "energy"])
 dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption_all"), ("pixel", "cpu"), ("fps", "cpu"),
                     ("fps", "memory"), ("pixel", "delta"), ("gpu", "delta"), ("fps", "gpu"),
-                    ("pixel", "viewer_satisfaction"), ("consumption_all", "energy"), ("gpu", "consumption_all")])
+                    ("pixel", "viewer_satisfaction"), ("consumption_all", "energy"), ("gpu", "consumption_all"),
+                    ("fps", "viewer_satisfaction")])
 
 utils.train_to_BN(df_analysis, "Analysis", export_file="model_analysis.xml", dag=dag)
 
@@ -28,7 +29,7 @@ dag.add_nodes_from(["delta", "cumm_net_delay", "memory", "fps", "pixel", "cpu", 
 dag.add_edges_from([("delta", "cumm_net_delay"), ("cpu", "consumption_all"), ("pixel", "cpu"), ("fps", "cpu"),
                     ("fps", "memory"), ("pixel", "delta"), ("gpu", "delta"), ("fps", "gpu"),
                     ("pixel", "viewer_satisfaction"), ("consumption_all", "energy"), ("delta_privacy", "cumm_net_delay"),
-                    ("gpu", "consumption_all"), ("fps", "viewer_satisfaction")])
+                    ("gpu", "consumption_all"), ("fps", "viewer_satisfaction"), ("pixel", "delta_privacy")])
 
 utils.train_to_BN(df_privacy, "Privacy", export_file="model_privacy.xml", dag=dag)
 

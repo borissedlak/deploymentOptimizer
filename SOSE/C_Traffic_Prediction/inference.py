@@ -18,8 +18,6 @@ model_weather = XMLBIFReader("../Global/model_weather.xml").get_model()
 # utils.export_BN_to_graph(model_cloud)
 # utils.export_BN_to_graph(model_weather)
 
-ve = VariableElimination(model_analysis)
-
 # Write 1: get all ll SLOs
 
 ll_slos = constrain_services_variables([model_analysis, model_weather, model_anomaly, model_cloud, model_privacy],
