@@ -275,7 +275,7 @@ def clear_precision_file():
 
     with open(f"precision_fulfillment.csv", 'w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow(["lambda", "hl_fulfill", "ll_fulfill"])
+        csv_writer.writerow(["service", "lambda", "hl_fulfill", "ll_fulfill"])
 
 
 def add_to_precision_file(service_name, ll_node, lamb, thresh, ll_valid, matrix):
@@ -284,7 +284,7 @@ def add_to_precision_file(service_name, ll_node, lamb, thresh, ll_valid, matrix)
         csv_writer.writerow([service_name, ll_node, lamb, thresh, ll_valid, matrix])
 
 
-def add_to_fulfillment_file(lamb, hl, ll):
+def add_to_fulfillment_file(service, lamb, hl, ll):
     with open(f"precision_fulfillment.csv", 'a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow([lamb, hl, ll])
+        csv_writer.writerow([service, lamb, hl, ll])
