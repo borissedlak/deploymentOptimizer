@@ -36,7 +36,7 @@ for lamb in [i / 10.0 for i in range(1, 11)]:
         potential_conflicts = verify_slo_duplicates(ll)
         print(potential_conflicts)
 
-        resolved_slos = find_compromise(potential_conflicts)
+        resolved_slos, _ = find_compromise(potential_conflicts)
 
         all_ll_slos = non_conflicting_slos + resolved_slos
         export_slos_csv(all_ll_slos, service_name="buffer")

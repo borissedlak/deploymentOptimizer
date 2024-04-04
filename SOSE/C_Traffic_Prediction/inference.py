@@ -34,7 +34,7 @@ print(potential_conflicts)
 
 # TODO: Some manual resolution for one use case that can be evaluated
 # Write 4: resolve conflicts --> afterward parental nodes must be inferred again --> but they are all leaves so far...
-resolved_slos = find_compromise(potential_conflicts)
+resolved_slos, _ = find_compromise(potential_conflicts)
 
 # Write 5: summary with params
 all_ll_slos = non_conflicting_slos + resolved_slos

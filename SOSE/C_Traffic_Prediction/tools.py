@@ -150,6 +150,7 @@ def filter_non_conflicting(tuples_list):
 
 def find_compromise(conflict_dict):
     resolved_slos = []
+    conflicting_slos = []
     for (ID, values) in conflict_dict:
 
         # All values are equal (might be even one theoretically)
@@ -166,13 +167,14 @@ def find_compromise(conflict_dict):
             resolved_slos.append((ID[0], ID[1], list(intersection), False, True))
         else:
             print_in_red(f"{ID}, not good, sets disjoint, we have a conflict")
+            conflicting_slos.append((ID[0], ID[1], list(intersection)))
 
             # TODO: some options to resolve the conflict
             #  1: analyze all possible states and take the values that are between the disjoint sets
             #  2: same as (1) + both disjoint sets
             #  3: just merge the sets, regardless of missing intersections
 
-    return resolved_slos
+    return resolved_slos, conflicting_slos
 
 
 def export_slos_csv(slos_list, service_name=""):
