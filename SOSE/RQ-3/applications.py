@@ -20,7 +20,12 @@ hl_slos_lib = [[("cumm_net_delay", 120), ("viewer_satisfaction", 'max')],
                [("cumm_net_delay", 100), ("energy", 'min')],
                [("cumm_net_delay", 50), ("energy", 'min')],
                [("cumm_net_delay", 40), ("energy", 'min')],
-               [("cumm_net_delay", 25), ("energy", 'min')]]
+               [("cumm_net_delay", 25), ("energy", 'min')],
+               [("cumm_net_delay", 120), ("viewer_satisfaction", 'max'), ("energy", 'min')],
+               [("cumm_net_delay", 100), ("viewer_satisfaction", 'max'), ("energy", 'min')],
+               [("cumm_net_delay", 50), ("viewer_satisfaction", 'max'), ("energy", 'min')],
+               [("cumm_net_delay", 40), ("viewer_satisfaction", 'max'), ("energy", 'min')],
+               [("cumm_net_delay", 25), ("viewer_satisfaction", 'max'), ("energy", 'min')]]
 
 for hl_slo_list in hl_slos_lib:
     monitor_ll = constrain_services_variables(
