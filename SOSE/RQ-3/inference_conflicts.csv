@@ -1,0 +1,11 @@
+service,hl_slos,conflicts
+service,"[('cumm_net_delay', 120), ('viewer_satisfaction', 'max')]",[]
+service,"[('cumm_net_delay', 100), ('viewer_satisfaction', 'max')]","[('Privacy', 'pixel', [])]"
+service,"[('cumm_net_delay', 50), ('viewer_satisfaction', 'max')]","[('Privacy', 'fps', []), ('Privacy', 'pixel', [])]"
+service,"[('cumm_net_delay', 40), ('viewer_satisfaction', 'max')]","[('Weather', 'fig_size', []), ('Privacy', 'fps', []), ('Privacy', 'pixel', [])]"
+service,"[('cumm_net_delay', 25), ('viewer_satisfaction', 'max')]","[('Weather', 'fig_size', []), ('Privacy', 'fps', []), ('Privacy', 'pixel', [])]"
+service,"[('cumm_net_delay', 120), ('energy', 'min')]",[]
+service,"[('cumm_net_delay', 100), ('energy', 'min')]",[]
+service,"[('cumm_net_delay', 50), ('energy', 'min')]","[('Privacy', 'gpu', []), ('Privacy', 'fps', []), ('Privacy', 'pixel', [])]"
+service,"[('cumm_net_delay', 40), ('energy', 'min')]","[('Privacy', 'gpu', []), ('Privacy', 'fps', []), ('Privacy', 'pixel', [])]"
+service,"[('cumm_net_delay', 25), ('energy', 'min')]","[('Privacy', 'gpu', []), ('Privacy', 'fps', []), ('Privacy', 'pixel', []), ('CloudDB', 'cached', [])]"

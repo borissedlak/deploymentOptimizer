@@ -280,6 +280,18 @@ def clear_precision_file():
         csv_writer.writerow(["service", "lambda", "hl_fulfill", "ll_fulfill"])
 
 
+def clear_conflict_file():
+    with open(f"inference_conflicts.csv", 'w', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(["service", "hl_slos", "conflicts"])
+
+
+def append_to_conflicts(hl_slos, conflicts):
+    with open(f"inference_conflicts.csv", 'a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(["service", hl_slos, conflicts])
+
+
 def add_to_precision_file(service_name, ll_node, lamb, thresh, ll_valid, matrix):
     with open(f"precision_inference.csv", 'a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
