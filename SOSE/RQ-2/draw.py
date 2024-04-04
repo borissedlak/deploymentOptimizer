@@ -14,19 +14,18 @@ df_routing = df_fulfill[df_fulfill['service'] == 'routing']
 fig, ax = plt.subplots()
 
 x = [i / 10.0 for i in range(1, 11)]
-plt.plot(x, df_traffic['hl_fulfill'], color='steelblue', label="TrafficRouting HL")
+plt.plot(x, df_routing['hl_fulfill'], color='firebrick', label="VehicleRouting HL")
+plt.scatter(x, df_routing['hl_fulfill'], color='firebrick', marker='+', s=30)
+plt.plot(x, df_routing['ll_fulfill'], color='firebrick', linestyle='--', label="VehicleRouting LL")
+plt.scatter(x, df_routing['ll_fulfill'], color='firebrick', marker='+', s=30)
+plt.plot(x, df_traffic['hl_fulfill'], color='steelblue', label="TrafficPrediction HL")
 plt.scatter(x, df_traffic['hl_fulfill'], color='steelblue', marker='+', s=30)
-plt.plot(x, df_traffic['ll_fulfill'], color='steelblue', linestyle='--', label="TrafficRouting LL")
+plt.plot(x, df_traffic['ll_fulfill'], color='steelblue', linestyle='--', label="TrafficPrediction LL")
 plt.scatter(x, df_traffic['ll_fulfill'], color='steelblue', marker='+', s=30)
 plt.plot(x, df_monitor['hl_fulfill'], color='mediumaquamarine', label="LiveMonitoring HL")
 plt.scatter(x, df_monitor['hl_fulfill'], color='mediumaquamarine', marker='+', s=30)
 plt.plot(x, df_monitor['ll_fulfill'], color='mediumaquamarine', linestyle='--', label="LiveMonitoring LL")
 plt.scatter(x, df_monitor['ll_fulfill'], color='mediumaquamarine', marker='+', s=30)
-plt.plot(x, df_routing['hl_fulfill'], color='firebrick', label="TrafficRouting HL")
-plt.scatter(x, df_routing['hl_fulfill'], color='firebrick', marker='+', s=30)
-plt.plot(x, df_routing['ll_fulfill'], color='firebrick', linestyle='--', label="TrafficRouting LL")
-plt.scatter(x, df_routing['ll_fulfill'], color='firebrick', marker='+', s=30)
-
 ax.set_xlabel(r'State Acceptance Rate ($\lambda$)')
 ax.set_ylabel('SLO Fulfillment Rate')
 
