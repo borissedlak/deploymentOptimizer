@@ -1,9 +1,7 @@
-from pgmpy.inference import VariableElimination
 from pgmpy.readwrite import XMLBIFReader
 
-from SOSE.C_Traffic_Prediction.tools import verify_slo_duplicates, find_compromise, \
+from SOSE.Diffusion.tools import verify_slo_duplicates, find_compromise, \
     filter_non_conflicting, constrain_services_variables, export_slos_csv
-from detector import utils
 
 ########################################
 
@@ -21,7 +19,7 @@ model_weather = XMLBIFReader("../Global/model_weather.xml").get_model()
 # Write 1: get all ll SLOs
 
 ll_slos = constrain_services_variables([model_analysis, model_weather, model_anomaly, model_cloud, model_privacy],
-                                       [("cumm_net_delay", 100), ("energy", 'min')]) #, ("viewer_satisfaction", 'max')])
+                                       [("cumm_net_delay", 100), ("energy", 'min')])
 
 # Write 2: remove slos from intermediary nodes
 # Does not occur in test cases, hence omitted for now
