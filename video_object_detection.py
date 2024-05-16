@@ -38,8 +38,7 @@ provider_metric_reporter = ServiceMetricReporter("Processor")
 csv_values = []
 csv_headers = []
 
-
-def process_video(video_path, video_info, show_result=False, repeat=1, write_csv=False):
+def process_video(video_info, show_result=False, repeat=1, write_csv=False):
     global csv_values, csv_headers
     for (source_pixel, source_fps) in video_info:
         for x in range(repeat):
@@ -47,6 +46,9 @@ def process_video(video_path, video_info, show_result=False, repeat=1, write_csv
             print(f"Now processing: {source_pixel} p, {source_fps} FPS, Round {x + 1}")
             available_time_frame = (1000 / source_fps)
             cap = cv2.VideoCapture("data/video_cut.mp4")
+
+            # output_video = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 30, (1280, 720))
+
             if not cap.isOpened():
                 print("Error opening video ...")
                 return
@@ -74,6 +76,8 @@ def process_video(video_path, video_info, show_result=False, repeat=1, write_csv
                 boxes, scores, class_ids = detector.detect_objects(frame)
                 combined_img = utils.merge_image_with_overlay(frame, boxes, scores, class_ids)
 
+                # output_video.write(combined_img)
+
                 if show_result:
                     cv2.imshow("Detected Objects", combined_img)
 
@@ -98,13 +102,13 @@ def process_video(video_path, video_info, show_result=False, repeat=1, write_csv
                     if processing_time < available_time_frame:
                         time.sleep((available_time_frame - processing_time) / 1000)
 
+            # output_video.release()
     detector.print_benchmark()
 
 
 if __name__ == "__main__":
     write_csv = True
-    process_video(video_path="../video_data/",
-                  video_info=itertools.product([480, 720, 1080], [15, 20, 25, 30, 35]),
+    process_video(video_info=itertools.product([480, 720, 1080], [15, 20, 25, 30, 35]),
                   show_result=False,
                   write_csv=write_csv,
                   repeat=5)
