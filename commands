@@ -115,6 +115,7 @@ docker cp eloquent_davinci:/data/ $HOME/
 720p = 921600
 
 
+export VARNAME="my value"
 sudo nano /etc/environment
 # Add at the end of the file without export
 source /etc/environment
